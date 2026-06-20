@@ -34,56 +34,69 @@
 
   <div class="max-w-3xl mx-auto px-6 py-16">
     <h1 class="font-display text-5xl font-semibold tracking-tighter mb-4">Let's talk about your project</h1>
-    <p class="text-xl text-zinc-400 mb-10">Tell us a bit about your business and what you're looking to build. We'll get back to you within 1 business day.</p>
+    <p class="text-xl text-zinc-400 mb-10">Tell us about your business and what you're looking to improve. We'll get back to you within 1 business day.</p>
 
     <form action="https://formspree.io/f/mgobgrlr" method="POST" class="space-y-10">
       
-      <!-- Business Information -->
+      <!-- 1. Business Information -->
       <div>
         <h2 class="font-display text-2xl font-semibold mb-6">1. Business Information</h2>
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div>
             <label class="block text-sm font-medium mb-2">Business Name</label>
-            <input type="text" name="business_name" required class="w-full bg-zinc-900 border border-zinc-700 rounded-xl px-4 py-3 focus:outline-none focus:border-blue-500">
+            <input type="text" name="business_name" required class="w-full bg-zinc-900 border border-zinc-700 rounded-xl px-4 py-3">
           </div>
           <div>
             <label class="block text-sm font-medium mb-2">Type of Business</label>
-            <input type="text" name="business_type" placeholder="e.g. Plumbing, Wellness Studio, Cafe" class="w-full bg-zinc-900 border border-zinc-700 rounded-xl px-4 py-3 focus:outline-none focus:border-blue-500">
+            <input type="text" name="business_type" placeholder="e.g. Plumbing, Cafe, Wellness Studio" class="w-full bg-zinc-900 border border-zinc-700 rounded-xl px-4 py-3">
           </div>
         </div>
       </div>
 
-      <!-- Project Details -->
+      <!-- 2. Current Tech & Data Stack -->
       <div>
-        <h2 class="font-display text-2xl font-semibold mb-6">2. Project Details</h2>
-        
+        <h2 class="font-display text-2xl font-semibold mb-6">2. What are you using today?</h2>
         <div class="mb-6">
-          <label class="block text-sm font-medium mb-3">What are you interested in? (Select all that apply)</label>
-          <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
-            <label class="flex items-center gap-x-3 bg-zinc-900 border border-zinc-700 rounded-xl px-4 py-3 cursor-pointer hover:border-zinc-600">
-              <input type="checkbox" name="interest" value="Website + SEO" class="accent-blue-500">
-              <span>Website + Local SEO</span>
-            </label>
-            <label class="flex items-center gap-x-3 bg-zinc-900 border border-zinc-700 rounded-xl px-4 py-3 cursor-pointer hover:border-zinc-600">
-              <input type="checkbox" name="interest" value="Voice Agent" class="accent-blue-500">
-              <span>Voice Agent / Booking</span>
-            </label>
-            <label class="flex items-center gap-x-3 bg-zinc-900 border border-zinc-700 rounded-xl px-4 py-3 cursor-pointer hover:border-zinc-600">
-              <input type="checkbox" name="interest" value="Automation" class="accent-blue-500">
-              <span>Automation / Agents</span>
-            </label>
-          </div>
+          <label class="block text-sm font-medium mb-2">Current scheduling / booking tools (if any)</label>
+          <input type="text" name="current_scheduling" placeholder="e.g. Google Calendar, Square, none" class="w-full bg-zinc-900 border border-zinc-700 rounded-xl px-4 py-3">
         </div>
+        <div>
+          <label class="block text-sm font-medium mb-2">How do you currently track performance / KPIs?</label>
+          <textarea name="current_kpi" rows="3" placeholder="e.g. spreadsheets, QuickBooks, nothing formal" class="w-full bg-zinc-900 border border-zinc-700 rounded-2xl px-4 py-3"></textarea>
+        </div>
+      </div>
 
+      <!-- 3. Project Interest -->
+      <div>
+        <h2 class="font-display text-2xl font-semibold mb-6">3. What are you interested in?</h2>
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-6">
+          <label class="flex items-center gap-x-3 bg-zinc-900 border border-zinc-700 rounded-xl px-4 py-3 cursor-pointer hover:border-zinc-600">
+            <input type="checkbox" name="interest" value="Website + SEO" class="accent-blue-500">
+            <span>Website + Local SEO</span>
+          </label>
+          <label class="flex items-center gap-x-3 bg-zinc-900 border border-zinc-700 rounded-xl px-4 py-3 cursor-pointer hover:border-zinc-600">
+            <input type="checkbox" name="interest" value="Voice Agent" class="accent-blue-500">
+            <span>Voice Agent / Booking</span>
+          </label>
+          <label class="flex items-center gap-x-3 bg-zinc-900 border border-zinc-700 rounded-xl px-4 py-3 cursor-pointer hover:border-zinc-600">
+            <input type="checkbox" name="interest" value="Automation" class="accent-blue-500">
+            <span>Automation / Agents</span>
+          </label>
+        </div>
+      </div>
+
+      <!-- 4. Project Details -->
+      <div>
+        <h2 class="font-display text-2xl font-semibold mb-6">4. Project Details</h2>
         <div class="mb-6">
-          <label class="block text-sm font-medium mb-2">Tell us about your project</label>
-          <textarea name="project_details" rows="5" required class="w-full bg-zinc-900 border border-zinc-700 rounded-2xl px-4 py-3 focus:outline-none focus:border-blue-500" placeholder="What are you trying to achieve? What problems are you facing?"></textarea>
+          <label class="block text-sm font-medium mb-2">Tell us more about what you're trying to achieve</label>
+          <textarea name="project_details" rows="5" required class="w-full bg-zinc-900 border border-zinc-700 rounded-2xl px-4 py-3" placeholder="What problems are you facing? What would success look like?"></textarea>
         </div>
 
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div>
             <label class="block text-sm font-medium mb-2">Timeline</label>
-            <select name="timeline" class="w-full bg-zinc-900 border border-zinc-700 rounded-xl px-4 py-3 focus:outline-none focus:border-blue-500">
+            <select name="timeline" class="w-full bg-zinc-900 border border-zinc-700 rounded-xl px-4 py-3">
               <option>ASAP</option>
               <option>Within 1 month</option>
               <option>1-3 months</option>
@@ -92,7 +105,7 @@
           </div>
           <div>
             <label class="block text-sm font-medium mb-2">Budget Range</label>
-            <select name="budget" class="w-full bg-zinc-900 border border-zinc-700 rounded-xl px-4 py-3 focus:outline-none focus:border-blue-500">
+            <select name="budget" class="w-full bg-zinc-900 border border-zinc-700 rounded-xl px-4 py-3">
               <option>$2,000 - $4,000</option>
               <option>$4,000 - $7,000</option>
               <option>$7,000 - $12,000</option>
@@ -102,23 +115,22 @@
         </div>
       </div>
 
-      <!-- Contact Information -->
+      <!-- 5. Contact Information -->
       <div>
-        <h2 class="font-display text-2xl font-semibold mb-6">3. Contact Information</h2>
+        <h2 class="font-display text-2xl font-semibold mb-6">5. Contact Information</h2>
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div>
             <label class="block text-sm font-medium mb-2">Your Name</label>
-            <input type="text" name="name" required class="w-full bg-zinc-900 border border-zinc-700 rounded-xl px-4 py-3 focus:outline-none focus:border-blue-500">
+            <input type="text" name="name" required class="w-full bg-zinc-900 border border-zinc-700 rounded-xl px-4 py-3">
           </div>
           <div>
             <label class="block text-sm font-medium mb-2">Email Address</label>
-            <input type="email" name="email" required class="w-full bg-zinc-900 border border-zinc-700 rounded-xl px-4 py-3 focus:outline-none focus:border-blue-500">
+            <input type="email" name="email" required class="w-full bg-zinc-900 border border-zinc-700 rounded-xl px-4 py-3">
           </div>
         </div>
       </div>
 
-      <button type="submit" 
-              class="w-full mt-6 bg-white text-zinc-950 font-medium py-4 rounded-2xl hover:bg-zinc-100 transition-colors text-lg">
+      <button type="submit" class="w-full mt-6 bg-white text-zinc-950 font-medium py-4 rounded-2xl hover:bg-zinc-100 transition-colors text-lg">
         Send Message
       </button>
 
