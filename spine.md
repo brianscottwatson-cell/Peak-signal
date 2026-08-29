@@ -5,10 +5,10 @@
 ## Current State
 
 - **Objective:** Build the AI implementation partnership business (Peak Signal) from project to million-dollar scale using agent swarms, retainers, and value-share.
-- **Status:** TASK-004 deployed. Five-question Ara prompt live on Autoscale. POST https://getpeaksignal.com/api/voice returns 200 Stream TwiML. Brian completed a test call; write-back failed. TASK-005 open.
-- **Owner:** Brian (human) + Chief of Staff (agent)
-- **Blockers:** Voice intake agent answered the test call but never wrote transcript, scorecard, or email back to the spine. Save-to-spine step likely unwired. Peak-signal#1 and brain#4 unmerged. Skimmer login failed (invalid credentials).
-- **Next action:** Chief of Staff troubleshoots call logs, patches the agent prompt, deploys, and proves write-back with a simulated call.
+- **Status:** TASK-005 sim write-back proved. clients/sim-task-005/transcript.md and scorecard.md on brain. Email to brianscottwatson@gmail.com. Prompt patched in Peak-signal and brain. Live Ara hangup still being wired on Replit so 970 calls file the same way.
+- **Owner:** Brian (human) + Coding (hangup) + Chief of Staff (real-call filing)
+- **Blockers:** Live 970 hangup still Formspree-only until Replit Autoscale picks up GitHub write-back. Peak-signal#1 and brain#4 unmerged. Skimmer login failed.
+- **Next action:** Deploy hangup write-back to Replit Peak Signal Autoscale. Hold further Replit after that. CoS files the real 4:42 PM MT Brian Watson test-call.
 
 ## Loop Rules
 
@@ -38,11 +38,13 @@
 ### TASK-005 — Troubleshoot voice intake write-back and patch agent prompt
 - **Posted by:** Brian
 - **Assigned to:** Chief of Staff / Coding
-- **Status:** open
-- **Prompt:** Check the call logs for the most recent call to 970-660-5088 and find where the write-back failed. Patch the agent prompt at prompts/voice-intake-assessment-agent.md so that after the five questions finish, it transcribes the full call, generates the one-page scorecard, saves both to the brain repo, and emails the scorecard to brian@getpeaksignal.com. Deploy the patched prompt to Replit, run one simulated call to prove the write-back works, and report the deployment status plus the simulated scorecard on the spine.
+- **Status:** sim proved (2026-08-29). Live Replit hangup deploy in flight.
+- **Prompt:** Patch hangup so it transcribes, writes scorecard, saves to brain clients/<slug>/, emails brianscottwatson@gmail.com (not brian@getpeaksignal.com), updates spine. Deploy, sim, report.
 - **Done when:** A simulated call produces a transcript, scorecard, email, and spine update.
+- **Result:** https://github.com/brianscottwatson-cell/brain/blob/main/clients/sim-task-005/transcript.md and scorecard.md. Estimates left as Brian fills.
 
 ## Log
 
 - 2026-08-29 4:23 PM MT: TASK-004 deployed. Brian told to test-call 970-660-5088.
 - 2026-08-29 5:10 PM MT: Brian completed the first assessment call. Write-back failed — no transcript, scorecard, or email landed. TASK-005 posted to troubleshoot and patch the save-to-spine step.
+- 2026-08-29 5:10 PM MT: TASK-005 sim-task-005 write-back proof. Transcript + scorecard on brain. Email brianscottwatson@gmail.com. Prompt patched both repos. Live hangup still deploying.
