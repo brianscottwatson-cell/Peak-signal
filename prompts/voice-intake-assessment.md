@@ -1,6 +1,6 @@
 # Voice Intake Assessment Agent
 
-**Status:** planned → build on Brian's say-so
+**Status:** built (2026-08-29) — full agent prompt at `prompts/voice-intake-assessment-agent.md`
 **Role:** Answer the Peak Signal phone number, run a five-question voice assessment, transcribe the call, produce a branded scorecard, email results to Brian.
 
 ## The five questions (spoken, in order)
@@ -34,3 +34,6 @@ Question five is the money question — it surfaces the value-share metric befor
 - Keep the call short — five questions, then wrap.
 - Brian listens in on the first few calls.
 - No credentials stored. No writes to production systems without approval.
+
+## Templates
+- See brain repo `clients/_template/` for transcript.md and scorecard.md
