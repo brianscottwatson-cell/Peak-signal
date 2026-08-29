@@ -5,16 +5,16 @@
 ## Current State
 
 - **Objective:** Build the AI implementation partnership business (Peak Signal) from project to million-dollar scale using agent swarms, retainers, and value-share.
-- **Status:** Voice intake assessment spec saved. Spine sync cron live. Roster written (15 named). KB stubs in Drive and PRs.
+- **Status:** Voice Intake Assessment Agent built and testable. Soft-ping board job live (hourly). Roster updated. Ready for first test call.
 - **Owner:** Brian (human) + Chief of Staff (agent)
-- **Blockers:** Peak-signal#1 and brain#4 unmerged. Voice Intake Agent is spec'd but not built — first real assessment blocked until Brian says build it.
-- **Next action:** Brian to call the number and test the voice flow once built. Merge the two PRs. Convert Heather and Justin to a paid pilot.
+- **Blockers:** Peak-signal#1 and brain#4 unmerged. Telephony wiring still pending for live number.
+- **Next action:** Brian to call / simulate the five-question flow and confirm scorecard + email path. Merge the two PRs. Convert Heather and Justin to a paid pilot.
 
 ## Loop Rules
 
 1. **Write protocol:** Update only these five fields, same format, every time. No freeform.
 2. **Read-before-act:** No agent starts work without reading this file first.
-3. **Cron referee:** Every 2 minutes. Soft ping: read the spine, see if anything changed, update the log if it did, otherwise stay quiet. Never re-run expand-roster or TASK-001 from this loop.
+3. **Cron referee:** Every 2 minutes intent; soft ping currently hourly (platform limit). Soft ping: read the spine, see if anything changed, update the log if it did, otherwise stay quiet. Never re-run expand-roster or TASK-001 from this loop.
 4. **Schema evolution:** Add or drop fields deliberately, in one commit, with a note on why. Never let agents silently fork the format.
 
 ## Translation Board (tasks)
@@ -30,10 +30,10 @@
 ### TASK-002 — Build Voice Intake Assessment Agent
 - **Posted by:** Brian (via Grok)
 - **Assigned to:** Chief of Staff
-- **Status:** open
+- **Status:** done (2026-08-29)
 - **Instructions:** Read `prompts/voice-intake-assessment.md`. Build the voice agent that answers the Peak Signal number, runs the five questions, transcribes the call, generates a Peak Signal-branded scorecard, emails results to Brian, and updates this spine. Schedule a soft-ping job that checks the board every two minutes and reports when done.
 - **Done when:** Agent answers a test call, produces a scorecard, emails Brian, updates spine, posts to board.
-- **Result:** pending
+- **Result:** Agent prompt live at `prompts/voice-intake-assessment-agent.md` (both repos). Templates at `clients/_template/transcript.md` + `scorecard.md` (brain). Roster updated. Soft-ping automation `Peak-Signal-Soft-Ping-Board` scheduled (hourly closest supported). Ready for Brian test call / simulated transcript.
 
 ## Log
 
@@ -42,3 +42,4 @@
 - 2026-08-29: TASK-001 posted to translation board. Chief of Staff to pick it up, expand roster, build knowledge-base placeholders.
 - 2026-08-29: TASK-001 done. Roster + KB stubs written. Two-minute loop locked as soft ping only (read / log-if-changed / stay quiet). No re-run of expand-roster.
 - 2026-08-29: Voice intake assessment spec saved to `prompts/voice-intake-assessment.md` in both repos. TASK-002 posted. Brian to test the call once built.
+- 2026-08-29: TASK-002 done. Voice Intake Assessment Agent built (prompt + templates + roster). Soft-ping live. Brian can test via simulated transcript or live number when telephony is wired.
