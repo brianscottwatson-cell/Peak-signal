@@ -5,10 +5,10 @@
 ## Current State
 
 - **Objective:** Build the AI implementation partnership business (Peak Signal) from project to million-dollar scale using agent swarms, retainers, and value-share.
-- **Status:** Living roster written (15 named). Knowledge-base stubs in Drive and in PRs. Spine sync cron live as a 2-minute soft ping.
+- **Status:** Voice intake assessment spec saved. Spine sync cron live. Roster written (15 named). KB stubs in Drive and PRs.
 - **Owner:** Brian (human) + Chief of Staff (agent)
-- **Blockers:** Peak-signal#1 and brain#4 unmerged. Intake Agent is planned, so the first free assessment is blocked. Plan still says "Ryan Watson" (typo; owner is Brian Watson).
-- **Next action:** Merge the two PRs. Do not re-run expand-roster. First real assessment only after Brian says build Intake.
+- **Blockers:** Peak-signal#1 and brain#4 unmerged. Voice Intake Agent is spec'd but not built — first real assessment blocked until Brian says build it.
+- **Next action:** Brian to call the number and test the voice flow once built. Merge the two PRs. Convert Heather and Justin to a paid pilot.
 
 ## Loop Rules
 
@@ -27,9 +27,18 @@
 - **Done when:** Roster has 8+ agents detailed; knowledge-base/ exists with placeholders; both repos updated; spine log notes completion.
 - **Result:** 7 built master seats + 8 factory names (Flock Manager in-progress as a CoS job, 7 planned, no new bots). KB stubs in Drive and https://github.com/brianscottwatson-cell/Peak-signal/pull/1 + https://github.com/brianscottwatson-cell/brain/pull/4. clients/ empty on purpose.
 
+### TASK-002 — Build Voice Intake Assessment Agent
+- **Posted by:** Brian (via Grok)
+- **Assigned to:** Chief of Staff
+- **Status:** open
+- **Instructions:** Read `prompts/voice-intake-assessment.md`. Build the voice agent that answers the Peak Signal number, runs the five questions, transcribes the call, generates a Peak Signal-branded scorecard, emails results to Brian, and updates this spine. Schedule a soft-ping job that checks the board every two minutes and reports when done.
+- **Done when:** Agent answers a test call, produces a scorecard, emails Brian, updates spine, posts to board.
+- **Result:** pending
+
 ## Log
 
 - 2026-08-29: Spine created. Five fields locked. First test cron to be scheduled.
 - 2026-08-29: Test run complete — spine coherent, no drift detected.
 - 2026-08-29: TASK-001 posted to translation board. Chief of Staff to pick it up, expand roster, build knowledge-base placeholders.
 - 2026-08-29: TASK-001 done. Roster + KB stubs written. Two-minute loop locked as soft ping only (read / log-if-changed / stay quiet). No re-run of expand-roster.
+- 2026-08-29: Voice intake assessment spec saved to `prompts/voice-intake-assessment.md` in both repos. TASK-002 posted. Brian to test the call once built.
