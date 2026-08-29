@@ -5,10 +5,10 @@
 ## Current State
 
 - **Objective:** Build the AI implementation partnership business (Peak Signal) from project to million-dollar scale using agent swarms, retainers, and value-share.
-- **Status:** Voice Intake Assessment Agent built and testable. Soft-ping board job live (hourly). Roster updated. Ready for first test call. Brian reports Twilio number is live and currently routed to the intake form — needs swap to the voice intake agent.
+- **Status:** Voice Intake Assessment Agent script ready. Live /api/voice already streams Ara. Twilio Console VoiceUrl cannot be read from here (no Twilio API). Five-question prompt not published to Replit yet (session expired; box held for Skimmer).
 - **Owner:** Brian (human) + Chief of Staff (agent)
-- **Blockers:** Peak-signal#1 and brain#4 unmerged. Twilio number still routed to intake form — needs re-point to Voice Intake Assessment Agent.
-- **Next action:** Chief of Staff to re-point the Twilio number from the intake form to the Voice Intake Assessment Agent (TASK-003). Then Brian calls the number, runs the five-question flow, and confirms scorecard + email path. Merge the two PRs. Convert Heather and Justin to a paid pilot.
+- **Blockers:** TASK-003 blocked: no Twilio API. Replit session expired. Skimmer login in progress on the computer.
+- **Next action:** After Skimmer, Brian confirms Twilio Voice webhook is POST https://getpeaksignal.com/api/voice, then signs into Replit so Coding can publish the five-question Ara prompt. Then Brian test-calls 970-660-5088.
 
 ## Loop Rules
 
@@ -23,31 +23,29 @@
 - **Posted by:** Brian (via Grok)
 - **Assigned to:** Chief of Staff
 - **Status:** done (2026-08-29)
-- **Instructions:** Read `prompts/chief-of-staff-expand-roster.md`. Expand `peak-signal-agents.md` (and mirrored `agents/README.md`) into the full living roster with name, role, input, output, done-checklist, master/shareable, status for each agent. Create `knowledge-base/` folder with the empty placeholder files listed in the prompt. Mirror into Peak-signal repo. When done, update this task status to done and add a log entry here.
-- **Done when:** Roster has 8+ agents detailed; knowledge-base/ exists with placeholders; both repos updated; spine log notes completion.
-- **Result:** 7 built master seats + 8 factory names (Flock Manager in-progress as a CoS job, 7 planned, no new bots). KB stubs in Drive and https://github.com/brianscottwatson-cell/Peak-signal/pull/1 + https://github.com/brianscottwatson-cell/brain/pull/4. clients/ empty on purpose.
+- **Result:** 7 built master seats + 8 factory names. KB stubs in Drive and Peak-signal#1 + brain#4.
 
 ### TASK-002 — Build Voice Intake Assessment Agent
 - **Posted by:** Brian (via Grok)
 - **Assigned to:** Chief of Staff
-- **Status:** done (2026-08-29)
-- **Instructions:** Read `prompts/voice-intake-assessment.md`. Build the voice agent that answers the Peak Signal number, runs the five questions, transcribes the call, generates a Peak Signal-branded scorecard, emails results to Brian, and updates this spine. Schedule a soft-ping job that checks the board every two minutes and reports when done.
-- **Done when:** Agent answers a test call, produces a scorecard, emails Brian, updates spine, posts to board.
-- **Result:** Agent prompt live at `prompts/voice-intake-assessment-agent.md` (both repos). Templates at `clients/_template/transcript.md` + `scorecard.md` (brain). Roster updated. Soft-ping automation `Peak-Signal-Soft-Ping-Board` scheduled (hourly closest supported). Ready for Brian test call / simulated transcript.
+- **Status:** done (prompt). Live 970 still needs the five-question publish (TASK-003 / Coding).
+- **Result:** Prompt at `prompts/voice-intake-assessment-agent.md`. Live /api/voice already returns Ara Stream TwiML.
 
 ### TASK-003 — Swap Twilio number to Voice Intake Assessment Agent
 - **Posted by:** Brian (via Grok)
 - **Assigned to:** Chief of Staff
-- **Status:** open
-- **Instructions:** Brian reports the Twilio number is live and currently hooked to the intake form. Re-point that number's voice webhook / routing to the Voice Intake Assessment Agent built in TASK-002 (prompt at `prompts/voice-intake-assessment-agent.md`). Confirm the change, update this task to done, and add a log entry. Do not store any credentials. If the Twilio API is not reachable from this environment, document the exact manual step Brian must run and mark the task blocked with that instruction.
-- **Done when:** Incoming calls to the Peak Signal number reach the Voice Intake Assessment Agent, not the intake form.
+- **Status:** blocked (2026-08-29) — Twilio API not reachable from this environment. No credentials stored.
+- **Instructions:** Re-point the Peak number's voice webhook to the Voice Intake Assessment Agent. If API is not reachable, document the exact manual step and mark blocked.
+- **Manual step for Brian:**
+  1. Twilio Console → Phone Numbers → Active → +1 970 660 5088
+  2. Voice Configuration → A CALL COMES IN → Webhook, HTTP POST, URL `https://getpeaksignal.com/api/voice`
+  3. Save. Do not point Voice at `/contact` or Formspree.
+  4. Sign into Replit on this computer so Coding can publish the five-question prompt to `/api/voice`.
+  5. Test-call 970-660-5088. Expect the free AI assessment greeting and five questions.
+- **Done when:** Incoming calls reach the five-question Voice Intake Assessment Agent, not the intake form.
+- **Probe (2026-08-29):** POST https://getpeaksignal.com/api/voice already returns `<Connect><Stream url="wss://peak-signal.replit.app/api/voice/stream/..."/></Connect>`. That is Ara, not the web form. Remaining work is Console confirmation + Replit publish of the new script.
 
 ## Log
 
-- 2026-08-29: Spine created. Five fields locked. First test cron to be scheduled.
-- 2026-08-29: Test run complete — spine coherent, no drift detected.
-- 2026-08-29: TASK-001 posted to translation board. Chief of Staff to pick it up, expand roster, build knowledge-base placeholders.
-- 2026-08-29: TASK-001 done. Roster + KB stubs written. Two-minute loop locked as soft ping only (read / log-if-changed / stay quiet). No re-run of expand-roster.
-- 2026-08-29: Voice intake assessment spec saved to `prompts/voice-intake-assessment.md` in both repos. TASK-002 posted. Brian to test the call once built.
-- 2026-08-29: TASK-002 done. Voice Intake Assessment Agent built (prompt + templates + roster). Soft-ping live. Brian can test via simulated transcript or live number when telephony is wired.
-- 2026-08-29: TASK-003 posted. Brian reports Twilio number is live but still routed to the intake form — Chief of Staff to re-point it to the Voice Intake Assessment Agent.
+- 2026-08-29: TASK-003 posted. Twilio number reported routed to intake form.
+- 2026-08-29: TASK-003 blocked. No Twilio API. Live /api/voice already streams Ara. Manual step documented. Replit publish waiting on box after Skimmer.
