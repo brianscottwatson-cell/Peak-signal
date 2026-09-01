@@ -5,10 +5,10 @@
 ## Current State
 
 - **Objective:** Build the AI implementation partnership business (Peak Signal) from project to million-dollar scale using agent swarms, retainers, and value-share.
-- **Status:** TASK-005 write-back proved on the 2026-09-01 live call (Brian Watson / Colorado Hot Tub). Formspree fired, scorecard + transcript landed, email sent. Three gaps found on the call: agent repetition (turn-taking), no name captured up front, no live site lookup, estimates left blank. TASK-006 posted to patch all four.
-- **Owner:** Brian (human) + Coding (hangup + telephony) + Chief of Staff (filing)
-- **Blockers:** Turn-taking guard not yet deployed to Replit voice layer. Prompt still has "Brian fills" placeholders. No second test call run since the patch.
-- **Next action:** Patch prompt + telephony guard (TASK-006), then run a second test call with a different business to verify clean name capture, site lookup, no repetition, and filled estimates.
+- **Status:** TASK-006 prompt + telephony deployed to Peak Replit Autoscale (2026-09-01). Name-first open, live site lookup, mute-while-speaking + echo re-ask, estimates via formula (needs baseline if no revenue). Waiting on CoS second test-call (not CHT).
+- **Owner:** Brian (human) + Coding (hangup + telephony) + Chief of Staff (second test-call filing)
+- **Blockers:** Second test call not yet run. GITHUB_TOKEN still missing in Replit Secrets (GitHub write-back no-ops; Formspree + Gmail still fire).
+- **Next action:** CoS runs a second test call with a different business than CHT. Confirm name in opening, site lookup, no repetition, filled estimates.
 
 ## Loop Rules
 
@@ -46,7 +46,7 @@
 ### TASK-006 — Patch intake agent: name first, live site lookup, turn-taking, pricing formula
 - **Posted by:** Brian
 - **Assigned to:** Chief of Staff / Coding
-- **Status:** open (2026-09-01)
+- **Status:** deployed Autoscale (2026-09-01). Second test call pending CoS.
 - **Prompt:** `prompts/voice-intake-assessment-agent.md` patched. Task file: `clients/peak-signal/06-task-intake-agent-patch-2026-09-01.md`.
 - **Scope:** (A) opening captures name + business before Q1; live site lookup after, capped at a few seconds, three fields only; turn-taking guard documented for Replit voice layer; pricing formula fills estimates instead of "Brian fills"; scorecard gains Site lookup section. (B) Telephony: mute outbound audio from inbound recognition, barge-in guard. (C) Second test call with a different business to verify.
 - **Done when:** Second test call produces clean name capture, site lookup, no repetition, filled estimates, full write-back.
@@ -61,3 +61,4 @@
 - 2026-09-01: Live test call — Brian Watson, Colorado Hot Tub LLC, 970-201-1236. Write-back proved (Formspree + scorecard + email + spine). Gaps: repetition, no name up front, no site lookup, blank estimates. TASK-006 posted.
 - 2026-09-01: Data spine sync test run — Peak-signal spine lagged (pre-live-call state); synchronized both repos to brain's coherent five fields + TASK-006. No further contradiction found in recent transcripts or docs.
 - 2026-09-01 ~10:40 AM MT: TASK-006 live on Autoscale. Name-first + site lookup + inbound mute/echo re-ask. Voice URL still POST https://getpeaksignal.com/api/voice (track=inbound_track). CoS owns second test-call.
+- 2026-09-01 ~10:47 AM MT: Peak-signal Current State + TASK-006 status synced to brain (deployed Autoscale; second test-call still CoS). Prior Peak CS was still pre-deploy.
