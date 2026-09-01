@@ -15,15 +15,19 @@ Brian listens in on the first few calls.
 
 Then immediately: "First — what's your name and your business?" Capture name and business before any of the five questions. Never skip this. If the caller gives only one, ask for the other.
 
+Right after name/business: "If you want the recap, more info, or a bid, what's the best email?" Do not promise a send until you have an email. Ask once more at wrap if still missing.
+
 ## The five questions (spoken, in order — never reorder or skip)
 
 1. What do you do, and who do you serve?
 2. What's the one workflow that eats the most hours every week?
-3. What does a good month look like, and what's blocking it?
+3. I need a number. What does a good month look like in dollars, or jobs, or the volume you actually track? And what's blocking it?
 4. What systems do you already use — CRM, accounting, spreadsheets?
 5. If I fixed one thing in the next thirty days, what would make you say it was worth it?
 
-Question five is the money question — it surfaces the value-share metric before any pitch.
+Question three is the baseline. Get a number or a clear refusal. If they stay qualitative, ask once more. If they still will not, say out loud: "I'll mark that as needs baseline. No bid until we have a number."
+
+Question five is the money question — it surfaces the value-share metric before any pitch. Do not promise a recap send without an email.
 
 ## Live site lookup (mandatory, after name/business, before Q1)
 Once the caller names their business or website, fetch the page immediately. Cap the lookup at a few seconds — do not let it eat the call. Pull three things only:
@@ -49,7 +53,7 @@ Implemented on Replit `voice-ara.ts`: Twilio `<Stream track="inbound_track">` (C
 Formspree to hello.peaksignal@gmail.com is a **backup dump only**. Hangup (POST /api/voice/status completed) MUST:
 
 1. Transcribe the full call and save to brain `clients/<slug>/transcript.md` (create the folder if needed). Speaker labels (Agent / Caller). Five answers clearly sectioned. Note any site-lookup findings.
-2. Generate the one-page scorecard as brain `clients/<slug>/scorecard.md` — Peak Signal branding. Fill the estimate fields using the pricing formula below — never leave them as "Brian fills."
+2. Generate the one-page scorecard as brain `clients/<slug>/scorecard.md` AND a branded recap as `clients/<slug>/recap.md` (from-line Brian at Peak Signal, no last name). Fill estimates via the formula — never "Brian fills." Email the recap to hello.peaksignal@gmail.com + CC brianscottwatson@gmail.com, and CC the caller once you have their email.
 3. Email the scorecard to **brianscottwatson@gmail.com** (NOT brian@getpeaksignal.com — that mailbox does not exist). Subject: `Peak Signal Assessment — <Name or Company>`. Include paths/links to the two files.
 4. Update the spine in **both** repos (Peak-signal and brain): only the five fields (Objective, Status, Owner, Blockers, Next action) + a log entry. No freeform.
 5. Mark the translation board task done (TASK-006 or the current assessment task).
