@@ -7,7 +7,7 @@
 - **Objective:** Build the AI implementation partnership business (Peak Signal) from project to million-dollar scale using agent swarms, retainers, and value-share.
 - **Status:** TASK-006 prompt + telephony deployed to Peak Replit Autoscale (2026-09-01). Name-first open, live site lookup, mute-while-speaking + echo re-ask, estimates via formula (needs baseline if no revenue). Waiting on CoS second test-call (not CHT).
 - **Owner:** Brian (human) + Coding (hangup + telephony) + Chief of Staff (second test-call filing)
-- **Blockers:** Second test call not yet run. GITHUB_TOKEN still missing in Replit Secrets (GitHub write-back no-ops; Formspree + Gmail still fire).
+- **Blockers:** Second test call not yet run. GITHUB_TOKEN confirmed present on Autoscale production secrets (workspace + deploy). Hangup GitHub write should no longer no-op.
 - **Next action:** CoS runs a second test call with a different business than CHT. Confirm name in opening, site lookup, no repetition, filled estimates.
 
 ## Loop Rules
@@ -62,3 +62,4 @@
 - 2026-09-01: Data spine sync test run — Peak-signal spine lagged (pre-live-call state); synchronized both repos to brain's coherent five fields + TASK-006. No further contradiction found in recent transcripts or docs.
 - 2026-09-01 ~10:40 AM MT: TASK-006 live on Autoscale. Name-first + site lookup + inbound mute/echo re-ask. Voice URL still POST https://getpeaksignal.com/api/voice (track=inbound_track). CoS owns second test-call.
 - 2026-09-01 ~10:47 AM MT: Peak-signal Current State + TASK-006 status synced to brain (deployed Autoscale; second test-call still CoS). Prior Peak CS was still pre-deploy.
+- 2026-09-01 ~10:52 AM MT: Confirmed GITHUB_TOKEN exists in Peak Replit workspace Secrets and Autoscale production secrets. Hangup GitHub write should run. Second test-call still CoS.
