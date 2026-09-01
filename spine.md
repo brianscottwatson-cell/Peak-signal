@@ -63,3 +63,4 @@
 - 2026-09-01 ~10:40 AM MT: TASK-006 live on Autoscale. Name-first + site lookup + inbound mute/echo re-ask. Voice URL still POST https://getpeaksignal.com/api/voice (track=inbound_track). CoS owns second test-call.
 - 2026-09-01 ~10:47 AM MT: Peak-signal Current State + TASK-006 status synced to brain (deployed Autoscale; second test-call still CoS). Prior Peak CS was still pre-deploy.
 - 2026-09-01 ~10:52 AM MT: Confirmed GITHUB_TOKEN exists in Peak Replit workspace Secrets and Autoscale production secrets. Hangup GitHub write should run. Second test-call still CoS.
+- 2026-09-01: Test run complete — spine coherent, no drift detected.
