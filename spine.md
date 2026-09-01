@@ -60,3 +60,4 @@
 - 2026-09-01: Test run complete — spine coherent, no drift detected.
 - 2026-09-01: Live test call — Brian Watson, Colorado Hot Tub LLC, 970-201-1236. Write-back proved (Formspree + scorecard + email + spine). Gaps: repetition, no name up front, no site lookup, blank estimates. TASK-006 posted.
 - 2026-09-01: Data spine sync test run — Peak-signal spine lagged (pre-live-call state); synchronized both repos to brain's coherent five fields + TASK-006. No further contradiction found in recent transcripts or docs.
+- 2026-09-01 ~10:40 AM MT: TASK-006 live on Autoscale. Name-first + site lookup + inbound mute/echo re-ask. Voice URL still POST https://getpeaksignal.com/api/voice (track=inbound_track). CoS owns second test-call.
