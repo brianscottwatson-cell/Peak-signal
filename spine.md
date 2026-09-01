@@ -5,10 +5,10 @@
 ## Current State
 
 - **Objective:** Build the AI implementation partnership business (Peak Signal) from project to million-dollar scale using agent swarms, retainers, and value-share.
-- **Status:** TASK-006 prompt + telephony deployed to Peak Replit Autoscale (2026-09-01). Name-first open, live site lookup, mute-while-speaking + echo re-ask, estimates via formula (needs baseline if no revenue). Waiting on CoS second test-call (not CHT).
-- **Owner:** Brian (human) + Coding (hangup + telephony) + Chief of Staff (second test-call filing)
-- **Blockers:** Second test call not yet run. GITHUB_TOKEN confirmed present on Autoscale production secrets (workspace + deploy). Hangup GitHub write should no longer no-op.
-- **Next action:** CoS runs a second test call with a different business than CHT. Confirm name in opening, site lookup, no repetition, filled estimates.
+- **Status:** TASK-006 second test call filed (2026-09-01 ~5:01 PM MT) — Brian Watson, Altspace Coworking, 970-201-1236. Name-first + live site lookup + formula estimates (`needs baseline`) + Formspree/email proved. Residual: ASR partials/repetition and hangup GitHub write still missing.
+- **Owner:** Brian (human) + Coding (turn-taking + hangup GitHub write) + Chief of Staff (Altspace files landed)
+- **Blockers:** Transcript still dumps incremental ASR partials; agent fired Q3 three times. Hangup did not write `clients/altspace-coworking/` — CoS filed instead.
+- **Next action:** Coding fix mute/barge-in so partials are not stored as separate turns, and confirm hangup GitHub write path on Autoscale.
 
 ## Loop Rules
 
@@ -46,10 +46,11 @@
 ### TASK-006 — Patch intake agent: name first, live site lookup, turn-taking, pricing formula
 - **Posted by:** Brian
 - **Assigned to:** Chief of Staff / Coding
-- **Status:** deployed Autoscale (2026-09-01). Second test call pending CoS.
+- **Status:** partial (2026-09-01). Second test call run (Altspace). Name-first, site lookup, formula estimates, Formspree/email pass. Repetition + hangup GitHub write fail.
 - **Prompt:** `prompts/voice-intake-assessment-agent.md` patched. Task file: `clients/peak-signal/06-task-intake-agent-patch-2026-09-01.md`.
 - **Scope:** (A) opening captures name + business before Q1; live site lookup after, capped at a few seconds, three fields only; turn-taking guard documented for Replit voice layer; pricing formula fills estimates instead of "Brian fills"; scorecard gains Site lookup section. (B) Telephony: mute outbound audio from inbound recognition, barge-in guard. (C) Second test call with a different business to verify.
 - **Done when:** Second test call produces clean name capture, site lookup, no repetition, filled estimates, full write-back.
+- **Result:** https://github.com/brianscottwatson-cell/brain/blob/main/clients/altspace-coworking/transcript.md and scorecard.md.
 
 ## Log
 
@@ -57,16 +58,7 @@
 - 2026-08-29 5:10 PM MT: Brian completed the first assessment call. Write-back failed — no transcript, scorecard, or email landed. TASK-005 posted to troubleshoot and patch the save-to-spine step.
 - 2026-08-29 5:10 PM MT: TASK-005 sim-task-005 write-back proof. Transcript + scorecard on brain. Email brianscottwatson@gmail.com. Prompt patched both repos. Live hangup still deploying.
 - 2026-08-31: Test run complete — spine coherent, no drift detected.
-- 2026-09-01: Test run complete — spine coherent, no drift detected.
 - 2026-09-01: Live test call — Brian Watson, Colorado Hot Tub LLC, 970-201-1236. Write-back proved (Formspree + scorecard + email + spine). Gaps: repetition, no name up front, no site lookup, blank estimates. TASK-006 posted.
-- 2026-09-01: Data spine sync test run — Peak-signal spine lagged (pre-live-call state); synchronized both repos to brain's coherent five fields + TASK-006. No further contradiction found in recent transcripts or docs.
 - 2026-09-01 ~10:40 AM MT: TASK-006 live on Autoscale. Name-first + site lookup + inbound mute/echo re-ask. Voice URL still POST https://getpeaksignal.com/api/voice (track=inbound_track). CoS owns second test-call.
-- 2026-09-01 ~10:47 AM MT: Peak-signal Current State + TASK-006 status synced to brain (deployed Autoscale; second test-call still CoS). Prior Peak CS was still pre-deploy.
 - 2026-09-01 ~10:52 AM MT: Confirmed GITHUB_TOKEN exists in Peak Replit workspace Secrets and Autoscale production secrets. Hangup GitHub write should run. Second test-call still CoS.
-- 2026-09-01: Test run complete — spine coherent, no drift detected.
-- 2026-09-01: Test run complete — spine coherent, no drift detected.
-- 2026-09-01: Test run complete — spine coherent, no drift detected.
-- 2026-09-01: Test run complete — spine coherent, no drift detected.
-- 2026-09-01: Test run complete — spine coherent, no drift detected.
-- 2026-09-01: Test run complete — spine coherent, no drift detected.
-- 2026-09-01: Test run complete — spine coherent, no drift detected.
+- 2026-09-01 ~5:01 PM MT: Second test call — Brian Watson, Altspace Coworking, 970-201-1236, altspacecowork.com. Name-first + site lookup + needs-baseline estimates + Formspree/email. Repetition remains. Hangup GitHub write missed; CoS filed clients/altspace-coworking/. TASK-006 partial.
