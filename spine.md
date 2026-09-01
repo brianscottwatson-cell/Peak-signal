@@ -5,10 +5,10 @@
 ## Current State
 
 - **Objective:** Build the AI implementation partnership business (Peak Signal) from project to million-dollar scale using agent swarms, retainers, and value-share.
-- **Status:** TASK-005 sim write-back proved. clients/sim-task-005/transcript.md and scorecard.md on brain. Email to brianscottwatson@gmail.com. Prompt patched in Peak-signal and brain. Live Ara hangup still being wired on Replit so 970 calls file the same way.
-- **Owner:** Brian (human) + Coding (hangup) + Chief of Staff (real-call filing)
-- **Blockers:** Live 970 hangup still Formspree-only until Replit Autoscale picks up GitHub write-back. Peak-signal#1 and brain#4 unmerged. Skimmer login failed.
-- **Next action:** Deploy hangup write-back to Replit Peak Signal Autoscale. Hold further Replit after that. CoS files the real 4:42 PM MT Brian Watson test-call.
+- **Status:** TASK-005 write-back proved on the 2026-09-01 live call (Brian Watson / Colorado Hot Tub). Formspree fired, scorecard + transcript landed, email sent. Three gaps found on the call: agent repetition (turn-taking), no name captured up front, no live site lookup, estimates left blank. TASK-006 posted to patch all four.
+- **Owner:** Brian (human) + Coding (hangup + telephony) + Chief of Staff (filing)
+- **Blockers:** Turn-taking guard not yet deployed to Replit voice layer. Prompt still has "Brian fills" placeholders. No second test call run since the patch.
+- **Next action:** Patch prompt + telephony guard (TASK-006), then run a second test call with a different business to verify clean name capture, site lookup, no repetition, and filled estimates.
 
 ## Loop Rules
 
@@ -43,6 +43,14 @@
 - **Done when:** A simulated call produces a transcript, scorecard, email, and spine update.
 - **Result:** https://github.com/brianscottwatson-cell/brain/blob/main/clients/sim-task-005/transcript.md and scorecard.md. Estimates left as Brian fills.
 
+### TASK-006 — Patch intake agent: name first, live site lookup, turn-taking, pricing formula
+- **Posted by:** Brian
+- **Assigned to:** Chief of Staff / Coding
+- **Status:** open (2026-09-01)
+- **Prompt:** `prompts/voice-intake-assessment-agent.md` patched. Task file: `clients/peak-signal/06-task-intake-agent-patch-2026-09-01.md`.
+- **Scope:** (A) opening captures name + business before Q1; live site lookup after, capped at a few seconds, three fields only; turn-taking guard documented for Replit voice layer; pricing formula fills estimates instead of "Brian fills"; scorecard gains Site lookup section. (B) Telephony: mute outbound audio from inbound recognition, barge-in guard. (C) Second test call with a different business to verify.
+- **Done when:** Second test call produces clean name capture, site lookup, no repetition, filled estimates, full write-back.
+
 ## Log
 
 - 2026-08-29 4:23 PM MT: TASK-004 deployed. Brian told to test-call 970-660-5088.
@@ -50,3 +58,5 @@
 - 2026-08-29 5:10 PM MT: TASK-005 sim-task-005 write-back proof. Transcript + scorecard on brain. Email brianscottwatson@gmail.com. Prompt patched both repos. Live hangup still deploying.
 - 2026-08-31: Test run complete — spine coherent, no drift detected.
 - 2026-09-01: Test run complete — spine coherent, no drift detected.
+- 2026-09-01: Live test call — Brian Watson, Colorado Hot Tub LLC, 970-201-1236. Write-back proved (Formspree + scorecard + email + spine). Gaps: repetition, no name up front, no site lookup, blank estimates. TASK-006 posted.
+- 2026-09-01: Data spine sync test run — Peak-signal spine lagged (pre-live-call state); synchronized both repos to brain's coherent five fields + TASK-006. No further contradiction found in recent transcripts or docs.
