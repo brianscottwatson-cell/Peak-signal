@@ -62,3 +62,4 @@
 - 2026-09-01 ~10:40 AM MT: TASK-006 live on Autoscale. Name-first + site lookup + inbound mute/echo re-ask. Voice URL still POST https://getpeaksignal.com/api/voice (track=inbound_track). CoS owns second test-call.
 - 2026-09-01 ~10:52 AM MT: Confirmed GITHUB_TOKEN exists in Peak Replit workspace Secrets and Autoscale production secrets. Hangup GitHub write should run. Second test-call still CoS.
 - 2026-09-01 ~5:01 PM MT: Second test call — Brian Watson, Altspace Coworking, 970-201-1236, altspacecowork.com. Name-first + site lookup + needs-baseline estimates + Formspree/email. Repetition remains. Hangup GitHub write missed; CoS filed clients/altspace-coworking/. TASK-006 partial.
+- 2026-09-02: Test run complete — spine coherent, no drift detected.
