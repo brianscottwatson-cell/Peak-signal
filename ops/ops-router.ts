@@ -137,11 +137,20 @@ function parseComms(md: string): string[] {
 }
 
 function loadHtml(name: string): string {
-  try {
-    return readFileSync(join(__dirname, name), "utf8");
-  } catch {
-    return `<!DOCTYPE html><html><body><p>Missing ${name}</p></body></html>`;
+  const candidates = [
+    join(__dirname, name),
+    join(__dirname, "ops", name),
+    join(process.cwd(), "src", "ops", name),
+    join(process.cwd(), "dist", "ops", name),
+  ];
+  for (const path of candidates) {
+    try {
+      return readFileSync(path, "utf8");
+    } catch {
+      /* try next */
+    }
   }
+  return `<!DOCTYPE html><html><body><p>Missing ${name}</p></body></html>`;
 }
 
 export const opsRouter = Router();
