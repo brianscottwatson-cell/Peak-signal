@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Peak Signal — Ops</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    :root { --bg:#0B0D0C; --panel:#121513; --line:#242a26; --text:#E8EBE9; --muted:#9AA39C; --accent:#3B82F6; --pass:#34D399; --warn:#FBBF24; }
+    * { box-sizing: border-box; }
+    html, body { margin:0; background:var(--bg); color:var(--text); font-family:Inter,Helvetica,system-ui,sans-serif; }
+    .wrap { max-width:720px; margin:0 auto; padding:20px 16px 48px; }
+    header { display:flex; align-items:center; gap:12px; margin-bottom:18px; }
+    .mark { width:36px; height:36px; border-radius:10px; background:#181c19; display:grid; place-items:center; box-shadow:0 0 0 1px var(--line); }
+    h1 { font-size:18px; margin:0; font-weight:600; }
+    .sub { color:var(--muted); font-size:12px; margin-top:2px; }
+    .card { background:var(--panel); border:1px solid var(--line); border-radius:14px; padding:14px; }
+    .kicker { font-size:10px; font-weight:600; letter-spacing:.12em; text-transform:uppercase; color:var(--accent); margin:0 0 8px; }
+    label { display:grid; gap:6px; font-size:11px; font-weight:600; letter-spacing:.08em; text-transform:uppercase; color:var(--muted); margin-top:10px; }
+    input { width:100%; background:#171b18; color:var(--text); border:1px solid var(--line); border-radius:10px; padding:10px 12px; font:13px Inter,Helvetica,sans-serif; }
+    button { margin-top:14px; width:100%; border:0; border-radius:10px; padding:11px 14px; font:600 13px Inter,Helvetica,sans-serif; background:var(--accent); color:#fff; cursor:pointer; }
+    button.linkish { width:auto; margin:0; background:transparent; color:var(--muted); padding:0; font-size:12px; }
+    .hint { color:var(--muted); font-size:12px; }
+    .err { color:#f87171; font-size:12px; margin-top:8px; }
+    .grid { display:grid; gap:10px; }
+    @media (min-width:640px) { .grid { grid-template-columns:1fr 1fr; } }
+    .client { display:block; text-decoration:none; color:inherit; }
+    .client h2 { font-size:15px; margin:0 0 6px; }
+    .meta { color:var(--muted); font-size:12.5px; line-height:1.45; margin:0; }
+    .pill { display:inline-block; font-size:11px; font-weight:600; text-transform:uppercase; letter-spacing:.04em; padding:3px 8px; border-radius:999px; margin-bottom:8px; }
+    .live { background:rgba(52,211,153,.12); color:var(--pass); }
+    .partial { background:rgba(251,191,36,.12); color:var(--warn); }
+    .test, .parked { background:rgba(107,114,128,.18); color:#9CA3AF; }
+    #app { display:none; }
+    a.go { color:var(--accent); font-size:12px; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <div class="mark"><svg viewBox="0 0 24 24" width="22" height="22" fill="none"><polyline points="2,18 7,12 11,15 16,7 22,13" stroke="#3B82F6" stroke-width="2" stroke-linejoin="round"/><line x1="2" y1="20" x2="22" y2="20" stroke="#3B82F6" stroke-width="2"/></svg></div>
+      <div>
+        <h1>Peak Signal — Ops</h1>
+        <div class="sub">Owner harness. No invented revenue. No Skimmer dollars.</div>
+      </div>
+    </header>
+
+    <section class="card" id="gate">
+      <p class="kicker">Owner login</p>
+      <p class="hint">Password from <code>OPS_PASSWORD</code>. From-line Brian at Peak Signal.</p>
+      <form id="login">
+        <label>Password<input id="pw" type="password" required autocomplete="current-password" placeholder="••••••••" /></label>
+        <button type="submit">Open ops</button>
+        <p class="err" id="loginErr" hidden></p>
+      </form>
+    </section>
+
+    <div id="app">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin:0 0 12px">
+        <p class="hint" style="margin:0">Clients from brain <code>clients/</code>. Read-only.</p>
+        <button class="linkish" type="button" id="logout">Log out</button>
+      </div>
+      <div class="grid" id="clients"></div>
+    </div>
+  </div>
+  <script>
+    const gate = document.getElementById("gate");
+    const app = document.getElementById("app");
+    const clientsEl = document.getElementById("clients");
+    const loginErr = document.getElementById("loginErr");
+
+    async function api(path, opts) {
+      const r = await fetch("/ops/api" + path, {
+        credentials: "same-origin",
+        headers: { "Content-Type": "application/json", Accept: "application/json" },
+        ...opts,
+      });
+      const j = await r.json().catch(() => ({}));
+      if (!r.ok) throw new Error(j.error || r.statusText);
+      return j;
+    }
+
+    function showApp() {
+      gate.style.display = "none";
+      app.style.display = "block";
+    }
+
+    async function loadClients() {
+      const j = await api("/clients");
+      clientsEl.innerHTML = "";
+      for (const c of j.clients || []) {
+        const a = document.createElement("a");
+        a.className = "card client";
+        a.href = "/ops/c/" + encodeURIComponent(c.slug);
+        a.innerHTML =
+          '<span class="pill ' + c.status + '">' + c.status + "</span>" +
+          "<h2>" + c.name + "</h2>" +
+          '<p class="meta">' + (c.blurb || "") + "</p>" +
+          '<p style="margin:8px 0 0" class="go">Open harness →</p>';
+        clientsEl.appendChild(a);
+      }
+    }
+
+    document.getElementById("login").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      loginErr.hidden = true;
+      try {
+        await api("/login", { method: "POST", body: JSON.stringify({ password: document.getElementById("pw").value }) });
+        showApp();
+        await loadClients();
+      } catch (err) {
+        loginErr.textContent = "Wrong password.";
+        loginErr.hidden = false;
+      }
+    });
+
+    document.getElementById("logout").addEventListener("click", async () => {
+      await api("/logout", { method: "POST", body: "{}" });
+      location.reload();
+    });
+
+    (async () => {
+      try {
+        const s = await api("/session");
+        if (s.authed) {
+          showApp();
+          await loadClients();
+        }
+      } catch (_) { /* stay on gate */ }
+    })();
+  </script>
+</body>
+</html>
