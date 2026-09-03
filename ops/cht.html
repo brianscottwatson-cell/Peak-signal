@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Client harness — Peak Signal Ops</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    :root { --bg:#0B0D0C; --panel:#121513; --line:#242a26; --text:#E8EBE9; --muted:#9AA39C; --accent:#3B82F6; --pass:#34D399; --warn:#FBBF24; --off:#6B7280; }
+    * { box-sizing: border-box; }
+    html, body { margin:0; background:var(--bg); color:var(--text); font-family:Inter,Helvetica,system-ui,sans-serif; }
+    .wrap { max-width:720px; margin:0 auto; padding:20px 16px 56px; }
+    .back { color:var(--muted); text-decoration:none; font-size:12px; display:block; margin-bottom:6px; }
+    h1 { font-size:20px; margin:0; font-weight:600; letter-spacing:-.02em; }
+    .sub { color:var(--muted); font-size:12px; margin-top:3px; }
+    .card { background:var(--panel); border:1px solid var(--line); border-radius:14px; padding:14px; margin-bottom:10px; }
+    .kicker { font-size:10px; font-weight:600; letter-spacing:.12em; text-transform:uppercase; color:var(--accent); margin:0 0 10px; }
+    .hint { color:var(--muted); font-size:12px; margin:0 0 10px; line-height:1.45; }
+    .tiles { display:grid; grid-template-columns:1fr 1fr; gap:8px; }
+    .tile { border:1px solid var(--line); border-radius:12px; padding:10px; background:#171b18; }
+    .tile h3 { margin:0 0 4px; font-size:13px; }
+    .tile p { margin:0; font-size:11.5px; color:var(--muted); line-height:1.35; }
+    .dot { display:inline-block; width:7px; height:7px; border-radius:50%; margin-right:6px; }
+    .on { background:var(--pass); box-shadow:0 0 0 3px rgba(52,211,153,.12); }
+    .warn { background:var(--warn); }
+    .off { background:var(--off); }
+    .row { display:flex; justify-content:space-between; gap:10px; padding:8px 0; border-bottom:1px solid var(--line); font-size:13px; }
+    .row:last-child { border-bottom:0; }
+    .muted { color:var(--muted); }
+    .pill { font-size:10px; font-weight:600; letter-spacing:.04em; text-transform:uppercase; padding:3px 7px; border-radius:999px; }
+    .live { background:rgba(52,211,153,.12); color:var(--pass); }
+    ul.kb { margin:0; padding:0; list-style:none; }
+    ul.kb li { font-size:12.5px; padding:6px 0; border-bottom:1px solid var(--line); color:var(--muted); }
+    ul.kb li:last-child { border-bottom:0; }
+    .err { color:#f87171; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <a class="back" href="/ops">← Ops</a>
+    <header>
+      <div>
+        <h1 id="title">…</h1>
+        <div class="sub" id="sub">Loading from brain…</div>
+      </div>
+    </header>
+    <p class="err" id="err" hidden></p>
+    <div id="body" hidden>
+      <section class="card">
+        <p class="kicker">Bots on this book</p>
+        <div id="bots"></div>
+      </section>
+      <section class="card">
+        <p class="kicker">Connected</p>
+        <p class="hint">Green is wired. Yellow is browser-only. Gray has no feed. No Skimmer dollars.</p>
+        <div class="tiles" id="plugins"></div>
+      </section>
+      <section class="card">
+        <p class="kicker">Notes</p>
+        <ul class="kb" id="notes"></ul>
+      </section>
+      <section class="card">
+        <p class="kicker">Tasks</p>
+        <ul class="kb" id="tasks"></ul>
+      </section>
+      <section class="card">
+        <p class="kicker">Projects / in progress</p>
+        <ul class="kb" id="projects"></ul>
+      </section>
+      <section class="card">
+        <p class="kicker">Agent status</p>
+        <div class="row"><span>Source</span><span class="muted" id="src">—</span></div>
+        <div class="row"><span>Last read</span><span class="muted" id="last">—</span></div>
+        <div class="row"><span>Files</span><span class="muted" id="files">—</span></div>
+      </section>
+    </div>
+  </div>
+  <script>
+    const slug = location.pathname.split("/").filter(Boolean).pop();
+    async function api(path) {
+      const r = await fetch("/ops/api" + path, { credentials: "same-origin", headers: { Accept: "application/json" } });
+      if (r.status === 401) { location.href = "/ops"; return null; }
+      const j = await r.json();
+      if (!r.ok) throw new Error(j.error || r.statusText);
+      return j;
+    }
+    function list(el, items, empty) {
+      el.innerHTML = "";
+      if (!items || !items.length) {
+        const li = document.createElement("li");
+        li.textContent = empty;
+        el.appendChild(li);
+        return;
+      }
+      for (const t of items) {
+        const li = document.createElement("li");
+        li.textContent = t;
+        el.appendChild(li);
+      }
+    }
+    (async () => {
+      try {
+        const j = await api("/clients/" + encodeURIComponent(slug));
+        if (!j) return;
+        const c = j.client;
+        document.title = c.name + " — Peak Signal Ops";
+        document.getElementById("title").textContent = c.name;
+        document.getElementById("sub").textContent = c.blurb || ("Slug " + c.slug);
+        const bots = document.getElementById("bots");
+        bots.innerHTML = "";
+        for (const b of c.bots || []) {
+          const d = document.createElement("div");
+          d.className = "row";
+          d.innerHTML = "<span>" + b.name + '</span><span class="muted">' + b.detail + "</span>";
+          bots.appendChild(d);
+        }
+        const plugins = document.getElementById("plugins");
+        plugins.innerHTML = "";
+        for (const p of c.plugins || []) {
+          const d = document.createElement("div");
+          d.className = "tile";
+          d.innerHTML = "<h3><span class=\"dot " + p.state + "\"></span>" + p.name + "</h3><p>" + p.detail + "</p>";
+          plugins.appendChild(d);
+        }
+        list(document.getElementById("notes"), c.notes, "No recent comms log entries.");
+        list(document.getElementById("tasks"), c.tasks, "No open backlog rows.");
+        list(document.getElementById("projects"), c.projects, "Nothing flagged in progress.");
+        document.getElementById("src").textContent = c.agentStatus?.source || "brain";
+        document.getElementById("last").textContent = c.agentStatus?.lastRead || "—";
+        document.getElementById("files").textContent = (c.files || []).slice(0, 12).join(", ") || "—";
+        document.getElementById("body").hidden = false;
+      } catch (e) {
+        document.getElementById("err").hidden = false;
+        document.getElementById("err").textContent = String(e.message || e);
+      }
+    })();
+  </script>
+</body>
+</html>
