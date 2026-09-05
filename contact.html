@@ -3,7 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Contact • Peak Signal</title>
+  <title>Book an assessment • Peak Signal</title>
+  <meta name="description" content="Book a real assessment with Brian at Peak Signal. Five questions, one scorecard, no pitch. Capture, Answer, Keep — the system that grows your business without hiring.">
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Space+Grotesk:wght@500;600&display=swap');
@@ -24,37 +25,38 @@
           <span class="font-display text-2xl font-semibold tracking-tighter">Peak Signal</span>
         </a>
       </div>
-      <div class="flex items-center gap-x-8 text-sm">
-        <a href="index.html#services" class="hover:text-white transition-colors">Services</a>
+      <div class="hidden md:flex items-center gap-x-8 text-sm">
+        <a href="index.html#system" class="hover:text-white transition-colors">The System</a>
+        <a href="index.html#offers" class="hover:text-white transition-colors">Offers</a>
         <a href="index.html#how" class="hover:text-white transition-colors">How it Works</a>
         <a href="contact.html" class="text-white font-medium">Contact</a>
       </div>
       <div class="flex items-center gap-x-3">
         <a href="https://calendly.com/hello-peaksignal/30min" target="_blank" rel="noopener"
            class="px-5 py-2.5 text-sm font-medium bg-white text-zinc-950 hover:bg-zinc-100 transition-colors rounded-xl">
-          Book a free 30-min call
+          Book a call
         </a>
       </div>
     </div>
   </nav>
 
   <div class="max-w-3xl mx-auto px-6 py-16">
-    <h1 class="font-display text-5xl font-semibold tracking-tighter mb-4">Let's talk about your project</h1>
-    <p class="text-xl text-zinc-400 mb-10">Book a free 30-minute discovery call, or send a short project note. We reply within 1 business day.</p>
+    <h1 class="font-display text-5xl font-semibold tracking-tighter mb-4">Book your assessment</h1>
+    <p class="text-xl text-zinc-400 mb-10">A real conversation with Brian. Five questions, one scorecard — where the leverage is, what to fix first, what it costs. No pitch. No chatbot.</p>
 
-    <!-- Primary booking CTA above the form -->
+    <!-- Primary booking CTA -->
     <div class="mb-12 p-6 rounded-2xl border border-zinc-800 bg-zinc-900 text-center">
-      <p class="text-zinc-300 mb-4">Fastest path: book a free 30-minute discovery call.</p>
+      <p class="text-zinc-300 mb-4">Fastest path: book a 30-minute call with Brian.</p>
       <a href="https://calendly.com/hello-peaksignal/30min"
          target="_blank" rel="noopener"
          class="inline-flex items-center justify-center px-8 py-4 bg-white text-zinc-950 font-medium rounded-2xl hover:bg-zinc-100 transition-colors text-lg">
-        Book a free 30-min call
+        Book a 30-min call
       </a>
-      <p class="text-sm text-zinc-500 mt-3">Or send a project note below — we reply within 1 business day.</p>
+      <p class="text-sm text-zinc-500 mt-3">Or send a short note below — we reply within 1 business day.</p>
     </div>
 
     <form action="https://formspree.io/f/mgobgrlr" method="POST" class="space-y-6">
-      <input type="hidden" name="_subject" value="Peak Signal lead">
+      <input type="hidden" name="_subject" value="Peak Signal — assessment request">
       <input type="text" name="_gotcha" tabindex="-1" autocomplete="off" style="position:absolute;left:-9999px" aria-hidden="true">
 
       <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -80,23 +82,23 @@
       </div>
 
       <div>
-        <label class="block text-sm font-medium mb-3">What do you need?</label>
+        <label class="block text-sm font-medium mb-3">What are you most interested in?</label>
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <label class="flex items-center gap-x-3 bg-zinc-900 border border-zinc-700 rounded-xl px-4 py-3 cursor-pointer">
-            <input type="checkbox" name="interest" value="Signal Site" class="accent-blue-500">
-            <span>Website (Signal Site)</span>
+            <input type="checkbox" name="interest" value="Capture" class="accent-blue-500">
+            <span>Capture — website & local SEO</span>
           </label>
           <label class="flex items-center gap-x-3 bg-zinc-900 border border-zinc-700 rounded-xl px-4 py-3 cursor-pointer">
-            <input type="checkbox" name="interest" value="Voice Signal" class="accent-blue-500">
-            <span>24/7 booking (Voice Signal)</span>
+            <input type="checkbox" name="interest" value="Answer" class="accent-blue-500">
+            <span>Answer — 24/7 voice & booking</span>
           </label>
           <label class="flex items-center gap-x-3 bg-zinc-900 border border-zinc-700 rounded-xl px-4 py-3 cursor-pointer">
-            <input type="checkbox" name="interest" value="Loop Signal" class="accent-blue-500">
-            <span>Follow-up (Loop Signal)</span>
+            <input type="checkbox" name="interest" value="Keep" class="accent-blue-500">
+            <span>Keep — follow-up & re-engagement</span>
           </label>
           <label class="flex items-center gap-x-3 bg-zinc-900 border border-zinc-700 rounded-xl px-4 py-3 cursor-pointer">
-            <input type="checkbox" name="interest" value="Site + Voice bundle" class="accent-blue-500">
-            <span>Site + Voice bundle</span>
+            <input type="checkbox" name="interest" value="Full system" class="accent-blue-500">
+            <span>The full system</span>
           </label>
           <label class="flex items-center gap-x-3 bg-zinc-900 border border-zinc-700 rounded-xl px-4 py-3 cursor-pointer sm:col-span-2">
             <input type="checkbox" name="interest" value="Not sure" class="accent-blue-500">
@@ -121,13 +123,12 @@
           </select>
         </div>
         <div>
-          <label class="block text-sm font-medium mb-2">Budget range</label>
-          <select name="budget" required class="w-full bg-zinc-900 border border-zinc-700 rounded-xl px-4 py-3">
-            <option value="$3,000 – $5,000">$3,000 – $5,000</option>
-            <option value="$5,000 – $8,000">$5,000 – $8,000</option>
-            <option value="$8,000 – $12,000">$8,000 – $12,000</option>
-            <option value="$12,000+">$12,000+</option>
-            <option value="Just exploring">Just exploring</option>
+          <label class="block text-sm font-medium mb-2">Team size</label>
+          <select name="team_size" required class="w-full bg-zinc-900 border border-zinc-700 rounded-xl px-4 py-3">
+            <option value="Just me">Just me</option>
+            <option value="2–5 people">2–5 people</option>
+            <option value="6–15 people">6–15 people</option>
+            <option value="15+ people">15+ people</option>
           </select>
         </div>
       </div>
@@ -154,13 +155,13 @@
       </label>
 
       <button type="submit" class="w-full bg-white text-zinc-950 font-medium py-4 rounded-2xl hover:bg-zinc-100 transition-colors text-lg">
-        Send project request
+        Request my assessment
       </button>
 
       <p class="text-center text-sm text-zinc-500">
         Prefer to talk?
         <a href="https://calendly.com/hello-peaksignal/30min" class="text-zinc-300 underline underline-offset-4">
-          Book a free 30-min call
+          Book a 30-min call
         </a>
         · hello.peaksignal@gmail.com
       </p>
@@ -168,7 +169,7 @@
 
     <div class="mt-16 pt-10 border-t border-zinc-800 text-center text-zinc-400 text-sm space-y-2">
       <p class="font-medium text-zinc-200">Peak Signal</p>
-      <p>Evergreen &amp; the foothills</p>
+      <p>Evergreen & the foothills</p>
       <p>
         <a href="https://calendly.com/hello-peaksignal/30min" class="underline underline-offset-4 text-zinc-300">Book a call</a>
         · <a href="mailto:hello.peaksignal@gmail.com" class="underline underline-offset-4 text-zinc-300">hello.peaksignal@gmail.com</a>
