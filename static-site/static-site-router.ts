@@ -29,6 +29,12 @@ staticSiteRouter.get(["/", "/index.html"], (_req: Request, res: Response) => {
   res.type("html").send(html);
 });
 
+staticSiteRouter.get("/google166e848c42566a74.html", (_req: Request, res: Response) => {
+  const html = load("google166e848c42566a74.html");
+  if (!html) return res.status(404).type("text").send("gsc verify missing");
+  res.type("html").send(html);
+});
+
 staticSiteRouter.get(["/contact", "/contact.html"], (_req: Request, res: Response) => {
   const html = load("contact.html");
   if (!html) return res.status(404).type("text").send("contact missing");
