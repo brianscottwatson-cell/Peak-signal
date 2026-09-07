@@ -62,4 +62,24 @@ seoLandersRouter.get("/sitemap.xml", (_req: Request, res: Response) => {
   res.type("application/xml").send(xml);
 });
 
+
+seoLandersRouter.get("/google166e848c42566a74.html", (_req: Request, res: Response) => {
+  const candidates = [
+    join(__dirname, "google166e848c42566a74.html"),
+    join(__dirname, "seo", "google166e848c42566a74.html"),
+    join(process.cwd(), "src", "seo", "google166e848c42566a74.html"),
+    join(process.cwd(), "src", "static-site", "google166e848c42566a74.html"),
+    join(process.cwd(), "dist", "seo", "google166e848c42566a74.html"),
+    join(process.cwd(), "dist", "static-site", "google166e848c42566a74.html"),
+    join(process.cwd(), "public", "google166e848c42566a74.html"),
+  ];
+  for (const p of candidates) {
+    if (existsSync(p)) {
+      res.type("html").send(readFileSync(p, "utf8"));
+      return;
+    }
+  }
+  res.status(404).type("text").send("Not found");
+});
+
 export default seoLandersRouter;
