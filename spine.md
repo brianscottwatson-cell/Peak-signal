@@ -16,6 +16,10 @@
 2. **Read-before-act:** No agent starts work without reading this file first.
 3. **Cron referee:** Soft ping: read the spine, log if changed, stay quiet otherwise. Never re-run expand-roster or TASK-001 from this loop.
 4. **Schema evolution:** Add or drop fields deliberately, in one commit, with a note on why. Never let agents silently fork the format.
+5. **Receipt rule:** Before ending any session, write a receipt for every action taken. No receipt, no done. Schema and rules: `prompts/boot-receipts.md`.
+6. **Drift-first:** Read open drift tasks (`clients/**/NN-drift-*.md` with Status open) before starting new work.
+7. **Drift checker:** After spine sync, CoS may run `scripts/drift-checker.py` (optionally `--file-tasks`) and review `clients/_drift-report-YYYY-MM-DD.md`.
+8. **Reasoning checker (Layer 3):** Mid-run sampler available via `scripts/reasoning-checker.py` (see `prompts/reasoning-checker.md`). Quiet if aligned; ping Brian only on flags.
 
 ## Translation Board (tasks)
 
@@ -52,6 +56,10 @@
 - **Done when:** Second test call produces clean name capture, site lookup, no repetition, filled estimates, full write-back.
 - **Result:** https://github.com/brianscottwatson-cell/brain/blob/main/clients/altspace-coworking/transcript.md and scorecard.md.
 
+### TASK-016 — Reasoning checker (mid-run)
+- **Status:** done (2026-09-07). Layer 3 live: `scripts/reasoning-checker.py` + `prompts/reasoning-checker.md`.
+- **Result:** VEER dry-run flags=3; CLEAN flags=0. Receipts under `clients/peak-signal/receipts/2026-09-07-reasoning-check*.md`.
+
 ## Log
 
 - 2026-08-29 4:23 PM MT: TASK-004 deployed. Brian told to test-call 970-660-5088.
@@ -74,6 +82,7 @@
 - 2026-09-04 ~4:03 PM MT: Test run complete — spine coherent, no drift detected.
 - 2026-09-04 ~5:02 PM MT: Test run complete — spine coherent, no drift detected.
 - 2026-09-07: Test run complete — spine coherent, no drift detected.
+- 2026-09-07: TASK-016 Layer 3 reasoning checker live (`scripts/reasoning-checker.py`). Mid-run sampler; quiet if aligned.
 - 2026-09-07: Test run complete — spine coherent, no drift detected.
 - 2026-09-07: Test run complete — spine coherent, no drift detected.
 - 2026-09-07: Test run complete — spine coherent, no drift detected.
@@ -82,6 +91,7 @@
 - 2026-09-07: Test run complete — spine coherent, no drift detected.
 - 2026-09-07: Test run complete — spine coherent, no drift detected.
 - 2026-09-07: Test run complete — spine coherent, no drift detected.
+- 2026-09-08: Test run complete — spine coherent, no drift detected.
 - 2026-09-08: Test run complete — spine coherent, no drift detected.
 - 2026-09-08: Test run complete — spine coherent, no drift detected.
 - 2026-09-08: Test run complete — spine coherent, no drift detected.
