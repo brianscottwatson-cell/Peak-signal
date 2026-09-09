@@ -11,7 +11,8 @@ import WebSocket from "ws";
 
 const HOSTNAME = (process.env.HOSTNAME || "peak-signal.replit.app").replace(/^https?:\/\//, "");
 const SHOP = process.env.CHT_SHOP_NUMBER || "+19705312897";
-const FORMSPREE = process.env.CHT_FORMSPREE || "https://formspree.io/f/xgogybaj";
+const FORMSPREE_SHOP = process.env.CHT_FORMSPREE || "https://formspree.io/f/xgogybaj";
+const FORMSPREE_PEAK = process.env.PEAK_FORMSPREE || "https://formspree.io/f/mgobgrlr";
 const XAI_URL = process.env.XAI_REALTIME_URL || "wss://api.x.ai/v1/realtime?model=grok-voice-latest";
 const GREET = "Thanks for calling Colorado Hot Tub.";
 
@@ -24,6 +25,7 @@ type CallState = {
   turns: { role: "agent" | "caller"; text: string }[];
   emailed: boolean;
   confirmed: boolean;
+  agentConnected: boolean;
 };
 const calls = new Map<string, CallState>();
 
@@ -38,6 +40,7 @@ function state(sid: string): CallState {
       turns: [],
       emailed: false,
       confirmed: false,
+      agentConnected: false,
     });
   }
   return calls.get(sid)!;
@@ -137,45 +140,72 @@ function buildSummary(st: CallState, from: string): string {
   return parts.join(" ") || "Call completed; details incomplete.";
 }
 
+async function postFormspree(url: string, payload: Record<string, string>, label: string): Promise<boolean> {
+  try {
+    const r = await fetch(url, {
+      method: "POST",
+      headers: { Accept: "application/json", "Content-Type": "application/json" },
+      body: JSON.stringify(payload),
+    });
+    const text = (await r.text()).slice(0, 120);
+    console.log("cht formspree", label, r.status, text);
+    return r.ok;
+  } catch (e: any) {
+    console.error("cht formspree", label, "error", e?.message || e);
+    return false;
+  }
+}
+
 async function emailShop(st: CallState, from: string, sid: string) {
   if (st.emailed) return;
-  const hasSubstance = !!(st.name || st.need || st.summary || st.turns.some((t) => t.role === "caller"));
-  if (!hasSubstance) {
-    console.log("cht-voice skip empty hangup", sid);
+  const phone = st.phone || from || st.from || "";
+  const agented = st.agentConnected || st.turns.some((t) => t.role === "agent");
+  const rich = !!(st.name || st.need || st.summary || st.turns.some((t) => t.role === "caller"));
+  // Lower skip: if agent connected and we have a From, still send a minimal dump
+  if (!rich && !(agented && phone)) {
+    console.log("cht-voice skip empty hangup", sid, "from", phone, "agent", agented, "turns", st.turns.length);
     return;
   }
-  st.emailed = true;
-  const phone = st.phone || from || "";
   const body = [
     "Colorado Hot Tub — after-hours voice summary",
     "(Draft for shop. Do not treat as sent-as-Heather.)",
     "",
+    `CallSid: ${sid}`,
     `Client name: ${st.name || "(not given)"}`,
     `Client phone: ${phone || "(unknown)"}`,
     `What they're looking for: ${st.need || "(not given)"}`,
+    `Agent connected: ${agented ? "yes" : "no"}`,
     "",
     "===== SUMMARY =====",
-    buildSummary(st, from),
+    buildSummary(st, from) || "(incomplete — hangup before details)",
     "",
     "===== TRANSCRIPT =====",
     formatTurns(st),
   ].join("\n");
-  const payload: Record<string, string> = {
-    _subject: `CHT voice — ${st.name || phone || "inbound"}`,
+  const subject = `CHT voice — ${st.name || phone || "inbound"}`;
+  const peakPayload: Record<string, string> = {
+    _subject: subject,
+    message: body,
+    phone,
+    name: st.name || "CHT inbound voice",
+    interest: "cht-voice",
+    _cc: "brianscottwatson@gmail.com",
+  };
+  const shopPayload: Record<string, string> = {
+    _subject: subject,
     message: body,
     phone,
     name: st.name || "CHT inbound voice",
     _cc: "brianscottwatson@gmail.com",
   };
-  try {
-    await fetch(FORMSPREE, {
-      method: "POST",
-      headers: { Accept: "application/json", "Content-Type": "application/json" },
-      body: JSON.stringify(payload),
-    });
-  } catch (e: any) {
-    console.error("cht formspree failed", e?.message || e);
-    st.emailed = false;
+  // Peak Formspree first (known path to hello + Brian), then shop form
+  const peakOk = await postFormspree(FORMSPREE_PEAK, peakPayload, "peak-mgobgrlr");
+  const shopOk = await postFormspree(FORMSPREE_SHOP, shopPayload, "shop-xgogybaj");
+  if (peakOk || shopOk) {
+    st.emailed = true;
+    console.log("cht-voice emailed", sid, "peak", peakOk, "shop", shopOk);
+  } else {
+    console.error("cht-voice email both Formspree failed", sid);
   }
 }
 
@@ -267,12 +297,21 @@ export function attachChtVoiceStream(app: Express) {
         const msg = JSON.parse(raw.toString());
         if (msg.event === "start") {
           streamSid = msg.start?.streamSid || "";
+          st.agentConnected = true;
         } else if (msg.event === "media" && (msg.media?.track === "inbound" || !msg.media?.track)) {
           if (!sessionReady || xaiWs.readyState !== WebSocket.OPEN) return;
           if (agentSpeaking || Date.now() < muteUntil) return;
           xaiWs.send(JSON.stringify({ type: "input_audio_buffer.append", audio: msg.media.payload }));
         } else if (msg.event === "stop") {
-          xaiWs.close();
+          void (async () => {
+            st.agentConnected = true;
+            await emailShop(st, st.from || "", callId);
+            try {
+              xaiWs.close();
+            } catch {
+              /* ignore */
+            }
+          })();
         }
       } catch {
         /* ignore */
@@ -373,8 +412,28 @@ export function attachChtVoiceStream(app: Express) {
       }
     });
 
-    ws.on("close", () => xaiWs.close());
+    let hangupSent = false;
+    const flushHangup = async () => {
+      if (hangupSent) return;
+      hangupSent = true;
+      st.agentConnected = true;
+      try {
+        await emailShop(st, st.from || "", callId);
+      } catch (e: any) {
+        console.error("cht-voice hangup email on stream close failed", callId, e?.message || e);
+      }
+    };
+
+    ws.on("close", () => {
+      void flushHangup();
+      try {
+        xaiWs.close();
+      } catch {
+        /* ignore */
+      }
+    });
     xaiWs.on("close", () => {
+      void flushHangup();
       try {
         ws.close();
       } catch {
