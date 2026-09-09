@@ -1,5 +1,5 @@
 /**
- * Colorado Hot Tub inbound — ring shop 10s, then Grok Voice (not Polly).
+ * Colorado Hot Tub inbound — default Grok Voice (shop ring opt-in CHT_RING_SHOP=1).
  * Mount at /api/cht-voice. Do NOT mount over Peak /api/voice.
  * XAI_API_KEY from env only.
  */
@@ -19,7 +19,8 @@ function ringShopEnabled(): boolean {
 const FORMSPREE_SHOP = process.env.CHT_FORMSPREE || "https://formspree.io/f/xgogybaj";
 const FORMSPREE_PEAK = process.env.PEAK_FORMSPREE || "https://formspree.io/f/mgobgrlr";
 const XAI_URL = process.env.XAI_REALTIME_URL || "wss://api.x.ai/v1/realtime?model=grok-voice-latest";
-const GREET = "Thank you for calling Colorado Hot Tub. How can I help?";
+const NOTICE = "This call may be recorded.";
+const GREET = NOTICE + " Thank you for calling Colorado Hot Tub. How can I help?";
 
 type CallState = {
   name: string;
@@ -29,8 +30,12 @@ type CallState = {
   from: string;
   turns: { role: "agent" | "caller"; text: string }[];
   emailed: boolean;
+  recordingEmailed: boolean;
   confirmed: boolean;
   agentConnected: boolean;
+  recordingUrl: string;
+  recordingSid: string;
+  twilioCallSid: string;
 };
 const calls = new Map<string, CallState>();
 
@@ -44,8 +49,12 @@ function state(sid: string): CallState {
       from: "",
       turns: [],
       emailed: false,
+      recordingEmailed: false,
       confirmed: false,
       agentConnected: false,
+      recordingUrl: "",
+      recordingSid: "",
+      twilioCallSid: "",
     });
   }
   return calls.get(sid)!;
@@ -145,6 +154,57 @@ function buildSummary(st: CallState, from: string): string {
   return parts.join(" ") || "Call completed; details incomplete.";
 }
 
+
+async function startTwilioRecording(callSid: string, st: CallState) {
+  const account = process.env.TWILIO_ACCOUNT_SID || "";
+  const token = process.env.TWILIO_AUTH_TOKEN || "";
+  if (!account || !token || !callSid || callSid === "unknown") {
+    console.log("cht-voice recording skip — missing TWILIO_ACCOUNT_SID/AUTH_TOKEN or CallSid");
+    return;
+  }
+  const callback = `https://${HOSTNAME}/api/cht-voice/recording`;
+  const body = new URLSearchParams({
+    RecordingStatusCallback: callback,
+    RecordingStatusCallbackEvent: "in-progress completed absent",
+    RecordingChannels: "dual",
+  });
+  try {
+    const r = await fetch(`https://api.twilio.com/2010-04-01/Accounts/${account}/Calls/${encodeURIComponent(callSid)}/Recordings.json`, {
+      method: "POST",
+      headers: {
+        Authorization: "Basic " + Buffer.from(`${account}:${token}`).toString("base64"),
+        "Content-Type": "application/x-www-form-urlencoded",
+      },
+      body,
+    });
+    const text = (await r.text()).slice(0, 300);
+    console.log("cht-voice recording start", callSid, r.status, text);
+    if (r.ok) {
+      try {
+        const j = JSON.parse(text);
+        if (j.sid) st.recordingSid = String(j.sid);
+      } catch { /* ignore */ }
+    }
+  } catch (e: any) {
+    console.error("cht-voice recording start failed", e?.message || e);
+  }
+}
+
+function shortSummary(st: CallState, from: string): string {
+  const phone = st.phone || from || st.from || "(unknown)";
+  const lines = [
+    `Name: ${st.name || "(not given)"}`,
+    `Phone: ${phone}`,
+    `Need: ${st.need || "(not given)"}`,
+  ];
+  if (st.summary.trim()) lines.push(`Notes: ${st.summary.trim()}`);
+  else {
+    const callerBits = st.turns.filter((x) => x.role === "caller").map((x) => x.text).slice(0, 3);
+    if (callerBits.length) lines.push(`Key caller lines: ${callerBits.join(" | ").slice(0, 400)}`);
+  }
+  return lines.join("\n");
+}
+
 async function postFormspree(url: string, payload: Record<string, string>, label: string): Promise<boolean> {
   try {
     const r = await fetch(url, {
@@ -161,33 +221,47 @@ async function postFormspree(url: string, payload: Record<string, string>, label
   }
 }
 
-async function emailShop(st: CallState, from: string, sid: string) {
-  if (st.emailed) return;
+async function emailShop(st: CallState, from: string, sid: string, opts?: { recordingOnly?: boolean }) {
+  const recordingOnly = !!(opts && opts.recordingOnly);
+  if (recordingOnly) {
+    if (st.recordingEmailed || !st.recordingUrl) return;
+  } else if (st.emailed) {
+    return;
+  }
   const phone = st.phone || from || st.from || "";
   const agented = st.agentConnected || st.turns.some((t) => t.role === "agent");
   const rich = !!(st.name || st.need || st.summary || st.turns.some((t) => t.role === "caller"));
-  // Lower skip: if agent connected and we have a From, still send a minimal dump
-  if (!rich && !(agented && phone)) {
+  if (!recordingOnly && !rich && !(agented && phone)) {
     console.log("cht-voice skip empty hangup", sid, "from", phone, "agent", agented, "turns", st.turns.length);
     return;
   }
-  const body = [
-    "Colorado Hot Tub — after-hours voice summary",
-    "(Draft for shop. Do not treat as sent-as-Heather.)",
-    "",
-    `CallSid: ${sid}`,
-    `Client name: ${st.name || "(not given)"}`,
-    `Client phone: ${phone || "(unknown)"}`,
-    `What they're looking for: ${st.need || "(not given)"}`,
-    `Agent connected: ${agented ? "yes" : "no"}`,
-    "",
-    "===== SUMMARY =====",
-    buildSummary(st, from) || "(incomplete — hangup before details)",
-    "",
-    "===== TRANSCRIPT =====",
-    formatTurns(st),
-  ].join("\n");
-  const subject = `CHT voice — ${st.name || phone || "inbound"}`;
+  const recLine = st.recordingUrl
+    ? `Recording: ${st.recordingUrl}`
+    : "Recording: processing (Twilio will send URL when ready — or set TWILIO_ACCOUNT_SID + TWILIO_AUTH_TOKEN)";
+  const body = recordingOnly
+    ? [
+        "Colorado Hot Tub — call recording ready",
+        "(Draft for shop. Do not treat as sent-as-Heather.)",
+        "",
+        `CallSid: ${sid}`,
+        `Client name: ${st.name || "(not given)"}`,
+        `Client phone: ${phone || "(unknown)"}`,
+        recLine,
+      ].join("\n")
+    : [
+        "Colorado Hot Tub — after-hours voice summary",
+        "(Draft for shop. Do not treat as sent-as-Heather.)",
+        "",
+        `CallSid: ${sid}`,
+        shortSummary(st, from),
+        "",
+        recLine,
+        "",
+        "(Full transcript kept in server logs only — not emailed.)",
+      ].join("\n");
+  const subject = recordingOnly
+    ? `CHT voice recording — ${st.name || phone || "inbound"}`
+    : `CHT voice — ${st.name || phone || "inbound"}`;
   const peakPayload: Record<string, string> = {
     _subject: subject,
     message: body,
@@ -203,12 +277,15 @@ async function emailShop(st: CallState, from: string, sid: string) {
     name: st.name || "CHT inbound voice",
     _cc: "brianscottwatson@gmail.com",
   };
-  // Peak Formspree first (known path to hello + Brian), then shop form
   const peakOk = await postFormspree(FORMSPREE_PEAK, peakPayload, "peak-mgobgrlr");
   const shopOk = await postFormspree(FORMSPREE_SHOP, shopPayload, "shop-xgogybaj");
   if (peakOk || shopOk) {
-    st.emailed = true;
-    console.log("cht-voice emailed", sid, "peak", peakOk, "shop", shopOk);
+    if (recordingOnly) st.recordingEmailed = true;
+    else {
+      st.emailed = true;
+      if (st.recordingUrl) st.recordingEmailed = true;
+    }
+    console.log("cht-voice emailed", sid, "peak", peakOk, "shop", shopOk, "recordingOnly", recordingOnly);
   } else {
     console.error("cht-voice email both Formspree failed", sid);
   }
@@ -295,6 +372,27 @@ chtVoiceRouter.post("/status", async (req: Request, res: Response) => {
   res.type("text/xml").send(`<?xml version="1.0" encoding="UTF-8"?><Response></Response>`);
 });
 
+/** Twilio Recording status callback — attach URL and email if hangup already fired without it. */
+chtVoiceRouter.post("/recording", async (req: Request, res: Response) => {
+  const sid = String(req.body?.CallSid || "unknown");
+  const st = state(sid);
+  const status = String(req.body?.RecordingStatus || "");
+  const url = String(req.body?.RecordingUrl || "").trim();
+  const recSid = String(req.body?.RecordingSid || "").trim();
+  console.log("cht-voice recording callback", sid, status, url ? "has-url" : "no-url");
+  if (recSid) st.recordingSid = recSid;
+  if (url && status === "completed") {
+    // Twilio media is at RecordingUrl + .mp3 (or play in console)
+    st.recordingUrl = url.endsWith(".mp3") || url.endsWith(".wav") ? url : `${url}.mp3`;
+    if (st.emailed && !st.recordingEmailed) {
+      await emailShop(st, st.from || "", sid, { recordingOnly: true });
+    } else if (!st.emailed) {
+      await emailShop(st, st.from || "", sid);
+    }
+  }
+  res.type("text/xml").send(`<?xml version="1.0" encoding="UTF-8"?><Response></Response>`);
+});
+
 export function attachChtVoiceStream(app: Express) {
   const anyApp = app as Express & { ws?: Function };
   if (typeof anyApp.ws !== "function") {
@@ -326,6 +424,9 @@ export function attachChtVoiceStream(app: Express) {
         if (msg.event === "start") {
           streamSid = msg.start?.streamSid || "";
           st.agentConnected = true;
+          const twSid = String(msg.start?.callSid || callId || "");
+          if (twSid) st.twilioCallSid = twSid;
+          void startTwilioRecording(twSid || callId, st);
         } else if (msg.event === "media" && (msg.media?.track === "inbound" || !msg.media?.track)) {
           if (!sessionReady || xaiWs.readyState !== WebSocket.OPEN) return;
           if (agentSpeaking || Date.now() < muteUntil) return;
@@ -450,6 +551,10 @@ export function attachChtVoiceStream(app: Express) {
       hangupSent = true;
       st.agentConnected = true;
       try {
+        // Give Twilio a moment to POST recording-complete if it is fast
+        for (let i = 0; i < 6 && !st.recordingUrl; i++) {
+          await new Promise((r) => setTimeout(r, 500));
+        }
         await emailShop(st, st.from || "", callId);
       } catch (e: any) {
         console.error("cht-voice hangup email on stream close failed", callId, e?.message || e);
