@@ -8,8 +8,8 @@
 - Status callback (optional): `POST .../api/cht-voice/status`
 
 ## Flow
-1. Dial shop `+19705312897` timeout 10s
-2. If no answer → Grok Voice stream, greet “Thanks for calling Colorado Hot Tub.”
+1. **Default:** straight to Grok Voice (720 test — no shop ring)
+2. **Optional:** set `CHT_RING_SHOP=1` to Dial shop `+19705312897` for 10s, then Grok if no answer, greet “Thanks for calling Colorado Hot Tub.”
 3. Hangup → Formspree draft to shop Formspree + CC Brian (name, phone, need + transcript)
 
 ## Mount (Peak Replit api-server — do not replace Peak /api/voice)
@@ -22,6 +22,6 @@ attachChtVoiceStream(app);
 ```
 Copy `cht-voice.ts` + `cht-prompt.md` into `artifacts/api-server/src/cht/` (or `src/voice/cht/`) and copy prompt into dist beside the bundle.
 
-Env: `XAI_API_KEY` (existing). Optional: `CHT_SHOP_NUMBER`, `CHT_FORMSPREE`.
+Env: `XAI_API_KEY` (existing). Optional: `CHT_SHOP_NUMBER`, `CHT_FORMSPREE`, `CHT_RING_SHOP` (default off).
 
 Peak `+19706605088` / `/api/voice` untouched.

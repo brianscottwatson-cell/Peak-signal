@@ -11,6 +11,11 @@ import WebSocket from "ws";
 
 const HOSTNAME = (process.env.HOSTNAME || "peak-signal.replit.app").replace(/^https?:\/\//, "");
 const SHOP = process.env.CHT_SHOP_NUMBER || "+19705312897";
+/** Default OFF — 720 is test-only; set CHT_RING_SHOP=1 to dial shop 10s first. */
+function ringShopEnabled(): boolean {
+  const v = String(process.env.CHT_RING_SHOP || "").trim().toLowerCase();
+  return v === "1" || v === "true" || v === "yes" || v === "on";
+}
 const FORMSPREE_SHOP = process.env.CHT_FORMSPREE || "https://formspree.io/f/xgogybaj";
 const FORMSPREE_PEAK = process.env.PEAK_FORMSPREE || "https://formspree.io/f/mgobgrlr";
 const XAI_URL = process.env.XAI_REALTIME_URL || "wss://api.x.ai/v1/realtime?model=grok-voice-latest";
@@ -212,19 +217,45 @@ async function emailShop(st: CallState, from: string, sid: string) {
 export const chtVoiceRouter = Router();
 
 /** Inbound webhook: ring shop 10s, then action → /agent */
+function streamTwiml(sid: string): string {
+  const streamUrl = `wss://${HOSTNAME}/api/cht-voice/stream/${encodeURIComponent(sid)}`;
+  return `<?xml version="1.0" encoding="UTF-8"?>
+<Response>
+  <Connect>
+    <Stream url="${streamUrl}" track="inbound_track" />
+  </Connect>
+</Response>`;
+}
+
+function sayFallback(): string {
+  return `<?xml version="1.0" encoding="UTF-8"?><Response><Say>Thank you for calling Colorado Hot Tub. Please call us at nine seven zero, five three one, two eight nine seven.</Say></Response>`;
+}
+
+/** Inbound: default straight to Grok. Opt-in Dial shop via CHT_RING_SHOP=1. */
 chtVoiceRouter.post("/", (req: Request, res: Response) => {
   const sid = String(req.body?.CallSid || crypto.randomBytes(8).toString("hex"));
   const st = state(sid);
   st.from = String(req.body?.From || "");
   if (st.from && !st.phone) st.phone = st.from;
-  const action = `https://${HOSTNAME}/api/cht-voice/agent`;
-  const twiml = `<?xml version="1.0" encoding="UTF-8"?>
+
+  if (ringShopEnabled()) {
+    const action = `https://${HOSTNAME}/api/cht-voice/agent`;
+    const twiml = `<?xml version="1.0" encoding="UTF-8"?>
 <Response>
   <Dial timeout="10" action="${action}" method="POST">
     <Number>${SHOP}</Number>
   </Dial>
 </Response>`;
-  res.type("text/xml").send(twiml);
+    res.type("text/xml").send(twiml);
+    return;
+  }
+
+  if (!process.env.XAI_API_KEY) {
+    console.error("cht-voice: XAI_API_KEY missing");
+    res.type("text/xml").send(sayFallback());
+    return;
+  }
+  res.type("text/xml").send(streamTwiml(sid));
 });
 
 /** After Dial: if no human answer, connect Grok Voice stream */
@@ -245,20 +276,10 @@ chtVoiceRouter.post("/agent", (req: Request, res: Response) => {
 
   if (!process.env.XAI_API_KEY) {
     console.error("cht-voice: XAI_API_KEY missing");
-    res.type("text/xml").send(
-      `<?xml version="1.0" encoding="UTF-8"?><Response><Say>Thank you for calling Colorado Hot Tub. Please call us at nine seven zero, five three one, two eight nine seven.</Say></Response>`,
-    );
+    res.type("text/xml").send(sayFallback());
     return;
   }
-
-  const streamUrl = `wss://${HOSTNAME}/api/cht-voice/stream/${encodeURIComponent(sid)}`;
-  const twiml = `<?xml version="1.0" encoding="UTF-8"?>
-<Response>
-  <Connect>
-    <Stream url="${streamUrl}" track="inbound_track" />
-  </Connect>
-</Response>`;
-  res.type("text/xml").send(twiml);
+  res.type("text/xml").send(streamTwiml(sid));
 });
 
 chtVoiceRouter.post("/status", async (req: Request, res: Response) => {

@@ -37,3 +37,7 @@ Then set Twilio Voice URL on `+17207800753` to:
 curl -sS -X POST https://getpeaksignal.com/api/cht-voice -d 'CallSid=T&From=%2B1555&To=%2B17207800753'
 ```
 Expect TwiML `<Dial timeout="10">` to `+19705312897` with action `/api/cht-voice/agent`.
+
+## Shop ring (default OFF)
+720 is **test only**. Do **not** dial the shop number unless Brian sets Autoscale secret `CHT_RING_SHOP=1`.
+Default `POST /api/cht-voice` goes straight to Grok Voice Stream.
