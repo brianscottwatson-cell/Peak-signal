@@ -14,7 +14,7 @@ const SHOP = process.env.CHT_SHOP_NUMBER || "+19705312897";
 const FORMSPREE_SHOP = process.env.CHT_FORMSPREE || "https://formspree.io/f/xgogybaj";
 const FORMSPREE_PEAK = process.env.PEAK_FORMSPREE || "https://formspree.io/f/mgobgrlr";
 const XAI_URL = process.env.XAI_REALTIME_URL || "wss://api.x.ai/v1/realtime?model=grok-voice-latest";
-const GREET = "Thanks for calling Colorado Hot Tub.";
+const GREET = "Thank you for calling Colorado Hot Tub. How can I help?";
 
 type CallState = {
   name: string;
@@ -50,7 +50,7 @@ function loadInstructions(): string {
   try {
     return readFileSync(join(__dirname, "cht-prompt.md"), "utf8");
   } catch {
-    return "You are the Colorado Hot Tub phone agent. Greet, help from the live site only, never invent prices. Capture name, phone, and need.";
+    return "You are the Colorado Hot Tub discovery helper. Opening already spoken. Follow their ask. Do not ask for phone up front. End with name then confirm caller ID. Never invent prices.";
   }
 }
 
@@ -216,6 +216,7 @@ chtVoiceRouter.post("/", (req: Request, res: Response) => {
   const sid = String(req.body?.CallSid || crypto.randomBytes(8).toString("hex"));
   const st = state(sid);
   st.from = String(req.body?.From || "");
+  if (st.from && !st.phone) st.phone = st.from;
   const action = `https://${HOSTNAME}/api/cht-voice/agent`;
   const twiml = `<?xml version="1.0" encoding="UTF-8"?>
 <Response>
@@ -230,7 +231,10 @@ chtVoiceRouter.post("/", (req: Request, res: Response) => {
 chtVoiceRouter.post("/agent", (req: Request, res: Response) => {
   const sid = String(req.body?.CallSid || "unknown");
   const st = state(sid);
-  if (req.body?.From) st.from = String(req.body.From);
+  if (req.body?.From) {
+    st.from = String(req.body.From);
+    if (!st.phone) st.phone = st.from;
+  }
   const dialStatus = String(req.body?.DialCallStatus || "");
 
   // Human answered and finished — do not start agent
@@ -242,7 +246,7 @@ chtVoiceRouter.post("/agent", (req: Request, res: Response) => {
   if (!process.env.XAI_API_KEY) {
     console.error("cht-voice: XAI_API_KEY missing");
     res.type("text/xml").send(
-      `<?xml version="1.0" encoding="UTF-8"?><Response><Say>Thanks for calling Colorado Hot Tub. Please call us at nine seven zero, five three one, two eight nine seven.</Say></Response>`,
+      `<?xml version="1.0" encoding="UTF-8"?><Response><Say>Thank you for calling Colorado Hot Tub. Please call us at nine seven zero, five three one, two eight nine seven.</Say></Response>`,
     );
     return;
   }
@@ -260,7 +264,10 @@ chtVoiceRouter.post("/agent", (req: Request, res: Response) => {
 chtVoiceRouter.post("/status", async (req: Request, res: Response) => {
   const sid = String(req.body?.CallSid || "unknown");
   const st = state(sid);
-  if (req.body?.From) st.from = String(req.body.From);
+  if (req.body?.From) {
+    st.from = String(req.body.From);
+    if (!st.phone) st.phone = st.from;
+  }
   if (String(req.body?.CallStatus || "") === "completed") {
     await emailShop(st, st.from || String(req.body?.From || ""), sid);
   }
@@ -323,7 +330,11 @@ export function attachChtVoiceStream(app: Express) {
         JSON.stringify({
           type: "session.update",
           session: {
-            instructions: loadInstructions(),
+            instructions:
+              loadInstructions() +
+              "\n\n## This call\nCaller ID (Twilio From), already captured — do not ask for it up front: " +
+              (st.phone || st.from || "(unknown)") +
+              ". At the end, confirm: The number you called from is that number. Is that the best number to reach you?",
             voice: "ara",
             audio: {
               input: {
