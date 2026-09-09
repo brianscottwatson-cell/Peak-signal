@@ -25,3 +25,8 @@ Copy `cht-voice.ts` + `cht-prompt.md` into `artifacts/api-server/src/cht/` (or `
 Env: `XAI_API_KEY` (existing). Optional: `CHT_SHOP_NUMBER`, `CHT_FORMSPREE`, `CHT_RING_SHOP` (default off).
 
 Peak `+19706605088` / `/api/voice` untouched.
+
+## Recording
+On agent stream start, starts a Twilio Call Recording (needs `TWILIO_ACCOUNT_SID` + `TWILIO_AUTH_TOKEN`).
+Callback: `POST /api/cht-voice/recording` → stores `RecordingUrl` (+ `.mp3`) into hangup email.
+Hangup email is a **short summary** + recording URL (full transcript not emailed).
