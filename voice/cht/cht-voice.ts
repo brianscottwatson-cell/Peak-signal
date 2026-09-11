@@ -20,7 +20,7 @@ const FORMSPREE_SHOP = process.env.CHT_FORMSPREE || "https://formspree.io/f/xgog
 const FORMSPREE_PEAK = process.env.PEAK_FORMSPREE || "https://formspree.io/f/mgobgrlr";
 const XAI_URL = process.env.XAI_REALTIME_URL || "wss://api.x.ai/v1/realtime?model=grok-voice-latest";
 const NOTICE = "This call may be recorded.";
-const GREET = NOTICE + " Thank you for calling Colorado Hot Tub. How can I help?";
+const GREET = NOTICE + " Thanks for calling Colorado Hot Tub. We can't come to the phone right now, but I'm happy to answer any questions you might have, or learn more about what you're looking for and relay it to our owners so they can get back to you shortly.";
 
 type CallState = {
   name: string;
@@ -64,7 +64,7 @@ function loadInstructions(): string {
   try {
     return readFileSync(join(__dirname, "cht-prompt.md"), "utf8");
   } catch {
-    return "You are the Colorado Hot Tub discovery helper. Opening already spoken. Follow their ask. Do not ask for phone up front. End with name then confirm caller ID. Never invent prices.";
+    return "You are the Colorado Hot Tub missed-call helper. Opening already spoken. Follow their ask. Tell site-listed prices only. Do not ask for phone up front. End with name then confirm caller ID.";
   }
 }
 
@@ -305,7 +305,7 @@ function streamTwiml(sid: string): string {
 }
 
 function sayFallback(): string {
-  return `<?xml version="1.0" encoding="UTF-8"?><Response><Say>Thank you for calling Colorado Hot Tub. Please call us at nine seven zero, five three one, two eight nine seven.</Say></Response>`;
+  return `<?xml version="1.0" encoding="UTF-8"?><Response><Say>Thanks for calling Colorado Hot Tub. Please call us at nine seven zero, five three one, two eight nine seven.</Say></Response>`;
 }
 
 /** Inbound: default straight to Grok. Opt-in Dial shop via CHT_RING_SHOP=1. */
