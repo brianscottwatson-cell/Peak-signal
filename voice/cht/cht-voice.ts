@@ -429,6 +429,8 @@ export function attachChtVoiceStream(app: Express) {
           void startTwilioRecording(twSid || callId, st);
         } else if (msg.event === "media" && (msg.media?.track === "inbound" || !msg.media?.track)) {
           if (!sessionReady || xaiWs.readyState !== WebSocket.OPEN) return;
+          // Mute inbound only while agent audio is in flight (+ short echo hangover).
+          // Do not extend muteUntil past playback — that would drop the start of their answer.
           if (agentSpeaking || Date.now() < muteUntil) return;
           xaiWs.send(JSON.stringify({ type: "input_audio_buffer.append", audio: msg.media.payload }));
         } else if (msg.event === "stop") {
@@ -456,7 +458,7 @@ export function attachChtVoiceStream(app: Express) {
               loadInstructions() +
               "\n\n## This call\nCaller ID (Twilio From), already captured — do not ask for it up front: " +
               (st.phone || st.from || "(unknown)") +
-              ". At the end, confirm: The number you called from is that number. Is that the best number to reach you?",
+              ". One question at a time — wait for their full answer. At the end, ask name first, then confirm: The number you called from is that number. Is that the best number to reach you?",
             voice: "ara",
             audio: {
               input: {
@@ -465,7 +467,19 @@ export function attachChtVoiceStream(app: Express) {
               },
               output: { format: { type: "audio/pcmu" } },
             },
-            turn_detection: { type: "server_vad" },
+            // xAI Speech-to-Speech session.update documents server_vad plus optional
+            // threshold / silence_duration_ms / prefix_padding_ms / idle_timeout_ms
+            // (https://docs.x.ai/developers/model-capabilities/audio/speech-to-speech).
+            // Bare { type: "server_vad" } inherits a short default silence (commonly
+            // ~200ms in xAI/OpenAI-compatible stacks) and ends the turn on mid-name
+            // pauses, so the agent talks over the caller. Longer silence waits for a
+            // full answer.
+            turn_detection: {
+              type: "server_vad",
+              threshold: 0.55,
+              prefix_padding_ms: 400,
+              silence_duration_ms: 1000,
+            },
             tools,
           },
         }),
@@ -504,6 +518,9 @@ export function attachChtVoiceStream(app: Express) {
           }),
         );
       } else if (message.type === "input_audio_buffer.speech_started" && streamSid) {
+        // inbound_track echo: do not barge-in (Twilio clear) while we are still
+        // playing or in the echo hangover — false speech_started would cut the
+        // agent mid-sentence. After hangover, clear leftover playback only.
         if (agentSpeaking || Date.now() < muteUntil) return;
         ws.send(JSON.stringify({ event: "clear", streamSid }));
       } else if (message.type === "conversation.item.input_audio_transcription.completed" && message.transcript) {
@@ -517,6 +534,7 @@ export function attachChtVoiceStream(app: Express) {
         if (text && text !== GREET) st.turns.push({ role: "agent", text: text.slice(0, 2000) });
       } else if (message.type === "response.done") {
         agentSpeaking = false;
+        // Short echo hangover only (~400ms). Longer mute would ignore the start of their answer.
         muteUntil = Math.max(muteUntil, Date.now() + 400);
         if (agentBuf.trim()) {
           const text = agentBuf.trim();
