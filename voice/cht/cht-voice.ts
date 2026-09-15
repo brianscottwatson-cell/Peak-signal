@@ -126,15 +126,19 @@ function apply(st: CallState, args: Record<string, any>) {
 
 /** Write live call fields to data/cht-calls.json for the owner dashboard. Skips non-Twilio sids. */
 function persist(sid: string, st: CallState) {
-  persistChtCall({
-    callSid: sid,
-    name: st.name,
-    phone: st.phone || st.from,
-    need: st.need,
-    summary: st.summary,
-    recordingUrl: st.recordingUrl,
-    turns: st.turns,
-  });
+  try {
+    persistChtCall({
+      callSid: sid,
+      name: st.name,
+      phone: st.phone || st.from,
+      need: st.need,
+      summary: st.summary,
+      recordingUrl: st.recordingUrl,
+      turns: st.turns,
+    });
+  } catch (e: any) {
+    console.error("cht-voice persist failed", sid, e?.message || e);
+  }
 }
 
 function handleTool(st: CallState, name: string, args: Record<string, any>): string {
