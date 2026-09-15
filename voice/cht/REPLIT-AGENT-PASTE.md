@@ -6,6 +6,7 @@ Do NOT touch CHT/MMDT marketing sites.
 ## Files from GitHub Peak-signal
 Copy into `artifacts/api-server/src/cht/`:
 - `voice/cht/cht-voice.ts` → `src/cht/cht-voice.ts`
+- `voice/cht/cht-call-store.ts` → `src/cht/cht-call-store.ts`
 - `voice/cht/cht-prompt.md` → `src/cht/cht-prompt.md`
 
 Fetch with:
@@ -17,6 +18,9 @@ curl -fsSL -H "Authorization: Bearer $GITHUB_TOKEN" -H "Accept: application/vnd.
 curl -fsSL -H "Authorization: Bearer $GITHUB_TOKEN" -H "Accept: application/vnd.github.raw" \
   -o artifacts/api-server/src/cht/cht-prompt.md \
   https://api.github.com/repos/brianscottwatson-cell/Peak-signal/contents/voice/cht/cht-prompt.md
+curl -fsSL -H "Authorization: Bearer $GITHUB_TOKEN" -H "Accept: application/vnd.github.raw" \
+  -o artifacts/api-server/src/cht/cht-call-store.ts \
+  https://api.github.com/repos/brianscottwatson-cell/Peak-signal/contents/voice/cht/cht-call-store.ts
 ```
 
 ## Wire

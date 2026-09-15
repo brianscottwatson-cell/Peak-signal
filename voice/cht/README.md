@@ -20,9 +20,9 @@ app.use("/api/cht-voice", chtVoiceRouter);
 // after expressWs(app):
 attachChtVoiceStream(app);
 ```
-Copy `cht-voice.ts` + `cht-prompt.md` into `artifacts/api-server/src/cht/` (or `src/voice/cht/`) and copy prompt into dist beside the bundle.
+Copy `cht-voice.ts` + `cht-call-store.ts` + `cht-prompt.md` into `artifacts/api-server/src/cht/` (or `src/voice/cht/`) and copy prompt into dist beside the bundle.
 
-Env: `XAI_API_KEY` (existing). Optional: `CHT_SHOP_NUMBER`, `CHT_FORMSPREE`, `CHT_RING_SHOP` (default off).
+Env: `XAI_API_KEY` (existing). Optional: `CHT_SHOP_NUMBER`, `CHT_FORMSPREE`, `CHT_RING_SHOP` (default off), `CHT_CALLS_PATH` (JSON call log).
 
 Peak `+19706605088` / `/api/voice` untouched.
 
@@ -30,3 +30,13 @@ Peak `+19706605088` / `/api/voice` untouched.
 On agent stream start, starts a Twilio Call Recording (needs `TWILIO_ACCOUNT_SID` + `TWILIO_AUTH_TOKEN`).
 Callback: `POST /api/cht-voice/recording` → stores `RecordingUrl` (+ `.mp3`) into hangup email.
 Hangup email is a **short summary** + recording URL (full transcript not emailed).
+
+## Owner dashboard store
+cht-voice also upserts each real Twilio call (`CA…` CallSid only) to:
+
+`process.env.CHT_CALLS_PATH` or `<cwd>/data/cht-calls.json`
+
+Fields: caller name, phone, need, summary, recordingUrl, timestamp, turns.
+Ops reads the same file at `GET /ops/api/clients/colorado-hot-tub-llc/calls`.
+Do not invent rows. Health-check `CallSid=T` is ignored.
+Autoscale disk is instance-local — a republish may wipe the JSON. Do not republish between Heather’s confirm call and viewing the dashboard.

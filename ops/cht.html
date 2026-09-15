@@ -9,7 +9,7 @@
     :root { --bg:#0B0D0C; --panel:#121513; --line:#242a26; --text:#E8EBE9; --muted:#9AA39C; --accent:#3B82F6; --pass:#34D399; --warn:#FBBF24; --off:#6B7280; }
     * { box-sizing: border-box; }
     html, body { margin:0; background:var(--bg); color:var(--text); font-family:Inter,Helvetica,system-ui,sans-serif; }
-    .wrap { max-width:720px; margin:0 auto; padding:20px 16px 56px; }
+    .wrap { max-width:960px; margin:0 auto; padding:20px 16px 56px; }
     .back { color:var(--muted); text-decoration:none; font-size:12px; display:block; margin-bottom:6px; }
     h1 { font-size:20px; margin:0; font-weight:600; letter-spacing:-.02em; }
     .sub { color:var(--muted); font-size:12px; margin-top:3px; }
@@ -33,6 +33,14 @@
     ul.kb li { font-size:12.5px; padding:6px 0; border-bottom:1px solid var(--line); color:var(--muted); }
     ul.kb li:last-child { border-bottom:0; }
     .err { color:#f87171; }
+    .table-wrap { overflow-x:auto; }
+    table.calls { width:100%; border-collapse:collapse; font-size:12.5px; }
+    table.calls th { text-align:left; color:var(--muted); font-size:10px; letter-spacing:.08em; text-transform:uppercase; padding:8px 8px 8px 0; border-bottom:1px solid var(--line); white-space:nowrap; }
+    table.calls td { padding:10px 8px 10px 0; border-bottom:1px solid var(--line); vertical-align:top; line-height:1.4; }
+    table.calls tr:last-child td { border-bottom:0; }
+    table.calls a { color:var(--accent); }
+    .empty { color:var(--muted); font-size:12.5px; margin:0; }
+    .later { opacity:.85; }
   </style>
 </head>
 <body>
@@ -46,6 +54,35 @@
     </header>
     <p class="err" id="err" hidden></p>
     <div id="body" hidden>
+      <section class="card" id="calls-card" hidden>
+        <p class="kicker">Inbound calls</p>
+        <p class="hint">Live cht-voice on +1 720 780 0753. Read-only. Rows appear after a real inbound call — nothing is invented.</p>
+        <div class="table-wrap">
+          <table class="calls" id="calls-table" hidden>
+            <thead>
+              <tr>
+                <th>When</th>
+                <th>Caller</th>
+                <th>Phone</th>
+                <th>Need</th>
+                <th>Summary</th>
+                <th>Recording</th>
+              </tr>
+            </thead>
+            <tbody id="calls"></tbody>
+          </table>
+        </div>
+        <p class="empty" id="calls-empty">No inbound calls stored yet.</p>
+      </section>
+      <section class="card later" id="later-card" hidden>
+        <p class="kicker">Later panels</p>
+        <p class="hint">No Skimmer dollars. No send-as-shop. Placeholders only until a feed is wired.</p>
+        <div class="tiles">
+          <div class="tile"><h3><span class="dot off"></span>Quotes / bids</h3><p>Not connected.</p></div>
+          <div class="tile"><h3><span class="dot off"></span>Service jobs</h3><p>Not connected.</p></div>
+          <div class="tile"><h3><span class="dot off"></span>Revenue snapshot</h3><p>Not connected.</p></div>
+        </div>
+      </section>
       <section class="card">
         <p class="kicker">Bots on this book</p>
         <div id="bots"></div>
@@ -84,6 +121,47 @@
       if (!r.ok) throw new Error(j.error || r.statusText);
       return j;
     }
+    function esc(s) {
+      return String(s || "").replace(/[&<>"']/g, function (c) {
+        return ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c];
+      });
+    }
+    function fmtWhen(iso) {
+      if (!iso) return "—";
+      const d = new Date(iso);
+      if (isNaN(d.getTime())) return esc(iso);
+      return d.toLocaleString("en-US", { timeZone: "America/Denver", month: "short", day: "numeric", hour: "numeric", minute: "2-digit" });
+    }
+    function renderCalls(rows) {
+      const card = document.getElementById("calls-card");
+      const table = document.getElementById("calls-table");
+      const empty = document.getElementById("calls-empty");
+      const body = document.getElementById("calls");
+      card.hidden = false;
+      document.getElementById("later-card").hidden = false;
+      body.innerHTML = "";
+      if (!rows || !rows.length) {
+        table.hidden = true;
+        empty.hidden = false;
+        return;
+      }
+      table.hidden = false;
+      empty.hidden = true;
+      for (const c of rows) {
+        const rec = c.recordingUrl
+          ? '<a href="' + esc(c.recordingUrl) + '" target="_blank" rel="noopener">Recording</a>'
+          : '<span class="muted">Processing</span>';
+        const tr = document.createElement("tr");
+        tr.innerHTML =
+          "<td>" + fmtWhen(c.timestamp) + "</td>" +
+          "<td>" + esc(c.name || "(not given)") + "</td>" +
+          "<td>" + esc(c.phone || "—") + "</td>" +
+          "<td>" + esc(c.need || "—") + "</td>" +
+          "<td>" + esc(c.summary || "—") + "</td>" +
+          "<td>" + rec + "</td>";
+        body.appendChild(tr);
+      }
+    }
     function list(el, items, empty) {
       el.innerHTML = "";
       if (!items || !items.length) {
@@ -99,6 +177,22 @@
       }
     }
     (async () => {
+      const isCht = slug === "colorado-hot-tub-llc";
+      if (isCht) {
+        document.title = "Colorado Hot Tub — Peak Signal Ops";
+        document.getElementById("title").textContent = "Colorado Hot Tub";
+        document.getElementById("sub").textContent = "Owner call log. Read-only. No Skimmer dollars.";
+        try {
+          const log = await api("/clients/" + encodeURIComponent(slug) + "/calls?limit=10");
+          if (!log) return;
+          renderCalls(log.calls || []);
+        } catch (ce) {
+          document.getElementById("calls-card").hidden = false;
+          document.getElementById("later-card").hidden = false;
+          document.getElementById("calls-empty").textContent = "Call log unavailable.";
+        }
+        document.getElementById("body").hidden = false;
+      }
       try {
         const j = await api("/clients/" + encodeURIComponent(slug));
         if (!j) return;
@@ -111,7 +205,7 @@
         for (const b of c.bots || []) {
           const d = document.createElement("div");
           d.className = "row";
-          d.innerHTML = "<span>" + b.name + '</span><span class="muted">' + b.detail + "</span>";
+          d.innerHTML = "<span>" + esc(b.name) + '</span><span class="muted">' + esc(b.detail) + "</span>";
           bots.appendChild(d);
         }
         const plugins = document.getElementById("plugins");
@@ -119,7 +213,7 @@
         for (const p of c.plugins || []) {
           const d = document.createElement("div");
           d.className = "tile";
-          d.innerHTML = "<h3><span class=\"dot " + p.state + "\"></span>" + p.name + "</h3><p>" + p.detail + "</p>";
+          d.innerHTML = "<h3><span class=\"dot " + esc(p.state) + "\"></span>" + esc(p.name) + "</h3><p>" + esc(p.detail) + "</p>";
           plugins.appendChild(d);
         }
         list(document.getElementById("notes"), c.notes, "No recent comms log entries.");
@@ -130,6 +224,7 @@
         document.getElementById("files").textContent = (c.files || []).slice(0, 12).join(", ") || "—";
         document.getElementById("body").hidden = false;
       } catch (e) {
+        if (isCht) return;
         document.getElementById("err").hidden = false;
         document.getElementById("err").textContent = String(e.message || e);
       }
