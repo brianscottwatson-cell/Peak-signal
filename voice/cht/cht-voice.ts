@@ -8,6 +8,7 @@ import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import crypto from "node:crypto";
 import WebSocket from "ws";
+import { persistChtCall } from "./cht-call-store";
 
 const HOSTNAME = (process.env.HOSTNAME || "peak-signal.replit.app").replace(/^https?:\/\//, "");
 const SHOP = process.env.CHT_SHOP_NUMBER || "+19705312897";
@@ -121,6 +122,23 @@ function apply(st: CallState, args: Record<string, any>) {
   if (args.need) st.need = String(args.need).trim();
   if (args.summary) st.summary = String(args.summary).trim();
   if (args.reason && !st.need) st.need = String(args.reason).trim();
+}
+
+/** Write live call fields to data/cht-calls.json for the owner dashboard. Skips non-Twilio sids. */
+function persist(sid: string, st: CallState) {
+  try {
+    persistChtCall({
+      callSid: sid,
+      name: st.name,
+      phone: st.phone || st.from,
+      need: st.need,
+      summary: st.summary,
+      recordingUrl: st.recordingUrl,
+      turns: st.turns,
+    });
+  } catch (e: any) {
+    console.error("cht-voice persist failed", sid, e?.message || e);
+  }
 }
 
 function handleTool(st: CallState, name: string, args: Record<string, any>): string {
@@ -314,6 +332,7 @@ chtVoiceRouter.post("/", (req: Request, res: Response) => {
   const st = state(sid);
   st.from = String(req.body?.From || "");
   if (st.from && !st.phone) st.phone = st.from;
+  persist(sid, st);
 
   if (ringShopEnabled()) {
     const action = `https://${HOSTNAME}/api/cht-voice/agent`;
@@ -343,6 +362,7 @@ chtVoiceRouter.post("/agent", (req: Request, res: Response) => {
     st.from = String(req.body.From);
     if (!st.phone) st.phone = st.from;
   }
+  persist(sid, st);
   const dialStatus = String(req.body?.DialCallStatus || "");
 
   // Human answered and finished — do not start agent
@@ -368,6 +388,7 @@ chtVoiceRouter.post("/status", async (req: Request, res: Response) => {
   }
   if (String(req.body?.CallStatus || "") === "completed") {
     await emailShop(st, st.from || String(req.body?.From || ""), sid);
+    persist(sid, st);
   }
   res.type("text/xml").send(`<?xml version="1.0" encoding="UTF-8"?><Response></Response>`);
 });
@@ -384,6 +405,7 @@ chtVoiceRouter.post("/recording", async (req: Request, res: Response) => {
   if (url && status === "completed") {
     // Twilio media is at RecordingUrl + .mp3 (or play in console)
     st.recordingUrl = url.endsWith(".mp3") || url.endsWith(".wav") ? url : `${url}.mp3`;
+    persist(sid, st);
     if (st.emailed && !st.recordingEmailed) {
       await emailShop(st, st.from || "", sid, { recordingOnly: true });
     } else if (!st.emailed) {
@@ -427,6 +449,7 @@ export function attachChtVoiceStream(app: Express) {
           const twSid = String(msg.start?.callSid || callId || "");
           if (twSid) st.twilioCallSid = twSid;
           void startTwilioRecording(twSid || callId, st);
+          persist(twSid || callId, st);
         } else if (msg.event === "media" && (msg.media?.track === "inbound" || !msg.media?.track)) {
           if (!sessionReady || xaiWs.readyState !== WebSocket.OPEN) return;
           // Mute inbound only while agent audio is in flight (+ short echo hangover).
@@ -436,6 +459,7 @@ export function attachChtVoiceStream(app: Express) {
         } else if (msg.event === "stop") {
           void (async () => {
             st.agentConnected = true;
+            persist(callId, st);
             await emailShop(st, st.from || "", callId);
             try {
               xaiWs.close();
@@ -551,6 +575,7 @@ export function attachChtVoiceStream(app: Express) {
           /* ignore */
         }
         const result = handleTool(st, fn, args);
+        persist(callId, st);
         xaiWs.send(
           JSON.stringify({
             type: "conversation.item.create",
@@ -573,6 +598,7 @@ export function attachChtVoiceStream(app: Express) {
         for (let i = 0; i < 6 && !st.recordingUrl; i++) {
           await new Promise((r) => setTimeout(r, 500));
         }
+        persist(callId, st);
         await emailShop(st, st.from || "", callId);
       } catch (e: any) {
         console.error("cht-voice hangup email on stream close failed", callId, e?.message || e);
