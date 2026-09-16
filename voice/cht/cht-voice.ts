@@ -20,12 +20,14 @@ function ringShopEnabled(): boolean {
 const FORMSPREE_SHOP = process.env.CHT_FORMSPREE || "https://formspree.io/f/xgogybaj";
 const FORMSPREE_PEAK = process.env.PEAK_FORMSPREE || "https://formspree.io/f/mgobgrlr";
 const XAI_URL = process.env.XAI_REALTIME_URL || "wss://api.x.ai/v1/realtime?model=grok-voice-latest";
-/** Spoken opening only — no recording disclosure. Twilio recording still starts in startTwilioRecording(). */
-const GREET = "Thanks for calling Colorado Hot Tub. We can't come to the phone right now, but I'm happy to answer any questions you might have, or learn more about what you're looking for and relay it to our owners so they can get back to you shortly.";
+/** Spoken opening only — no recording disclosure. Intake-only lock 2026-09-16. Twilio recording still starts in startTwilioRecording(). */
+const GREET = "Thanks for calling Colorado Hot Tub. We can't come to the phone right now — I can take a quick message for the team and they'll get back to you as soon as possible.";
 
 type CallState = {
   name: string;
   phone: string;
+  location: string;
+  customer: string;
   need: string;
   summary: string;
   from: string;
@@ -45,6 +47,8 @@ function state(sid: string): CallState {
     calls.set(sid, {
       name: "",
       phone: "",
+      location: "",
+      customer: "",
       need: "",
       summary: "",
       from: "",
@@ -65,7 +69,7 @@ function loadInstructions(): string {
   try {
     return readFileSync(join(__dirname, "cht-prompt.md"), "utf8");
   } catch {
-    return "You are the Colorado Hot Tub discovery helper. Opening already spoken (missed-call style). Follow their ask. Quote only website-listed prices. Do not ask for phone up front. End with name then confirm caller ID. Specs only if asked.";
+    return "You are the Colorado Hot Tub message-taker (intake-only). Opening already spoken. Collect name, location, brief need, confirm caller-ID phone, existing or new customer — one question per turn. Do not pitch, quote prices, or dump product info. Owners follow up.";
   }
 }
 
@@ -74,26 +78,30 @@ const tools = [
   {
     type: "function",
     name: "log_caller",
-    description: "Save caller name, phone, and what they need as you learn them.",
+    description: "Save caller name, phone, location, need, and existing/new as you learn them.",
     parameters: {
       type: "object",
       properties: {
         name: { type: "string" },
         phone: { type: "string" },
+        location: { type: "string" },
         need: { type: "string" },
+        customer: { type: "string", description: "existing or new customer" },
       },
     },
   },
   {
     type: "function",
     name: "confirm_message",
-    description: "After reading back name, phone, and need. summary = clean 2-5 sentence recap.",
+    description: "After intake: name, phone, location, need, existing/new. summary = clean 2-5 sentence recap.",
     parameters: {
       type: "object",
       properties: {
         name: { type: "string" },
         phone: { type: "string" },
+        location: { type: "string" },
         need: { type: "string" },
+        customer: { type: "string", description: "existing or new customer" },
         summary: { type: "string" },
       },
       required: ["name", "need", "summary"],
@@ -119,6 +127,8 @@ const tools = [
 function apply(st: CallState, args: Record<string, any>) {
   if (args.name) st.name = String(args.name).trim();
   if (args.phone) st.phone = String(args.phone).trim();
+  if (args.location) st.location = String(args.location).trim();
+  if (args.customer) st.customer = String(args.customer).trim();
   if (args.need) st.need = String(args.need).trim();
   if (args.summary) st.summary = String(args.summary).trim();
   if (args.reason && !st.need) st.need = String(args.reason).trim();
@@ -149,7 +159,7 @@ function handleTool(st: CallState, name: string, args: Record<string, any>): str
   if (name === "confirm_message") {
     apply(st, args);
     st.confirmed = true;
-    return JSON.stringify({ ok: true, confirmed: { name: st.name, phone: st.phone || st.from, need: st.need } });
+    return JSON.stringify({ ok: true, confirmed: { name: st.name, phone: st.phone || st.from, location: st.location, need: st.need, customer: st.customer } });
   }
   if (name === "request_callback") {
     apply(st, args);
@@ -168,7 +178,9 @@ function buildSummary(st: CallState, from: string): string {
   const parts: string[] = [];
   if (st.name) parts.push(`Name: ${st.name}.`);
   parts.push(`Phone: ${st.phone || from || "(unknown)"}.`);
+  if (st.location) parts.push(`Location: ${st.location}.`);
   if (st.need) parts.push(`Looking for: ${st.need}.`);
+  if (st.customer) parts.push(`Customer: ${st.customer}.`);
   return parts.join(" ") || "Call completed; details incomplete.";
 }
 
@@ -213,7 +225,9 @@ function shortSummary(st: CallState, from: string): string {
   const lines = [
     `Name: ${st.name || "(not given)"}`,
     `Phone: ${phone}`,
+    `Location: ${st.location || "(not given)"}`,
     `Need: ${st.need || "(not given)"}`,
+    `Customer: ${st.customer || "(not given)"}`,
   ];
   if (st.summary.trim()) lines.push(`Notes: ${st.summary.trim()}`);
   else {
