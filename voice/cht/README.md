@@ -1,20 +1,20 @@
-# CHT Grok Voice — ring owners ~10s, then agent
+# CHT Grok Voice — ring website shop ~10s, then agent
 
 **Spec:** brain `clients/colorado-hot-tub-llc/19-voice-grok-after-ring-2026-09-08.md`  
-Brian Watson feedback 2026-09-16: paused phone readback + production ring-first without self-dial loop.
+Brian Watson 2026-09-16: inbound stays on 720; Dial the public website shop `+19705312897` (coloradohottubllc.com), **not** Heather/Justin personal cells; loop-safe ring-first.
 
 ## Twilio
-- Test DID: `+17207800753`
-- Shop / public line: `+19705312897` (`CHT_SHOP_NUMBER`)
-- Voice URL (either DID): `POST https://getpeaksignal.com/api/cht-voice` (or peak-signal.replit.app)
+- **Inbound (stays here):** `+17207800753`
+- **Dial target (website shop):** `+19705312897` (`CHT_SHOP_NUMBER`, coloradohottubllc.com)
+- Voice URL on the inbound 720 DID: `POST https://getpeaksignal.com/api/cht-voice` (or peak-signal.replit.app)
 - Status callback (optional): `POST .../api/cht-voice/status`
 - Recording callback: `POST .../api/cht-voice/recording`
 
-**Go-live:** point Colorado Hot Tub’s public number at `POST /api/cht-voice`. Do **not** also Dial that same number.
+**Go-live:** keep Twilio Voice URL on `+17207800753`. With ring-shop on, inbound 720 Dials the website shop for ~10s, then the agent. Do **not** Dial inbound `Called` when it equals the shop DID.
 
 ## Flow
-1. **Ring-first (production):** when `CHT_RING_SHOP=1` and/or `CHT_RING_NUMBERS` is set, Dial owner cells for `timeout="10"` (~3–4 rings). Simultaneous if more than one number. Action → `/api/cht-voice/agent` → Grok if no answer.
-2. **Loop guard:** never Dial the inbound `Called`/`To` number, and never Dial the caller. If the public DID **is** the shop line and `CHT_RING_NUMBERS` is empty, fallback-to-shop is skipped (self-dial would loop) and the call goes straight to the agent.
+1. **Ring-first (go-live):** inbound stays on `+17207800753`. With `CHT_RING_SHOP=1` and `CHT_SHOP_NUMBER=+19705312897` (`CHT_RING_NUMBERS` empty), Dial the public website shop for `timeout="10"` (~3–4 rings). Action → `/api/cht-voice/agent` → Grok if no answer.
+2. **Loop guard:** never Dial the inbound `Called`/`To` number, and never Dial the caller. If inbound Called **equals** the shop DID (`+19705312897`), shop Dial is skipped (self-dial would loop) and the call goes straight to the agent.
 3. **720 test, ring off:** leave `CHT_RING_SHOP` unset and `CHT_RING_NUMBERS` empty → straight to Grok.
 4. Greeting (no recording disclosure): “Thanks for calling Colorado Hot Tub… What were you calling about today?”
 5. Phone confirm: agent speaks US numbers in **3-3-4** groups with a sentence-break pause between groups (not one digit stream).
@@ -39,24 +39,24 @@ Peak `+19706605088` / `/api/voice` untouched.
 | `XAI_API_KEY` | Required. Existing Peak key. |
 | `TWILIO_ACCOUNT_SID` / `TWILIO_AUTH_TOKEN` | Start Twilio Call Recording + attach URL. |
 | `HOSTNAME` | Public host for Stream / Dial action URLs (default `peak-signal.replit.app`). |
-| `CHT_RING_SHOP` | `1` = ring first. `0` = never ring (even if ring numbers are set). Unset = ring only when `CHT_RING_NUMBERS` is non-empty. |
-| `CHT_RING_NUMBERS` | **Go-live.** Comma-separated E.164 owner cells (Heather / Justin). Prefer this over Dialing the shop DID. |
-| `CHT_SHOP_NUMBER` | Default `+19705312897`. Fallback Dial target **only** when inbound Called ≠ this number. |
+| `CHT_RING_SHOP` | `1` = ring first (Dial website shop). `0` = never ring. Unset = ring only when `CHT_RING_NUMBERS` is non-empty. |
+| `CHT_SHOP_NUMBER` | **Go-live Dial target.** Default `+19705312897` (coloradohottubllc.com). Used when `CHT_RING_NUMBERS` is empty and inbound Called ≠ this number. |
+| `CHT_RING_NUMBERS` | Optional extra lines later only. Comma-separated E.164. Not the primary go-live path. If set, those numbers are Dialed instead of the shop DID. |
 | `CHT_FORMSPREE` | Shop Formspree. Default `https://formspree.io/f/xgogybaj`. **Intended inbox: info@coloradohottubllc.com** — confirm that destination in the Formspree form settings. This repo does not change Formspree routing. |
 | `PEAK_FORMSPREE` | Peak copy. Default `https://formspree.io/f/mgobgrlr`. |
 | `CHT_CALLS_PATH` | JSON call log (default `<cwd>/data/cht-calls.json`). |
 
-### Go-live Replit env (shop public number → this webhook)
+### Go-live Replit env (inbound 720 → Dial website shop)
 ```
 CHT_RING_SHOP=1
-CHT_RING_NUMBERS=+1XXXXXXXXXX,+1YYYYYYYYYY
 CHT_SHOP_NUMBER=+19705312897
-CHT_FORMSPREE=https://formspree.io/f/xgogybaj
 ```
-Replace the `CHT_RING_NUMBERS` values with Heather’s and Justin’s cells. If those stay empty and the public DID is `+19705312897`, the loop guard skips Dial and the agent answers immediately.
+Inbound stays on `+17207800753`. Do **not** put personal cells in `CHT_RING_NUMBERS` for go-live. Leave it empty so 720 Dials the website shop. Optional later: extra ring lines in `CHT_RING_NUMBERS` only if Brian adds them.
+
+If inbound Called equals `+19705312897`, the loop guard skips Dial and the agent answers immediately.
 
 ### 720 test (no shop ring)
-Leave `CHT_RING_SHOP` and `CHT_RING_NUMBERS` unset. Twilio Voice URL on `+17207800753` stays `POST https://getpeaksignal.com/api/cht-voice`.
+Leave `CHT_RING_SHOP` unset and `CHT_RING_NUMBERS` empty. Twilio Voice URL on `+17207800753` stays `POST https://getpeaksignal.com/api/cht-voice`.
 
 ## Recording
 On agent stream start, starts a Twilio Call Recording (needs `TWILIO_ACCOUNT_SID` + `TWILIO_AUTH_TOKEN`).
