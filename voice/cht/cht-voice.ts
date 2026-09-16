@@ -1,7 +1,12 @@
 /**
- * Colorado Hot Tub inbound — default Grok Voice (shop ring opt-in CHT_RING_SHOP=1).
+ * Colorado Hot Tub inbound — ring owners ~10s then Grok Voice.
  * Mount at /api/cht-voice. Do NOT mount over Peak /api/voice.
  * XAI_API_KEY from env only.
+ *
+ * Ring: CHT_RING_SHOP=1 and/or CHT_RING_NUMBERS (comma E.164). Never Dial the
+ * inbound Called number (self-dial loop if public DID is the shop line).
+ * Hangup: Formspree shop (CHT_FORMSPREE → intended info@coloradohottubllc.com)
+ * + Peak form. Recording is a URL in the body — Formspree cannot attach MP3s.
  */
 import { Router, type Express, type Request, type Response } from "express";
 import { readFileSync } from "node:fs";
@@ -9,14 +14,21 @@ import { join } from "node:path";
 import crypto from "node:crypto";
 import WebSocket from "ws";
 import { persistChtCall } from "./cht-call-store";
+import {
+  DEFAULT_SHOP_E164,
+  dialTwiml,
+  phoneReadbackHint,
+  resolveRingTargets,
+  ringFirstEnabled,
+  speakUsNanp,
+} from "./cht-phone";
 
 const HOSTNAME = (process.env.HOSTNAME || "peak-signal.replit.app").replace(/^https?:\/\//, "");
-const SHOP = process.env.CHT_SHOP_NUMBER || "+19705312897";
-/** Default OFF — 720 is test-only; set CHT_RING_SHOP=1 to dial shop 10s first. */
+const SHOP = process.env.CHT_SHOP_NUMBER || DEFAULT_SHOP_E164;
 function ringShopEnabled(): boolean {
-  const v = String(process.env.CHT_RING_SHOP || "").trim().toLowerCase();
-  return v === "1" || v === "true" || v === "yes" || v === "on";
+  return ringFirstEnabled(process.env.CHT_RING_SHOP || "", process.env.CHT_RING_NUMBERS || "");
 }
+/** Shop Formspree. Default xgogybaj — confirm in Formspree that it emails info@coloradohottubllc.com. */
 const FORMSPREE_SHOP = process.env.CHT_FORMSPREE || "https://formspree.io/f/xgogybaj";
 const FORMSPREE_PEAK = process.env.PEAK_FORMSPREE || "https://formspree.io/f/mgobgrlr";
 const XAI_URL = process.env.XAI_REALTIME_URL || "wss://api.x.ai/v1/realtime?model=grok-voice-latest";
@@ -31,6 +43,7 @@ type CallState = {
   need: string;
   summary: string;
   from: string;
+  called: string;
   turns: { role: "agent" | "caller"; text: string }[];
   emailed: boolean;
   recordingEmailed: boolean;
@@ -52,6 +65,7 @@ function state(sid: string): CallState {
       need: "",
       summary: "",
       from: "",
+      called: "",
       turns: [],
       emailed: false,
       recordingEmailed: false,
@@ -69,7 +83,7 @@ function loadInstructions(): string {
   try {
     return readFileSync(join(__dirname, "cht-prompt.md"), "utf8");
   } catch {
-    return "You are the Colorado Hot Tub message-taker (intake-only). Opening already spoken, including: What were you calling about today? Collect that need first, then name, location, confirm caller-ID phone, existing or new customer — one question per turn. Ask the need with those exact words if not yet answered. Do not pitch, quote prices, or dump product info. Owners follow up.";
+    return "You are the Colorado Hot Tub message-taker (intake-only). Opening already spoken, including: What were you calling about today? Collect that need first, then name, location, confirm caller-ID phone in 3-3-4 groups with a pause between groups, existing or new customer — one question per turn. Ask the need with those exact words if not yet answered. Do not pitch, quote prices, or dump product info. Owners follow up.";
   }
 }
 
@@ -154,16 +168,22 @@ function persist(sid: string, st: CallState) {
 function handleTool(st: CallState, name: string, args: Record<string, any>): string {
   if (name === "log_caller") {
     apply(st, args);
-    return JSON.stringify({ ok: true });
+    const phone = st.phone || st.from;
+    return JSON.stringify({ ok: true, phone, phoneReadback: phoneReadbackHint(phone) });
   }
   if (name === "confirm_message") {
     apply(st, args);
     st.confirmed = true;
-    return JSON.stringify({ ok: true, confirmed: { name: st.name, phone: st.phone || st.from, location: st.location, need: st.need, customer: st.customer } });
+    const phone = st.phone || st.from;
+    return JSON.stringify({
+      ok: true,
+      confirmed: { name: st.name, phone, location: st.location, need: st.need, customer: st.customer },
+      phoneReadback: phoneReadbackHint(phone),
+    });
   }
   if (name === "request_callback") {
     apply(st, args);
-    return JSON.stringify({ ok: true });
+    return JSON.stringify({ ok: true, phoneReadback: phoneReadbackHint(st.phone || st.from) });
   }
   return JSON.stringify({ error: "unknown tool" });
 }
@@ -267,6 +287,7 @@ async function emailShop(st: CallState, from: string, sid: string, opts?: { reco
     console.log("cht-voice skip empty hangup", sid, "from", phone, "agent", agented, "turns", st.turns.length);
     return;
   }
+  // Recording is a URL in the message. Formspree cannot attach Twilio MP3 binaries.
   const recLine = st.recordingUrl
     ? `Recording: ${st.recordingUrl}`
     : "Recording: processing (Twilio will send URL when ready — or set TWILIO_ACCOUNT_SID + TWILIO_AUTH_TOKEN)";
@@ -310,6 +331,8 @@ async function emailShop(st: CallState, from: string, sid: string, opts?: { reco
     _cc: "brianscottwatson@gmail.com",
   };
   const peakOk = await postFormspree(FORMSPREE_PEAK, peakPayload, "peak-mgobgrlr");
+  // Shop form (CHT_FORMSPREE) is the shop inbox — intended info@coloradohottubllc.com.
+  // Confirm that destination in Formspree; this code does not change Formspree routing.
   const shopOk = await postFormspree(FORMSPREE_SHOP, shopPayload, "shop-xgogybaj");
   if (peakOk || shopOk) {
     if (recordingOnly) st.recordingEmailed = true;
@@ -325,7 +348,7 @@ async function emailShop(st: CallState, from: string, sid: string, opts?: { reco
 
 export const chtVoiceRouter = Router();
 
-/** Inbound webhook: ring shop 10s, then action → /agent */
+/** Grok Voice stream TwiML (after ring timeout, or when ring is off / unsafe). */
 function streamTwiml(sid: string): string {
   const streamUrl = `wss://${HOSTNAME}/api/cht-voice/stream/${encodeURIComponent(sid)}`;
   return `<?xml version="1.0" encoding="UTF-8"?>
@@ -337,27 +360,41 @@ function streamTwiml(sid: string): string {
 }
 
 function sayFallback(): string {
-  return `<?xml version="1.0" encoding="UTF-8"?><Response><Say>Thank you for calling Colorado Hot Tub. Please call us at nine seven zero, five three one, two eight nine seven.</Say></Response>`;
+  const shop = speakUsNanp(SHOP);
+  const spoken = shop ? `${shop.groups[0]}. ${shop.groups[1]}. ${shop.groups[2]}` : "nine seven zero. Five three one. Two eight nine seven";
+  return `<?xml version="1.0" encoding="UTF-8"?><Response><Say>Thank you for calling Colorado Hot Tub. Please call us at ${spoken}.</Say></Response>`;
 }
 
-/** Inbound: default straight to Grok. Opt-in Dial shop via CHT_RING_SHOP=1. */
+function seedInbound(req: Request, sid: string): CallState {
+  const st = state(sid);
+  if (req.body?.From) {
+    st.from = String(req.body.From);
+    if (!st.phone) st.phone = st.from;
+  }
+  const called = String(req.body?.Called || req.body?.To || "");
+  if (called) st.called = called;
+  persist(sid, st);
+  return st;
+}
+
+/** Inbound: ring owners ~10s when enabled, else Grok. Never Dial the Called number. */
 chtVoiceRouter.post("/", (req: Request, res: Response) => {
   const sid = String(req.body?.CallSid || crypto.randomBytes(8).toString("hex"));
-  const st = state(sid);
-  st.from = String(req.body?.From || "");
-  if (st.from && !st.phone) st.phone = st.from;
-  persist(sid, st);
+  const st = seedInbound(req, sid);
 
   if (ringShopEnabled()) {
-    const action = `https://${HOSTNAME}/api/cht-voice/agent`;
-    const twiml = `<?xml version="1.0" encoding="UTF-8"?>
-<Response>
-  <Dial timeout="10" action="${action}" method="POST">
-    <Number>${SHOP}</Number>
-  </Dial>
-</Response>`;
-    res.type("text/xml").send(twiml);
-    return;
+    const targets = resolveRingTargets({
+      called: st.called || String(req.body?.Called || req.body?.To || ""),
+      from: st.from,
+      shop: SHOP,
+      ringNumbersRaw: process.env.CHT_RING_NUMBERS || "",
+    });
+    if (targets.length) {
+      console.log("cht-voice ring-first", sid, "targets", targets.join(","), "called", st.called);
+      res.type("text/xml").send(dialTwiml({ hostname: HOSTNAME, targets, timeoutSec: 10 }));
+      return;
+    }
+    console.log("cht-voice skip ring — no safe targets (loop guard)", sid, "called", st.called, "shop", SHOP);
   }
 
   if (!process.env.XAI_API_KEY) {
@@ -371,12 +408,7 @@ chtVoiceRouter.post("/", (req: Request, res: Response) => {
 /** After Dial: if no human answer, connect Grok Voice stream */
 chtVoiceRouter.post("/agent", (req: Request, res: Response) => {
   const sid = String(req.body?.CallSid || "unknown");
-  const st = state(sid);
-  if (req.body?.From) {
-    st.from = String(req.body.From);
-    if (!st.phone) st.phone = st.from;
-  }
-  persist(sid, st);
+  const st = seedInbound(req, sid);
   const dialStatus = String(req.body?.DialCallStatus || "");
 
   // Human answered and finished — do not start agent
@@ -395,11 +427,7 @@ chtVoiceRouter.post("/agent", (req: Request, res: Response) => {
 
 chtVoiceRouter.post("/status", async (req: Request, res: Response) => {
   const sid = String(req.body?.CallSid || "unknown");
-  const st = state(sid);
-  if (req.body?.From) {
-    st.from = String(req.body.From);
-    if (!st.phone) st.phone = st.from;
-  }
+  const st = seedInbound(req, sid);
   if (String(req.body?.CallStatus || "") === "completed") {
     await emailShop(st, st.from || String(req.body?.From || ""), sid);
     persist(sid, st);
@@ -496,7 +524,9 @@ export function attachChtVoiceStream(app: Express) {
               loadInstructions() +
               "\n\n## This call\nCaller ID (Twilio From), already captured — do not ask for it up front: " +
               (st.phone || st.from || "(unknown)") +
-              ". One question at a time — wait for their full answer. At the end, ask name first, then confirm: The number you called from is that number. Is that the best number to reach you?",
+              ".\n" +
+              phoneReadbackHint(st.phone || st.from) +
+              "\nOne question at a time — wait for their full answer. After need, name, and location, confirm the caller-ID number using the spoken grouping above. If they give a different number, speak that new number the same way (area code. exchange. line) before asking if it is best.",
             voice: "ara",
             audio: {
               input: {
