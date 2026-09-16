@@ -34,7 +34,7 @@ No Skimmer dollars. No send-as-shop.
 2. Copy the ops + cht files into `artifacts/api-server/src/` as above if the Replit tree is still a manual copy.
 3. Confirm Autoscale secrets: `OPS_PASSWORD`, `XAI_API_KEY`, `TWILIO_ACCOUNT_SID`, `TWILIO_AUTH_TOKEN`.
 4. **Publish** the Autoscale deployment (Replit Publish). A publish is required — pushing GitHub is not enough.
-5. Twilio Voice URL: test `+17207800753` and/or shop public `+19705312897` → `POST https://getpeaksignal.com/api/cht-voice`. For shop go-live set `CHT_RING_SHOP=1` + `CHT_RING_NUMBERS` (owner cells). Never Dial the Called number.
+5. Twilio Voice URL on `+17207800753` → `POST https://getpeaksignal.com/api/cht-voice`. Go-live: `CHT_RING_SHOP=1` + `CHT_SHOP_NUMBER=+19705312897` (Dial the website shop number, not personal cells). Never Dial inbound Called when it equals the shop DID.
 
 ## Heather confirm
 1. Open `https://getpeaksignal.com/ops` and log in with `OPS_PASSWORD`.

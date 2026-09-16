@@ -3,8 +3,9 @@
  * Mount at /api/cht-voice. Do NOT mount over Peak /api/voice.
  * XAI_API_KEY from env only.
  *
- * Ring: CHT_RING_SHOP=1 and/or CHT_RING_NUMBERS (comma E.164). Never Dial the
- * inbound Called number (self-dial loop if public DID is the shop line).
+ * Ring: CHT_RING_SHOP=1 Dials CHT_SHOP_NUMBER (+19705312897 website shop).
+ * CHT_RING_NUMBERS is optional extra lines only. Never Dial inbound Called
+ * (self-dial loop if that DID is the shop line).
  * Hangup: Formspree shop (CHT_FORMSPREE → intended info@coloradohottubllc.com)
  * + Peak form. Recording is a URL in the body — Formspree cannot attach MP3s.
  */

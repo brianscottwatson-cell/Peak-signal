@@ -127,7 +127,7 @@ export function parseRingNumbers(raw: string): string[] {
 /**
  * CHT_RING_SHOP=0/false/off → never ring.
  * CHT_RING_SHOP=1/true/on → ring.
- * Unset: ring only when CHT_RING_NUMBERS is non-empty (production owner cells).
+ * Unset: ring only when CHT_RING_NUMBERS is non-empty (optional extra lines).
  */
 export function ringFirstEnabled(ringShopEnv: string, ringNumbersRaw: string): boolean {
   const v = String(ringShopEnv || "").trim().toLowerCase();
@@ -137,9 +137,9 @@ export function ringFirstEnabled(ringShopEnv: string, ringNumbersRaw: string): b
 }
 
 /**
- * Prefer CHT_RING_NUMBERS (Heather/Justin cells). Fall back to shop only when
- * inbound Called ≠ shop (avoids self-dial loop if the public DID is the shop line).
- * Never dial the inbound Called number or the caller.
+ * Dial CHT_SHOP_NUMBER (website shop, +19705312897) unless CHT_RING_NUMBERS
+ * lists extra lines. Never Dial inbound Called (self-loop if Called is the shop
+ * DID) or the caller. CHT_RING_NUMBERS is optional — not personal cells.
  */
 export function resolveRingTargets(opts: {
   called: string;
