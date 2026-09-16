@@ -20,8 +20,8 @@ function ringShopEnabled(): boolean {
 const FORMSPREE_SHOP = process.env.CHT_FORMSPREE || "https://formspree.io/f/xgogybaj";
 const FORMSPREE_PEAK = process.env.PEAK_FORMSPREE || "https://formspree.io/f/mgobgrlr";
 const XAI_URL = process.env.XAI_REALTIME_URL || "wss://api.x.ai/v1/realtime?model=grok-voice-latest";
-/** Spoken opening only — no recording disclosure. Intake-only lock 2026-09-16. Twilio recording still starts in startTwilioRecording(). */
-const GREET = "Thanks for calling Colorado Hot Tub. We can't come to the phone right now — I can take a quick message for the team and they'll get back to you as soon as possible.";
+/** Spoken opening only — no recording disclosure. Intake-only lock 2026-09-16. Need question locked from live testing. Twilio recording still starts in startTwilioRecording(). */
+const GREET = "Thanks for calling Colorado Hot Tub. We can't come to the phone right now — I can take a quick message for the team and they'll get back to you as soon as possible. What were you calling about today?";
 
 type CallState = {
   name: string;
@@ -69,7 +69,7 @@ function loadInstructions(): string {
   try {
     return readFileSync(join(__dirname, "cht-prompt.md"), "utf8");
   } catch {
-    return "You are the Colorado Hot Tub message-taker (intake-only). Opening already spoken. Collect name, location, brief need, confirm caller-ID phone, existing or new customer — one question per turn. Do not pitch, quote prices, or dump product info. Owners follow up.";
+    return "You are the Colorado Hot Tub message-taker (intake-only). Opening already spoken, including: What were you calling about today? Collect that need first, then name, location, confirm caller-ID phone, existing or new customer — one question per turn. Ask the need with those exact words if not yet answered. Do not pitch, quote prices, or dump product info. Owners follow up.";
   }
 }
 
