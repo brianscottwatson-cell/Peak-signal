@@ -30,38 +30,35 @@ attachChtVoiceStream(app); // after expressWs(app)
 Ensure build copies `cht-prompt.md` next to compiled output (same pattern as ara-prompt.md).
 
 ## Publish Autoscale
-Then set Twilio Voice URL:
-
-**Test DID** `+17207800753` **and/or shop public** `+19705312897`:
+Then set Twilio Voice URL on the **inbound** DID (stays `+17207800753`):
 `POST https://getpeaksignal.com/api/cht-voice`
 
-If the shop public number is the one customers dial, point **that** number here. Do not also Dial that same number (loop).
+Do **not** Dial inbound `Called` when it equals the shop DID `+19705312897` (loop).
 
 ## Env flips (Autoscale secrets) — Brian go-live
 
-Production shop phone (ring Heather/Justin ~10s / 3–4 rings, then agent):
+Inbound 720 rings the public website shop (`+19705312897`, coloradohottubllc.com) ~10s / 3–4 rings, then agent. Not Heather/Justin personal cells.
 ```
 CHT_RING_SHOP=1
-CHT_RING_NUMBERS=+1XXXXXXXXXX,+1YYYYYYYYYY
 CHT_SHOP_NUMBER=+19705312897
-CHT_FORMSPREE=https://formspree.io/f/xgogybaj
 ```
-Put Heather’s and Justin’s cells in `CHT_RING_NUMBERS` (comma-separated E.164).  
+Leave `CHT_RING_NUMBERS` empty. Optional extra lines later only — not the go-live path.
+
 `CHT_FORMSPREE` default `xgogybaj` is the **shop** form — intended destination **info@coloradohottubllc.com**. Confirm that in Formspree settings; this paste does not change the Formspree account. Hangup email includes a **recording URL** in the body (Formspree cannot attach Twilio MP3s). Peak form still gets a copy.
 
-`CHT_RING_SHOP=0` forces agent-only (even if ring numbers are set).  
+`CHT_RING_SHOP=0` forces agent-only (even if extra ring numbers are set).  
 Unset `CHT_RING_SHOP` + empty `CHT_RING_NUMBERS` = 720 test, straight to Grok.
 
-Loop rule (already in code): never Dial inbound `Called`/`To`. If public DID is `+19705312897` and `CHT_RING_NUMBERS` is empty, shop fallback is skipped and the agent answers.
+Loop rule (already in code): never Dial inbound `Called`/`To` when it equals the shop DID. If Called is `+19705312897` and `CHT_RING_NUMBERS` is empty, shop Dial is skipped and the agent answers.
 
 ## Verify
 ```
-# 720 test + ring on, no owner cells → Dial shop (Called ≠ shop)
+# Go-live path: 720 inbound + CHT_RING_SHOP=1 + empty CHT_RING_NUMBERS → Dial website shop
 curl -sS -X POST https://getpeaksignal.com/api/cht-voice \
   -d 'CallSid=T&From=%2B15551234567&To=%2B17207800753&Called=%2B17207800753'
 # Expect: <Dial timeout="10"> … <Number>+19705312897</Number> … action /api/cht-voice/agent
 
-# Shop public DID + no owner cells → skip Dial (loop guard) → Stream
+# Loop guard: inbound Called equals shop DID → skip Dial → Stream
 curl -sS -X POST https://getpeaksignal.com/api/cht-voice \
   -d 'CallSid=T&From=%2B15551234567&To=%2B19705312897&Called=%2B19705312897'
 # Expect: <Connect><Stream … /api/cht-voice/stream/ …>  (not a Dial to +19705312897)
