@@ -40,6 +40,20 @@ function loadSitemap(): string | null {
   return null;
 }
 
+function loadRobots(): string | null {
+  const candidates = [
+    join(__dirname, "robots.txt"),
+    join(__dirname, "seo", "robots.txt"),
+    join(process.cwd(), "src", "seo", "robots.txt"),
+    join(process.cwd(), "dist", "seo", "robots.txt"),
+    join(process.cwd(), "public", "robots.txt"),
+  ];
+  for (const p of candidates) {
+    if (existsSync(p)) return readFileSync(p, "utf8");
+  }
+  return null;
+}
+
 export const seoLandersRouter = Router();
 
 for (const [route, file] of Object.entries(PAGES)) {
@@ -60,6 +74,15 @@ seoLandersRouter.get("/sitemap.xml", (_req: Request, res: Response) => {
     return;
   }
   res.type("application/xml").send(xml);
+});
+
+seoLandersRouter.get("/robots.txt", (_req: Request, res: Response) => {
+  const body = loadRobots();
+  if (!body) {
+    res.status(404).type("text").send("Not found");
+    return;
+  }
+  res.type("text/plain").send(body);
 });
 
 

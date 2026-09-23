@@ -23,6 +23,12 @@ function load(name: string): string | null {
 
 export const staticSiteRouter = Router();
 
+staticSiteRouter.get("/robots.txt", (_req: Request, res: Response) => {
+  const body = load("robots.txt");
+  if (!body) return res.status(404).type("text").send("robots missing");
+  res.type("text/plain").send(body);
+});
+
 staticSiteRouter.get(["/", "/index.html"], (_req: Request, res: Response) => {
   const html = load("index.html");
   if (!html) return res.status(404).type("text").send("index missing");
