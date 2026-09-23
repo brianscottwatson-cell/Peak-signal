@@ -7,11 +7,14 @@ HTML-first pages for locked primaries. Mount `seoLandersRouter` on the Peak Repl
 - `/ai-automation-evergreen-colorado`
 - `/ai-agents-small-business-evergreen`
 - `/sitemap.xml` (expanded)
+- `/robots.txt`
 
 ## Mount
-1. Copy `seo-landers-router.ts` + `landers/*.html` + `sitemap.xml` into `artifacts/api-server/src/seo/`
+1. Copy `seo-landers-router.ts` + `landers/*.html` + `sitemap.xml` + `robots.txt` into `artifacts/api-server/src/seo/`
 2. `app.use(seoLandersRouter)` before SPA fallback
-3. Copy landers + sitemap into `dist/seo/` in build.mjs
+3. Copy landers + sitemap + `robots.txt` into `dist/seo/` in build.mjs
 4. Republish Autoscale
+
+Autoscale steps for this route: `REPLIT-ROBOTS-PASTE.md`.
 
 Voice: Brian at Peak Signal. Accent #3B82F6. No CHT/MMDT.
