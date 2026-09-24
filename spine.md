@@ -52,7 +52,7 @@
 - **Assigned to:** Chief of Staff / Coding
 - **Status:** partial (2026-09-01). Second test call run (Altspace). Name-first, site lookup, formula estimates, Formspree/email pass. Repetition + hangup GitHub write fail.
 - **Prompt:** `prompts/voice-intake-assessment-agent.md` patched. Task file: `clients/peak-signal/06-task-intake-agent-patch-2026-09-01.md`.
-- **Scope:** (A) opening captures name + business before Q1; live site lookup after, capped at a few seconds, three fields only; turn-taking guard documented for Replit voice layer; pricing formula fills estimates instead of \"Brian fills\"; scorecard gains Site lookup section. (B) Telephony: mute outbound audio from inbound recognition, barge-in guard. (C) Second test call with a different business to verify.
+- **Scope:** (A) opening captures name + business before Q1; live site lookup after, capped at a few seconds, three fields only; turn-taking guard documented for Replit voice layer; pricing formula fills estimates instead of "Brian fills"; scorecard gains Site lookup section. (B) Telephony: mute outbound audio from inbound recognition, barge-in guard. (C) Second test call with a different business to verify.
 - **Done when:** Second test call produces clean name capture, site lookup, no repetition, filled estimates, full write-back.
 - **Result:** https://github.com/brianscottwatson-cell/brain/blob/main/clients/altspace-coworking/transcript.md and scorecard.md.
 
@@ -191,3 +191,4 @@
 - 2026-09-23 ~5:14 PM MT: Test run complete — spine coherent, no drift detected.
 - 2026-09-24 ~9:10 AM MT: Test run complete — spine coherent, no drift detected.
 - 2026-09-24 ~10:05 AM MT: Test run complete — spine coherent, no drift detected.
+- 2026-09-24 ~11:04 AM MT: Test run complete — spine coherent, no drift detected.
