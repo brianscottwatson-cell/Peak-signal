@@ -5,7 +5,7 @@ Do NOT touch CHT, MMDT, or other clients.
 Live getpeaksignal.com still serves the old Vite SPA (`index-qKYIH-Tv.js`, title "AI Automation for Evergreen Businesses"). GitHub already has the Capture/Answer/Keep pages. Mount them so Autoscale HTML matches GitHub.
 
 ## Goal
-- `GET /` HTML contains H1 **More customers. Fewer hires.**
+- `GET /` HTML contains H1 **Put AI to work on the tools you already have.**
 - `GET /contact` HTML contains H1 **Book your assessment**
 - No SPA `#root` shell for those two routes
 - Leave `/api/voice` alone
@@ -24,7 +24,7 @@ Live getpeaksignal.com still serves the old Vite SPA (`index-qKYIH-Tv.js`, title
 5. Build api-server, **Publish Autoscale**.
 6. Verify:
    ```
-   curl -sS https://getpeaksignal.com/ | grep -F "More customers"
+   curl -sS https://getpeaksignal.com/ | grep -F "Put AI to work on the tools you already have."
    curl -sS https://getpeaksignal.com/contact | grep -F "Book your assessment"
    ```
    Neither response should contain `id="root"` as the only body.

@@ -35,7 +35,7 @@ const KNOWN: Record<string, Partial<ClientCard>> = {
   "altspace-coworking": {
     name: "Alt Space",
     status: "test",
-    blurb: "Harness: Voice Signal assessment from the 970 line.",
+    blurb: "Harness: Answer assessment from the 970 line.",
   },
 };
 
