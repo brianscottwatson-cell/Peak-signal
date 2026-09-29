@@ -74,3 +74,152 @@
 - 2026-09-01 ~10:40 AM MT: TASK-006 live on Autoscale. Name-first + site lookup + inbound mute/echo re-ask. Voice URL still POST https://getpeaksignal.com/api/voice (track=inbound_track). CoS owns second test-call.
 - 2026-09-01 ~10:52 AM MT: Confirmed GITHUB_TOKEN exists in Peak Replit workspace Secrets and Autoscale production secrets. Hangup GitHub write should run. Second test-call still CoS.
 - 2026-09-01 ~5:01 PM MT: Second test call — Brian Watson, Altspace Coworking, 970-201-1236, altspacecowork.com. Name-first + site lookup + needs-baseline estimates + Formspree/email. Repetition remains. Hangup GitHub write missed; CoS filed clients/altspace-coworking/. TASK-006 partial.
+- 2026-09-02: Test run complete — spine coherent, no drift detected.
+- 2026-09-03: Test run complete — spine coherent, no drift detected.
+- 2026-09-03 ~5:16 PM MT: Test run complete — spine coherent, no drift detected.
+- 2026-09-04: Test run complete — spine coherent, no drift detected.
+- 2026-09-04 ~11:01 AM MT: Test run complete — spine coherent, no drift detected.
+- 2026-09-04 ~12:08 PM MT: Test run complete — spine coherent, no drift detected.
+- 2026-09-04 ~1:04 PM MT: Test run complete — spine coherent, no drift detected.
+- 2026-09-04 ~2:02 PM MT: Test run complete — spine coherent, no drift detected.
+- 2026-09-04 ~3:08 PM MT: Test run complete — spine coherent, no drift detected.
+- 2026-09-04 ~4:03 PM MT: Test run complete — spine coherent, no drift detected.
+- 2026-09-04 ~5:02 PM MT: Test run complete — spine coherent, no drift detected.
+- 2026-09-07: Test run complete — spine coherent, no drift detected.
+- 2026-09-07: TASK-016 Layer 3 reasoning checker live (`scripts/reasoning-checker.py`). Mid-run sampler; quiet if aligned.
+- 2026-09-07: Test run complete — spine coherent, no drift detected.
+- 2026-09-07: Test run complete — spine coherent, no drift detected.
+- 2026-09-07: Test run complete — spine coherent, no drift detected.
+- 2026-09-07: Test run complete — spine coherent, no drift detected.
+- 2026-09-07: Test run complete — spine coherent, no drift detected.
+- 2026-09-07: Test run complete — spine coherent, no drift detected.
+- 2026-09-07: Test run complete — spine coherent, no drift detected.
+- 2026-09-07: Test run complete — spine coherent, no drift detected.
+- 2026-09-08: Test run complete — spine coherent, no drift detected.
+- 2026-09-08: Test run complete — spine coherent, no drift detected.
+- 2026-09-08: Test run complete — spine coherent, no drift detected.
+- 2026-09-08: Test run complete — spine coherent, no drift detected.
+- 2026-09-08: Test run complete — spine coherent, no drift detected.
+- 2026-09-08: Test run complete — spine coherent, no drift detected.
+- 2026-09-08: Test run complete — spine coherent, no drift detected.
+- 2026-09-09: Test run complete — spine coherent, no drift detected.
+- 2026-09-09: Test run complete — spine coherent, no drift detected.
+- 2026-09-09 ~1:15 PM MT: Test run complete — spine coherent, no drift detected.
+- 2026-09-09 ~2:09 PM MT: Test run complete — spine coherent, no drift detected.
+- 2026-09-09 ~3:05 PM MT: Test run complete — spine coherent, no drift detected.
+- 2026-09-09 ~4:05 PM MT: Test run complete — spine coherent, no drift detected.
+- 2026-09-09: Test run complete — spine coherent, no drift detected.
+- 2026-09-10: Test run complete — spine coherent, no drift detected.
+- 2026-09-10 ~10:06 AM MT: Test run complete — spine coherent, no drift detected.
+- 2026-09-10 ~11:15 AM MT: Test run complete — spine coherent, no drift detected.
+- 2026-09-10 ~1:08 PM MT: Test run complete — spine coherent, no drift detected.
+- 2026-09-10 ~2:05 PM MT: Test run complete — spine coherent, no drift detected.
+- 2026-09-10: Test run complete — spine coherent, no drift detected.
+- 2026-09-10 ~4:15 PM MT: Test run complete — spine coherent, no drift detected.
+- 2026-09-10 ~5:03 PM MT: Test run complete — spine coherent, no drift detected.
+- 2026-09-11: Test run complete — spine coherent, no drift detected.
+- 2026-09-11 ~10:13 AM MT: Test run complete — spine coherent, no drift detected.
+- 2026-09-11 ~11:09 AM MT: Test run complete — spine coherent, no drift detected.
+- 2026-09-11 ~12:16 PM MT: Test run complete — spine coherent, no drift detected.
+- 2026-09-11 ~1:09 PM MT: Test run complete — spine coherent, no drift detected.
+- 2026-09-11 ~2:09 PM MT: Test run complete — spine coherent, no drift detected.
+- 2026-09-11 ~3:19 PM MT: Test run complete — spine coherent, no drift detected.
+- 2026-09-11 ~4:07 PM MT: Test run complete — spine coherent, no drift detected.
+- 2026-09-11 ~5:08 PM MT: Test run complete — spine coherent, no drift detected.
+- 2026-09-14: Test run complete — spine coherent, no drift detected.
+- 2026-09-14 ~10:26 AM MT: Test run complete — spine coherent, no drift detected.
+- 2026-09-14 ~11:10 AM MT: Test run complete — spine coherent, no drift detected.
+- 2026-09-14 ~12:17 PM MT: Test run complete — spine coherent, no drift detected.
+- 2026-09-14 ~1:16 PM MT: Test run complete — spine coherent, no drift detected.
+- 2026-09-14 ~2:04 PM MT: Test run complete — spine coherent, no drift detected.
+- 2026-09-14 ~3:08 PM MT: Test run complete — spine coherent, no drift detected.
+- 2026-09-14 ~4:15 PM MT: Test run complete — spine coherent, no drift detected.
+- 2026-09-14 ~5:13 PM MT: Test run complete — spine coherent, no drift detected.
+- 2026-09-15 ~9:17 AM MT: Test run complete — spine coherent, no drift detected.
+- 2026-09-15 ~10:07 AM MT: Test run complete — spine coherent, no drift detected.
+- 2026-09-15 ~11:17 AM MT: Test run complete — spine coherent, no drift detected.
+- 2026-09-15 ~12:02 PM MT: Test run complete — spine coherent, no drift detected.
+- 2026-09-15 ~1:07 PM MT: Test run complete — spine coherent, no drift detected.
+- 2026-09-15 ~2:04 PM MT: Test run complete — spine coherent, no drift detected.
+- 2026-09-15 ~3:18 PM MT: Test run complete — spine coherent, no drift detected.
+- 2026-09-15 ~4:08 PM MT: Test run complete — spine coherent, no drift detected.
+- 2026-09-15 ~5:19 PM MT: Test run complete — spine coherent, no drift detected.
+- 2026-09-16 ~9:03 AM MT: Test run complete — spine coherent, no drift detected.
+- 2026-09-16 ~10:24 AM MT: Test run complete — spine coherent, no drift detected.
+- 2026-09-16 ~11:11 AM MT: Test run complete — spine coherent, no drift detected.
+- 2026-09-16 ~12:02 PM MT: Test run complete — spine coherent, no drift detected.
+- 2026-09-16 ~1:01 PM MT: Test run complete — spine coherent, no drift detected.
+- 2026-09-16 ~2:00 PM MT: Test run complete — spine coherent, no drift detected.
+- 2026-09-16 ~3:11 PM MT: Test run complete — spine coherent, no drift detected.
+- 2026-09-16 ~4:14 PM MT: Test run complete — spine coherent, no drift detected.
+- 2026-09-16 ~5:18 PM MT: Test run complete — spine coherent, no drift detected.
+- 2026-09-17 ~9:26 AM MT: Test run complete — spine coherent, no drift detected.
+- 2026-09-17 ~10:14 AM MT: Test run complete — spine coherent, no drift detected.
+- 2026-09-17 ~11:19 AM MT: Test run complete — spine coherent, no drift detected.
+- 2026-09-17 ~12:01 PM MT: Test run complete — spine coherent, no drift detected.
+- 2026-09-17 ~1:00 PM MT: Test run complete — spine coherent, no drift detected.
+- 2026-09-17 ~2:09 PM MT: Test run complete — spine coherent, no drift detected.
+- 2026-09-17 ~3:05 PM MT: Test run complete — spine coherent, no drift detected.
+- 2026-09-17 ~4:19 PM MT: Test run complete — spine coherent, no drift detected.
+- 2026-09-17 ~5:19 PM MT: Test run complete — spine coherent, no drift detected.
+- 2026-09-18 ~9:24 AM MT: Test run complete — spine coherent, no drift detected.
+- 2026-09-18 ~10:06 AM MT: Test run complete — spine coherent, no drift detected.
+- 2026-09-18 ~11:15 AM MT: Test run complete — spine coherent, no drift detected.
+- 2026-09-18 ~12:14 PM MT: Test run complete — spine coherent, no drift detected.
+- 2026-09-18 ~1:09 PM MT: Test run complete — spine coherent, no drift detected.
+- 2026-09-18 ~2:13 PM MT: Test run complete — spine coherent, no drift detected.
+- 2026-09-18 ~3:17 PM MT: Test run complete — spine coherent, no drift detected.
+- 2026-09-18 ~4:12 PM MT: Test run complete — spine coherent, no drift detected.
+- 2026-09-18 ~5:15 PM MT: Test run complete — spine coherent, no drift detected.
+- 2026-09-21 ~9:39 AM MT: Test run complete — spine coherent, no drift detected.
+- 2026-09-21 ~10:47 AM MT: Test run complete — spine coherent, no drift detected.
+- 2026-09-21 ~3:16 PM MT: Test run complete — spine coherent, no drift detected.
+- 2026-09-21 ~4:22 PM MT: Test run complete — spine coherent, no drift detected.
+- 2026-09-21 ~5:04 PM MT: Test run complete — spine coherent, no drift detected.
+- 2026-09-22 ~9:57 AM MT: Test run complete — spine coherent, no drift detected.
+- 2026-09-22 ~10:26 AM MT: Test run complete — spine coherent, no drift detected.
+- 2026-09-22 ~11:12 AM MT: Test run complete — spine coherent, no drift detected.
+- 2026-09-22 ~12:08 PM MT: Test run complete — spine coherent, no drift detected.
+- 2026-09-22 ~1:03 PM MT: Test run complete — spine coherent, no drift detected.
+- 2026-09-22 ~2:18 PM MT: Test run complete — spine coherent, no drift detected.
+- 2026-09-22 ~3:19 PM MT: Test run complete — spine coherent, no drift detected.
+- 2026-09-22 ~4:11 PM MT: Test run complete — spine coherent, no drift detected.
+- 2026-09-22 ~5:10 PM MT: Test run complete — spine coherent, no drift detected.
+- 2026-09-23 ~10:14 AM MT: Test run complete — spine coherent, no drift detected.
+- 2026-09-23 ~11:47 AM MT: Test run complete — spine coherent, no drift detected.
+- 2026-09-23 ~12:10 PM MT: Test run complete — spine coherent, no drift detected.
+- 2026-09-23 ~1:23 PM MT: Test run complete — spine coherent, no drift detected.
+- 2026-09-23 ~2:07 PM MT: Test run complete — spine coherent, no drift detected.
+- 2026-09-23 ~3:03 PM MT: Test run complete — spine coherent, no drift detected.
+- 2026-09-23 ~4:08 PM MT: Test run complete — spine coherent, no drift detected.
+- 2026-09-23 ~5:14 PM MT: Test run complete — spine coherent, no drift detected.
+- 2026-09-24 ~9:10 AM MT: Test run complete — spine coherent, no drift detected.
+- 2026-09-24 ~10:05 AM MT: Test run complete — spine coherent, no drift detected.
+- 2026-09-24 ~11:04 AM MT: Test run complete — spine coherent, no drift detected.
+- 2026-09-24 ~12:02 PM MT: Test run complete — spine coherent, no drift detected.
+- 2026-09-24 ~1:04 PM MT: Test run complete — spine coherent, no drift detected.
+- 2026-09-24 ~2:03 PM MT: Test run complete — spine coherent, no drift detected.
+- 2026-09-24 ~3:09 PM MT: Test run complete — spine coherent, no drift detected.
+- 2026-09-24 ~4:04 PM MT: Test run complete — spine coherent, no drift detected.
+- 2026-09-24 ~5:03 PM MT: Test run complete — spine coherent, no drift detected.
+- 2026-09-25 ~9:05 AM MT: Test run complete — spine coherent, no drift detected.
+- 2026-09-25 ~10:04 AM MT: Test run complete — spine coherent, no drift detected.
+- 2026-09-25 ~11:07 AM MT: Test run complete — spine coherent, no drift detected.
+- 2026-09-25 ~12:05 PM MT: Test run complete — spine coherent, no drift detected.
+- 2026-09-25 ~1:03 PM MT: Test run complete — spine coherent, no drift detected.
+- 2026-09-25 ~2:07 PM MT: Test run complete — spine coherent, no drift detected.
+- 2026-09-25 ~3:09 PM MT: Test run complete — spine coherent, no drift detected.
+- 2026-09-25 ~4:09 PM MT: Test run complete — spine coherent, no drift detected.
+- 2026-09-25 ~5:07 PM MT: Test run complete — spine coherent, no drift detected.
+- 2026-09-28 ~9:03 AM MT: Test run complete — spine coherent, no drift detected.
+- 2026-09-28 ~10:03 AM MT: Test run complete — spine coherent, no drift detected.
+- 2026-09-28 ~11:03 AM MT: Test run complete — spine coherent, no drift detected.
+- 2026-09-28 ~12:03 PM MT: Test run complete — spine coherent, no drift detected.
+- 2026-09-28 ~1:03 PM MT: Test run complete — spine coherent, no drift detected.
+- 2026-09-28 ~2:03 PM MT: Test run complete — spine coherent, no drift detected.
+- 2026-09-28 ~3:03 PM MT: Test run complete — spine coherent, no drift detected.
+- 2026-09-28 ~4:03 PM MT: Test run complete — spine coherent, no drift detected.
+- 2026-09-28 ~5:03 PM MT: Test run complete — spine coherent, no drift detected.
+- 2026-09-29 ~9:03 AM MT: Test run complete — spine coherent, no drift detected.
+- 2026-09-29 ~11:03 AM MT: Test run complete — spine coherent, no drift detected.
+- 2026-09-29 ~12:03 PM MT: Test run complete — spine coherent, no drift detected.
