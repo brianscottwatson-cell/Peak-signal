@@ -125,52 +125,97 @@ export function parseRingNumbers(raw: string): string[] {
 }
 
 /**
- * CHT_RING_SHOP=0/false/off → never ring.
- * CHT_RING_SHOP=1/true/on → ring.
- * Unset: ring only when CHT_RING_NUMBERS is non-empty (production owner cells).
+ * CHT_RING_SHOP=1/true/yes/on → ring CHT_RING_NUMBERS only.
+ * CHT_RING_SHOP=0/false/no/off → never ring.
+ * Unset (or any other value) → off. Do not auto-enable from CHT_RING_NUMBERS.
+ * The shop DID is not a dial target here; listing it in CHT_RING_NUMBERS is
+ * the only way it can be dialed, and the forward-loop filter can still drop it.
  */
-export function ringFirstEnabled(ringShopEnv: string, ringNumbersRaw: string): boolean {
+export function ringFirstEnabled(ringShopEnv: string, _ringNumbersRaw?: string): boolean {
   const v = String(ringShopEnv || "").trim().toLowerCase();
-  if (v === "0" || v === "false" || v === "no" || v === "off") return false;
-  if (v === "1" || v === "true" || v === "yes" || v === "on") return true;
-  return parseRingNumbers(ringNumbersRaw).length > 0;
+  return v === "1" || v === "true" || v === "yes" || v === "on";
+}
+
+function blockedLine(candidate: string, raw: string | undefined): boolean {
+  const other = String(raw || "").trim();
+  if (!candidate || !other) return false;
+  if (sameNanp(candidate, other)) return true;
+  const otherE164 = toE164Us(other);
+  return candidate === other || candidate === otherE164;
 }
 
 /**
- * Prefer CHT_RING_NUMBERS (Heather/Justin cells). Fall back to shop only when
- * inbound Called ≠ shop (avoids self-dial loop if the public DID is the shop line).
- * Never dial the inbound Called number or the caller.
+ * Ring CHT_RING_NUMBERS only. The shop line is not injected when that list is
+ * empty — +19705312897 used to be the fallback and its voicemail answered.
+ * Never dial ForwardedFrom, CalledVia, From, or the inbound Called/To number.
  */
 export function resolveRingTargets(opts: {
   called: string;
   from: string;
-  shop: string;
+  /** Ignored. Kept so older callers can still pass the shop DID; it is not dialed. */
+  shop?: string;
   ringNumbersRaw: string;
+  forwardedFrom?: string;
+  calledVia?: string;
 }): string[] {
-  const owners = parseRingNumbers(opts.ringNumbersRaw);
-  const shop = toE164Us(opts.shop || DEFAULT_SHOP_E164);
-  const candidates = owners.length ? owners : [shop];
-  return candidates.filter((n) => {
-    if (!n) return false;
-    if (sameNanp(n, opts.called) || n === String(opts.called || "").trim()) return false;
-    if (sameNanp(n, opts.from)) return false;
-    return true;
-  });
+  const blocked = [opts.called, opts.from, opts.forwardedFrom, opts.calledVia];
+  return parseRingNumbers(opts.ringNumbersRaw).filter((n) => !blocked.some((b) => blockedLine(n, b)));
+}
+
+/** AMD AnsweredBy values that must never be bridged. human/unknown still get the press-1 screen. */
+export function isMachineAnswer(answeredBy: string): boolean {
+  const v = String(answeredBy || "").trim().toLowerCase();
+  if (!v || v === "human" || v === "unknown") return false;
+  return v === "fax" || v.startsWith("machine");
+}
+
+export function screenUrl(hostname: string, parentSid: string, gather: boolean): string {
+  const q = new URLSearchParams();
+  if (parentSid) q.set("parent", parentSid);
+  if (gather) q.set("gather", "1");
+  const qs = q.toString();
+  return `https://${hostname}/api/cht-voice/screen${qs ? `?${qs}` : ""}`;
+}
+
+/** Empty TwiML. On the whisper leg this bridges. On the Dial action it ends the parent. */
+export function emptyTwiml(): string {
+  return `<?xml version="1.0" encoding="UTF-8"?><Response></Response>`;
+}
+
+export function hangupTwiml(): string {
+  return `<?xml version="1.0" encoding="UTF-8"?><Response><Hangup/></Response>`;
+}
+
+/** Whisper played to the answered owner leg. No digit falls through to Hangup. */
+export function screenGatherTwiml(opts: { hostname: string; parentSid: string }): string {
+  const action = escapeXml(screenUrl(opts.hostname, opts.parentSid, true));
+  return `<?xml version="1.0" encoding="UTF-8"?>
+<Response>
+  <Gather numDigits="1" timeout="5" action="${action}" method="POST">
+    <Say>Colorado Hot Tub call. Press 1 to take it.</Say>
+  </Gather>
+  <Hangup/>
+</Response>`;
 }
 
 export function dialTwiml(opts: {
   hostname: string;
   targets: string[];
   timeoutSec?: number;
+  parentSid?: string;
 }): string {
   const timeout = opts.timeoutSec ?? 10;
-  const action = `https://${opts.hostname}/api/cht-voice/agent`;
+  const action = escapeXml(`https://${opts.hostname}/api/cht-voice/agent`);
+  const screen = escapeXml(screenUrl(opts.hostname, opts.parentSid || "", false));
   const numbers = opts.targets
-    .map((n) => `    <Number>${escapeXml(n)}</Number>`)
+    .map(
+      (n) =>
+        `    <Number url="${screen}" method="POST" machineDetection="Enable" machineDetectionTimeout="5">${escapeXml(n)}</Number>`,
+    )
     .join("\n");
   return `<?xml version="1.0" encoding="UTF-8"?>
 <Response>
-  <Dial timeout="${timeout}" action="${action}" method="POST">
+  <Dial timeout="${timeout}" answerOnBridge="true" action="${action}" method="POST">
 ${numbers}
   </Dial>
 </Response>`;

@@ -3,8 +3,10 @@
  * Mount at /api/cht-voice. Do NOT mount over Peak /api/voice.
  * XAI_API_KEY from env only.
  *
- * Ring: CHT_RING_SHOP=1 and/or CHT_RING_NUMBERS (comma E.164). Never Dial the
- * inbound Called number (self-dial loop if public DID is the shop line).
+ * Ring: CHT_RING_SHOP must be explicitly on, then Dial CHT_RING_NUMBERS only.
+ * Unset CHT_RING_SHOP is off. The shop DID is not a default dial target.
+ * Each owner leg is screened (press 1). A whisper Hangup is not an answer.
+ * Never Dial ForwardedFrom, CalledVia, From, or the inbound Called number.
  * Hangup: Formspree shop (CHT_FORMSPREE → intended info@coloradohottubllc.com)
  * + Peak form. Recording is a URL in the body — Formspree cannot attach MP3s.
  */
@@ -17,9 +19,13 @@ import { persistChtCall } from "./cht-call-store";
 import {
   DEFAULT_SHOP_E164,
   dialTwiml,
+  emptyTwiml,
+  hangupTwiml,
+  isMachineAnswer,
   phoneReadbackHint,
   resolveRingTargets,
   ringFirstEnabled,
+  screenGatherTwiml,
   speakUsNanp,
 } from "./cht-phone";
 
@@ -49,6 +55,8 @@ type CallState = {
   recordingEmailed: boolean;
   confirmed: boolean;
   agentConnected: boolean;
+  /** Set only when an owner presses 1 on the whisper. DialCallStatus is not enough. */
+  humanAccepted: boolean;
   recordingUrl: string;
   recordingSid: string;
   twilioCallSid: string;
@@ -71,6 +79,7 @@ function state(sid: string): CallState {
       recordingEmailed: false,
       confirmed: false,
       agentConnected: false,
+      humanAccepted: false,
       recordingUrl: "",
       recordingSid: "",
       twilioCallSid: "",
@@ -377,7 +386,13 @@ function seedInbound(req: Request, sid: string): CallState {
   return st;
 }
 
-/** Inbound: ring owners ~10s when enabled, else Grok. Never Dial the Called number. */
+function queryParam(req: Request, name: string): string {
+  const raw = req.query?.[name];
+  if (Array.isArray(raw)) return String(raw[0] || "");
+  return String(raw || "");
+}
+
+/** Inbound: ring owners ~10s when explicitly enabled, else Grok. Never Dial the shop by default. */
 chtVoiceRouter.post("/", (req: Request, res: Response) => {
   const sid = String(req.body?.CallSid || crypto.randomBytes(8).toString("hex"));
   const st = seedInbound(req, sid);
@@ -385,13 +400,14 @@ chtVoiceRouter.post("/", (req: Request, res: Response) => {
   if (ringShopEnabled()) {
     const targets = resolveRingTargets({
       called: st.called || String(req.body?.Called || req.body?.To || ""),
-      from: st.from,
-      shop: SHOP,
+      from: st.from || String(req.body?.From || ""),
       ringNumbersRaw: process.env.CHT_RING_NUMBERS || "",
+      forwardedFrom: String(req.body?.ForwardedFrom || ""),
+      calledVia: String(req.body?.CalledVia || ""),
     });
     if (targets.length) {
       console.log("cht-voice ring-first", sid, "targets", targets.join(","), "called", st.called);
-      res.type("text/xml").send(dialTwiml({ hostname: HOSTNAME, targets, timeoutSec: 10 }));
+      res.type("text/xml").send(dialTwiml({ hostname: HOSTNAME, targets, timeoutSec: 10, parentSid: sid }));
       return;
     }
     console.log("cht-voice skip ring — no safe targets (loop guard)", sid, "called", st.called, "shop", SHOP);
@@ -405,17 +421,48 @@ chtVoiceRouter.post("/", (req: Request, res: Response) => {
   res.type("text/xml").send(streamTwiml(sid));
 });
 
-/** After Dial: if no human answer, connect Grok Voice stream */
+/**
+ * Whisper on each Dial <Number>. Gather action (?gather=1) runs on the owner leg.
+ * Digit 1 records acceptance on the parent CallSid and returns empty TwiML (bridge).
+ * No digit, a wrong digit, or AMD machine/fax hangs up that leg so voicemail cannot bridge.
+ */
+chtVoiceRouter.post("/screen", (req: Request, res: Response) => {
+  const parent = queryParam(req, "parent") || String(req.body?.ParentCallSid || "");
+  if (queryParam(req, "gather") === "1") {
+    const digits = String(req.body?.Digits ?? "");
+    if (digits === "1") {
+      if (parent) state(parent).humanAccepted = true;
+      const also = String(req.body?.ParentCallSid || "");
+      if (also && also !== parent) state(also).humanAccepted = true;
+      console.log("cht-voice screen accept", parent || also);
+      res.type("text/xml").send(emptyTwiml());
+      return;
+    }
+    console.log("cht-voice screen reject", parent, "digits", digits || "(none)");
+    res.type("text/xml").send(hangupTwiml());
+    return;
+  }
+  if (isMachineAnswer(String(req.body?.AnsweredBy || ""))) {
+    console.log("cht-voice screen machine", parent, String(req.body?.AnsweredBy || ""));
+    res.type("text/xml").send(hangupTwiml());
+    return;
+  }
+  res.type("text/xml").send(screenGatherTwiml({ hostname: HOSTNAME, parentSid: parent }));
+});
+
+/** After Dial: connect Grok unless an owner actually pressed 1. completed ≠ accepted. */
 chtVoiceRouter.post("/agent", (req: Request, res: Response) => {
   const sid = String(req.body?.CallSid || "unknown");
   const st = seedInbound(req, sid);
   const dialStatus = String(req.body?.DialCallStatus || "");
 
-  // Human answered and finished — do not start agent
-  if (dialStatus === "completed" || dialStatus === "answered") {
-    res.type("text/xml").send(`<?xml version="1.0" encoding="UTF-8"?><Response></Response>`);
+  // Whisper <Hangup/> can still report DialCallStatus=completed. Only digit 1 counts.
+  if (st.humanAccepted) {
+    console.log("cht-voice agent skip — human accepted", sid, "status", dialStatus);
+    res.type("text/xml").send(emptyTwiml());
     return;
   }
+  console.log("cht-voice agent after unaccepted dial", sid, "status", dialStatus || "(none)");
 
   if (!process.env.XAI_API_KEY) {
     console.error("cht-voice: XAI_API_KEY missing");

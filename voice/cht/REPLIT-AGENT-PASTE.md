@@ -33,35 +33,29 @@ Ensure build copies `cht-prompt.md` next to compiled output (same pattern as ara
 Then set Twilio Voice URL on the **inbound** DID (stays `+17207800753`):
 `POST https://getpeaksignal.com/api/cht-voice`
 
-Do **not** Dial inbound `Called` when it equals the shop DID `+19705312897` (loop).
+Do **not** Dial the shop DID `+19705312897`. It is not a ring target. A call forwarded from that line must go to Grok, not back to Verizon voicemail.
 
-## Env flips (Autoscale secrets) — Brian go-live
+## Env flips (Autoscale secrets)
 
-Inbound 720 rings the public website shop (`+19705312897`, coloradohottubllc.com) ~10s / 3–4 rings, then agent. Not Heather/Justin personal cells.
+Calls should reach Grok. The shop line must not be rung.
 ```
-CHT_RING_SHOP=1
-CHT_SHOP_NUMBER=+19705312897
+CHT_RING_SHOP=0
 ```
-Leave `CHT_RING_NUMBERS` empty. Optional extra lines later only — not the go-live path.
+Delete `CHT_RING_NUMBERS` if it contains `+19705312897` (or leave the secret unset). `CHT_SHOP_NUMBER` may stay `+19705312897` — spoken number only, not dialed. **Publish** after saving secrets. Do not change the Twilio Voice URL.
+
+`CHT_RING_SHOP` unset is off. `CHT_RING_SHOP=0` is off even if `CHT_RING_NUMBERS` is set. `CHT_RING_SHOP=1` dials `CHT_RING_NUMBERS` only (owner cells), each with press-1 screening. Never put `+19705312897` in `CHT_RING_NUMBERS`.
 
 `CHT_FORMSPREE` default `xgogybaj` is the **shop** form — intended destination **info@coloradohottubllc.com**. Confirm that in Formspree settings; this paste does not change the Formspree account. Hangup email includes a **recording URL** in the body (Formspree cannot attach Twilio MP3s). Peak form still gets a copy.
 
-`CHT_RING_SHOP=0` forces agent-only (even if extra ring numbers are set).  
-Unset `CHT_RING_SHOP` + empty `CHT_RING_NUMBERS` = 720 test, straight to Grok.
-
-Loop rule (already in code): never Dial inbound `Called`/`To` when it equals the shop DID. If Called is `+19705312897` and `CHT_RING_NUMBERS` is empty, shop Dial is skipped and the agent answers.
-
 ## Verify
 ```
-# Go-live path: 720 inbound + CHT_RING_SHOP=1 + empty CHT_RING_NUMBERS → Dial website shop
+# Default / ring off: straight to Grok. No Dial, no +19705312897.
 curl -sS -X POST https://getpeaksignal.com/api/cht-voice \
   -d 'CallSid=T&From=%2B15551234567&To=%2B17207800753&Called=%2B17207800753'
-# Expect: <Dial timeout="10"> … <Number>+19705312897</Number> … action /api/cht-voice/agent
+# Expect: <Connect><Stream … /api/cht-voice/stream/ …>
 
-# Loop guard: inbound Called equals shop DID → skip Dial → Stream
+# Forwarded from the shop line: still Stream, never a Dial to +19705312897.
 curl -sS -X POST https://getpeaksignal.com/api/cht-voice \
-  -d 'CallSid=T&From=%2B15551234567&To=%2B19705312897&Called=%2B19705312897'
-# Expect: <Connect><Stream … /api/cht-voice/stream/ …>  (not a Dial to +19705312897)
+  -d 'CallSid=T&From=%2B15551234567&To=%2B17207800753&Called=%2B17207800753&ForwardedFrom=%2B19705312897'
+# Expect: <Connect><Stream …>  (not <Number>+19705312897</Number>)
 ```
-
-720 with ring **off** (secrets unset): same first curl goes straight to Stream.
