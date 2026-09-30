@@ -1,0 +1,15 @@
+{
+  "private": true,
+  "scripts": {
+    "test": "node --experimental-strip-types voice/cht/cht-phone.test.ts && node --experimental-strip-types voice/cht/cht-voice.test.ts",
+    "build": "tsc --noEmit -p tsconfig.json"
+  },
+  "devDependencies": {
+    "@types/express": "^5.0.6",
+    "@types/node": "^26.6.3",
+    "@types/ws": "^8.18.2",
+    "express": "^5.2.1",
+    "typescript": "^7.0.2",
+    "ws": "^8.22.0"
+  }
+}
