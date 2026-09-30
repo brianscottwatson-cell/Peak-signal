@@ -1,7 +1,7 @@
 {
   "private": true,
   "scripts": {
-    "test": "node --experimental-strip-types voice/cht/cht-phone.test.ts && node --experimental-strip-types voice/cht/cht-voice.test.ts",
+    "test": "node --experimental-strip-types cht-phone.test.ts && node --experimental-strip-types cht-voice.test.ts",
     "build": "tsc --noEmit -p tsconfig.json"
   },
   "devDependencies": {

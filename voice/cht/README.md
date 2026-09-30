@@ -83,8 +83,10 @@ Do not invent rows. Health-check `CallSid=T` is ignored.
 Autoscale disk is instance-local — a republish may wipe the JSON. Do not republish between Heather’s confirm call and viewing the dashboard.
 
 ## Helpers
-`cht-phone.ts` owns spoken NANP grouping and ring-target resolution (loop guard). Check:
+`cht-phone.ts` owns spoken NANP grouping and ring-target resolution (loop guard). From `voice/cht/`:
 
 ```
+npm install
 npm test
+npm run build
 ```

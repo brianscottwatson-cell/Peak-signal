@@ -1,5 +1,6 @@
 /**
- * Run: node --experimental-strip-types voice/cht/cht-phone.test.ts
+ * Run from voice/cht: npm test
+ * or: node --experimental-strip-types cht-phone.test.ts
  */
 import {
   DEFAULT_SHOP_E164,

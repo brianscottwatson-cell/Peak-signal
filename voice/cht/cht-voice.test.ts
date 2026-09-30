@@ -1,6 +1,7 @@
 /**
  * Webhook behavior: POST form params the way Twilio does, assert literal TwiML.
- * Run: node --experimental-strip-types voice/cht/cht-voice.test.ts
+ * Run from voice/cht: npm test
+ * or: node --experimental-strip-types cht-voice.test.ts
  *
  * HOSTNAME is read when cht-voice loads, so that module is imported after env is set.
  */
