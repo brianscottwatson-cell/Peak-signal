@@ -76,8 +76,8 @@
           <input type="email" name="email" required class="w-full bg-zinc-900 border border-zinc-700 rounded-xl px-4 py-3">
         </div>
         <div>
-          <label class="block text-sm font-medium mb-2">Phone (optional)</label>
-          <input type="tel" name="phone" class="w-full bg-zinc-900 border border-zinc-700 rounded-xl px-4 py-3">
+          <label class="block text-sm font-medium mb-2">Phone</label>
+          <input type="tel" name="phone" required autocomplete="tel" class="w-full bg-zinc-900 border border-zinc-700 rounded-xl px-4 py-3">
         </div>
       </div>
 
@@ -152,6 +152,11 @@
       <label class="flex items-start gap-x-3 text-sm text-zinc-400">
         <input type="checkbox" name="consent" value="yes" required class="mt-1 accent-blue-500">
         <span>Peak Signal may contact me about this request.</span>
+      </label>
+
+      <label class="flex items-start gap-x-3 text-sm text-zinc-400">
+        <input type="checkbox" name="sms_consent" value="yes" class="mt-1 shrink-0 accent-blue-500">
+        <span>I agree to receive text messages from Peak Signal about my request. Message frequency varies. Msg &amp; data rates may apply. Reply STOP to opt out, HELP for help. See our <a href="/privacy" class="text-zinc-300 underline underline-offset-4">Privacy Policy</a> and <a href="/terms" class="text-zinc-300 underline underline-offset-4">Terms</a>.</span>
       </label>
 
       <button type="submit" class="w-full bg-white text-zinc-950 font-medium py-4 rounded-2xl hover:bg-zinc-100 transition-colors text-lg">
