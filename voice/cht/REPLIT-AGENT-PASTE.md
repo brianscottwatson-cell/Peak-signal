@@ -29,6 +29,15 @@ attachChtVoiceStream(app); // after expressWs(app)
 ```
 Ensure build copies `cht-prompt.md` next to compiled output (same pattern as ara-prompt.md).
 
+## Build before Republish
+Copying files into the Replit app does not update the running deploy. From the Replit app root, **before Republish**:
+
+```
+cd artifacts/api-server && pnpm run build
+```
+
+Autoscale deploy does not build api-server. Republish without that command serves the previous `dist`, and `GET /api/cht-voice` stays Express `Cannot GET`.
+
 ## Publish Autoscale
 Then set Twilio Voice URL on the **inbound** DID (stays `+17207800753`):
 `POST https://getpeaksignal.com/api/cht-voice`
@@ -48,6 +57,20 @@ Delete `CHT_RING_NUMBERS` if it contains `+19705312897` (or leave the secret uns
 `CHT_FORMSPREE` default `xgogybaj` is the **shop** form — intended destination **info@coloradohottubllc.com**. Confirm that in Formspree settings; this paste does not change the Formspree account. Hangup email includes a **recording URL** in the body (Formspree cannot attach Twilio MP3s). Peak form still gets a copy.
 
 ## Verify
+QA checks deploys with GET only. Do not POST from the QA bot — POST is the Twilio inbound webhook.
+
+```
+# Read-only. Expect HTTP 200 JSON, not Express "Cannot GET".
+# ringShop is false when CHT_RING_SHOP is unset or 0. No phone numbers, API keys, or Formspree ids.
+curl -sS -D - https://getpeaksignal.com/api/cht-voice/health
+# {"ok":true,"service":"cht-voice","ringShop":false,"screenRoute":true,"version":"cht-voice-health-1"}
+
+curl -sS -D - https://getpeaksignal.com/api/cht-voice
+# Same JSON, HTTP 200.
+```
+
+If that 404s, the published `dist` is stale: `cd artifacts/api-server && pnpm run build`, then Republish.
+
 ```
 # Default / ring off: straight to Grok. No Dial, no +19705312897.
 curl -sS -X POST https://getpeaksignal.com/api/cht-voice \
