@@ -25,12 +25,12 @@ Question five is the money question — it surfaces the value-share metric befor
 2. Full call transcribed and saved to `clients/<name>/transcript.md`.
 3. Scorecard generated as `clients/<name>/scorecard.md` (Peak Signal branding).
 4. Results emailed to Brian.
-5. Spine updated: objective, status, owner, blockers, next action.
+5. Spine updated only in brianscottwatson-cell/brain: objective, status, owner, blockers, next action on `spine.md`; history in `spine-log.md`. Never this repo's `spine.md`.
 6. Agent posts to the translation board when done.
 
 ## Rules
 
-- Read the spine before acting. Write only the five fields after.
+- Read the brain spine before acting. Write only the five fields after, only on brianscottwatson-cell/brain `spine.md` (history in `spine-log.md`). Never this repo's `spine.md`.
 - Keep the call short — five questions, then wrap.
 - Brian listens in on the first few calls.
 - No credentials stored. No writes to production systems without approval.
