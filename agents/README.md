@@ -3,7 +3,7 @@
 
 ## Master Team (your account)
 - **Chief of Staff** — orchestrates, reviews handoffs, owns the client relationship. Status: built.
-- **Voice Intake Assessment Agent** — answers the Peak Signal number, runs the five questions, transcribes, produces branded scorecard, emails Brian, updates spine. Fixed input: inbound call (or test transcript). Fixed output: `clients/<slug>/transcript.md` + `clients/<slug>/scorecard.md` + email + spine five fields. Done checklist: five questions in order, both files written, email sent, spine + board updated. Master-only. Status: built (2026-08-29). Prompt: `prompts/voice-intake-assessment-agent.md`.
+- **Voice Intake Assessment Agent** — answers the Peak Signal number, runs the five questions, transcribes, produces branded scorecard, emails Brian, updates the spine only in brianscottwatson-cell/brain (`spine.md` board, history in `spine-log.md`; never this repo's `spine.md`). Fixed input: inbound call (or test transcript). Fixed output: `clients/<slug>/transcript.md` + `clients/<slug>/scorecard.md` + email + brain `spine.md` five fields. Done checklist: five questions in order, both files written, email sent, brain `spine.md` and `spine-log.md` updated. Master-only. Status: built (2026-08-29). Prompt: `prompts/voice-intake-assessment-agent.md`.
 - *(Planned specialists: Data Puller, Assessment/Scorecard refinement, Workflow Drafter, Training Doc Writer, Pilot Builder, Flock Manager, Baseline/Instrumentation Agent.)*
 
 ## Shared Copies (client-facing)
