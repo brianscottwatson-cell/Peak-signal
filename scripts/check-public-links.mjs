@@ -9,12 +9,15 @@
  *   (b) fails if an internal href 404s, or a #fragment has no matching id
  *   (c) fails if vercel.json does not serve those same files, proxy /api to
  *       Replit, or 301 www to the apex
- *   (d) fails unless each public HTML page has the Cloudflare beacon once
+ *   (d) fails if .vercelignore drops a public file or uploads a private one
+ *   (e) fails unless each public HTML page has the Cloudflare beacon once
  *
  * Usage: node scripts/check-public-links.mjs
  */
 import http from "node:http";
-import { existsSync, readFileSync } from "node:fs";
+import { execFileSync } from "node:child_process";
+import { existsSync, mkdirSync, mkdtempSync, readFileSync, writeFileSync } from "node:fs";
+import { tmpdir } from "node:os";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -190,6 +193,47 @@ function assertVercelConfig() {
 
   for (const file of staleRootCopies) {
     if (existsSync(join(root, file))) fail(`stale Vercel root copy still present: ${file}`);
+  }
+
+  assertVercelIgnore();
+}
+
+function ignoredByVercelIgnore(files) {
+  const dir = mkdtempSync(join(tmpdir(), "vercelignore-"));
+  writeFileSync(join(dir, ".gitignore"), readFileSync(join(root, ".vercelignore")));
+  execFileSync("git", ["init", "-q"], { cwd: dir });
+  for (const file of files) {
+    mkdirSync(join(dir, dirname(file)), { recursive: true });
+    writeFileSync(join(dir, file), "");
+  }
+  try {
+    const out = execFileSync("git", ["check-ignore", "--stdin"], {
+      cwd: dir,
+      input: files.join("\n") + "\n",
+      encoding: "utf8",
+    });
+    return new Set(out.split("\n").filter(Boolean));
+  } catch (err) {
+    if (err && err.status === 1) return new Set();
+    throw err;
+  }
+}
+
+function assertVercelIgnore() {
+  const hidden = [
+    "voice/ara-prompt.md",
+    "spine.md",
+    "business-plan.md",
+    "static-site/static-site-router.ts",
+    "seo/seo-landers-router.ts",
+    "ops/ops.html",
+  ];
+  const ignored = ignoredByVercelIgnore([...new Set([...Object.values(routes), ...hidden])]);
+  for (const file of new Set(Object.values(routes))) {
+    if (ignored.has(file)) fail(`.vercelignore excludes public file ${file}`);
+  }
+  for (const file of hidden) {
+    if (!ignored.has(file)) fail(`.vercelignore still uploads ${file}`);
   }
 }
 
