@@ -6,6 +6,9 @@
  * Web Analytics token appears once on each HTML page, and GET /api/voice is
  * proxied through to the Replit Express app.
  *
+ * Preview deployments may append one vercel.live feedback script. That tag is
+ * removed before the compare and the beacon count. Any other difference fails.
+ *
  * Does not POST. Does not submit the contact form, send SMS, or dial.
  *
  * Usage:
@@ -72,6 +75,16 @@ async function get(base, path) {
   };
 }
 
+const previewFeedback =
+  /<script\b[^>]*\bsrc=["']https:\/\/vercel\.live\/_next-live\/feedback\/feedback\.js["'][^>]*>\s*<\/script>/gi;
+
+function withoutPreviewFeedback(buf) {
+  const text = buf.toString("utf8");
+  if (!previewFeedback.test(text)) return buf;
+  previewFeedback.lastIndex = 0;
+  return Buffer.from(text.replace(previewFeedback, ""));
+}
+
 function shortDiff(live, preview) {
   const a = live.toString("utf8").split("\n");
   const b = preview.toString("utf8").split("\n");
@@ -107,19 +120,21 @@ async function main() {
       process.exitCode = 2;
       return;
     }
-    const same = live.body.equals(preview.body);
+    const previewBody = withoutPreviewFeedback(preview.body);
+    const stripped = previewBody.length !== preview.body.length;
+    const same = live.body.equals(previewBody);
     const mark = live.status === 200 && preview.status === 200 && same ? "OK  " : "FAIL";
     console.log(
-      `${mark} ${path} live=${live.status} ${live.body.length}b preview=${preview.status} ${preview.body.length}b${same ? " identical" : " DIFFER"}`,
+      `${mark} ${path} live=${live.status} ${live.body.length}b preview=${preview.status} ${previewBody.length}b${stripped ? " (feedback tag stripped)" : ""}${same ? " identical" : " DIFFER"}`,
     );
     if (preview.status !== 200) failures.push(`${path} preview returned ${preview.status} ${preview.location}`);
     if (live.status !== 200) failures.push(`${path} live returned ${live.status}`);
     if (!same) {
       failures.push(`${path} body differs`);
-      console.log(shortDiff(live.body, preview.body));
+      console.log(shortDiff(live.body, previewBody));
     }
     if (htmlPages.has(path)) {
-      const count = preview.body.toString("utf8").split(token).length - 1;
+      const count = previewBody.toString("utf8").split(token).length - 1;
       const beacon = count === 1 ? "OK  " : "FAIL";
       console.log(`${beacon} ${path} beacon ${count}`);
       if (count !== 1) failures.push(`${path} beacon count ${count}`);
