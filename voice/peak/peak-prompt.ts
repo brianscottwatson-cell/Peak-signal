@@ -1,6 +1,6 @@
 /**
  * Peak Signal studio persona for POST /api/voice.
- * Loaded only when PEAK_VOICE_AGENT is on. Approve the wording here.
+ * Loaded when PEAK_VOICE_MODE is agent or forward_then_agent. Approve the wording here.
  *
  * PEAK_VOICE is the Grok realtime voice id. This repo's session.update
  * only ever sends "ara" (voice-ara.ts and cht-voice.ts). No other ids are listed.
@@ -62,9 +62,18 @@ If the caller mentions self-harm, suicidal ideation, abuse, or a medical emergen
 Spoken word only. No markdown, no lists, no emojis. One or two short sentences per turn. Ask more than you explain. English only.
 `;
 
-export function peakVoiceAgentEnabled(env: NodeJS.ProcessEnv = process.env): boolean {
-  const v = String(env.PEAK_VOICE_AGENT || "").trim().toLowerCase();
-  return v === "1" || v === "true" || v === "yes" || v === "on";
+export type PeakVoiceMode = "legacy" | "agent" | "forward_then_agent";
+
+/** Unset, legacy, or anything else stays on today's assessment agent. */
+export function peakVoiceMode(env: NodeJS.ProcessEnv = process.env): PeakVoiceMode {
+  const v = String(env.PEAK_VOICE_MODE || "").trim().toLowerCase();
+  if (v === "agent" || v === "forward_then_agent") return v;
+  return "legacy";
+}
+
+export function peakPersonaOn(env: NodeJS.ProcessEnv = process.env): boolean {
+  const mode = peakVoiceMode(env);
+  return mode === "agent" || mode === "forward_then_agent";
 }
 
 export function peakVoiceName(env: NodeJS.ProcessEnv = process.env): string {

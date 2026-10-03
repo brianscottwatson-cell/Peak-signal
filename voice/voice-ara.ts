@@ -3,8 +3,10 @@
  * Mount on the existing Express api-server.
  * XAI_API_KEY from env only. Never log the key.
  *
- * PEAK_VOICE_AGENT unset/off: this assessment agent (unchanged).
- * PEAK_VOICE_AGENT=1: studio persona in ./peak/peak-prompt.ts. Voice id: PEAK_VOICE (default ara).
+ * PEAK_VOICE_MODE=legacy (default): this assessment agent, unchanged.
+ * PEAK_VOICE_MODE=agent: studio persona in ./peak/peak-prompt.ts.
+ * PEAK_VOICE_MODE=forward_then_agent: ring PEAK_FORWARD_TO, then the studio persona.
+ * Voice id: PEAK_VOICE (default ara).
  */
 import { Router, type Express, type Request, type Response } from "express";
 import { readFileSync } from "node:fs";
@@ -15,9 +17,19 @@ import {
   PEAK_CALENDLY,
   PEAK_GREETING,
   PEAK_INSTRUCTIONS,
-  peakVoiceAgentEnabled,
+  peakPersonaOn,
+  peakVoiceMode,
   peakVoiceName,
 } from "./peak/peak-prompt";
+import {
+  decideForward,
+  emptyTwiml,
+  forwardDialTwiml,
+  forwardSummaryLine,
+  hangupTwiml,
+  resolveForwardTarget,
+  screenGatherTwiml,
+} from "./peak/peak-forward";
 
 const BASE = process.env.PUBLIC_BASE_URL || "https://peak-signal.replit.app";
 const HOSTNAME = (process.env.HOSTNAME || "peak-signal.replit.app").replace(/^https?:\/\//, "");
@@ -47,6 +59,9 @@ type CallState = {
   businessType: string;
   timeline: string;
   linkChannel: string;
+  humanAccepted: boolean;
+  forwardOutcome: "" | "answered" | "agent" | "hungup";
+  forwardReason: string;
 };
 const calls = new Map<string, CallState>();
 
@@ -71,6 +86,9 @@ function state(sid: string): CallState {
       businessType: "",
       timeline: "",
       linkChannel: "",
+      humanAccepted: false,
+      forwardOutcome: "",
+      forwardReason: "",
     });
   }
   return calls.get(sid)!;
@@ -86,9 +104,9 @@ function loadInstructions(): string {
   }
 }
 
-/** What the media-stream session loads. Flag off keeps the assessment agent. */
+/** What the media-stream session loads. Legacy keeps the assessment agent. */
 export function inboundVoice(): { greeting: string; instructions: string; voice: string; peak: boolean } {
-  if (!peakVoiceAgentEnabled()) {
+  if (!peakPersonaOn()) {
     return { greeting: SPOKEN, instructions: loadInstructions(), voice: "ara", peak: false };
   }
   return {
@@ -539,7 +557,7 @@ async function fileAssessment(st: CallState, fromNumber: string, sid: string) {
   const notify = shouldNotify(st);
   console.log("hangup", sid, "notify", notify, "token", !!process.env.GITHUB_TOKEN, "turns", (st.turns || []).length, "name", st.name, "business", st.business);
   await emailBrian(st, fromNumber);
-  if (peakVoiceAgentEnabled()) {
+  if (peakPersonaOn()) {
     console.log("hangup skip github — peak voice agent", sid);
     return;
   }
@@ -562,7 +580,12 @@ async function fileAssessment(st: CallState, fromNumber: string, sid: string) {
 }
 
 function peakCallSummary(st: CallState, from: string): string {
-  const lines = [
+  const lines: string[] = [];
+  if (st.forwardOutcome) {
+    lines.push(forwardSummaryLine({ from: from || st.from, email: st.forwardOutcome, reason: st.forwardReason }));
+    lines.push("");
+  }
+  lines.push(
     "Peak Signal call summary",
     "Brian at Peak Signal",
     "getpeaksignal.com",
@@ -575,7 +598,7 @@ function peakCallSummary(st: CallState, from: string): string {
     `Callback: ${from || st.from || "(unknown)"}`,
     `Email: ${isEmail(st.email) ? st.email.trim() : "(not given)"}`,
     `Booking: ${st.linkChannel || "(not requested)"}`,
-  ];
+  );
   if (st.linkChannel) {
     lines.push(`Calendly: ${PEAK_CALENDLY}`);
     if (st.linkChannel === "text") lines.push("They asked for the link by text. This server did not send a text.");
@@ -584,6 +607,35 @@ function peakCallSummary(st: CallState, from: string): string {
   if ((st.summary || "").trim()) lines.push("", st.summary.trim());
   lines.push("", formatTurns(st));
   return lines.join("\n");
+}
+
+async function postPeakForm(payload: Record<string, string>): Promise<void> {
+  await fetch(FORMSPREE, {
+    method: "POST",
+    headers: { Accept: "application/json", "Content-Type": "application/json" },
+    body: JSON.stringify(payload),
+  });
+}
+
+/** One-line forward outcome. Sets emailed so the agent summary is not also sent. */
+async function sendForwardLine(st: CallState, fromNumber: string): Promise<void> {
+  if (st.emailed || !st.forwardOutcome) return;
+  st.emailed = true;
+  const from = fromNumber || st.from || "";
+  const line = forwardSummaryLine({ from, email: st.forwardOutcome, reason: st.forwardReason });
+  try {
+    await postPeakForm({
+      _subject: `Peak Signal call — ${from || "inbound"}`,
+      message: line,
+      phone: from,
+      interest: "inbound-voice",
+      _cc: "brianscottwatson@gmail.com",
+      name: "Brian at Peak Signal",
+    });
+  } catch (e: any) {
+    console.error("formspree failed", e?.message || e);
+    st.emailed = false;
+  }
 }
 
 async function emailBrian(st: CallState, fromNumber: string) {
@@ -596,7 +648,7 @@ async function emailBrian(st: CallState, fromNumber: string) {
   const leadEmail = isEmail(st.email) ? st.email.trim() : "";
   const leadName = (st.name || "").trim();
   const outcome = st.outcome || "qualified";
-  const peakOn = peakVoiceAgentEnabled();
+  const peakOn = peakPersonaOn();
   const body = peakOn
     ? peakCallSummary(st, from)
     : [
@@ -632,11 +684,7 @@ async function emailBrian(st: CallState, fromNumber: string) {
     payload._replyto = leadEmail;
   }
   try {
-    await fetch(FORMSPREE, {
-      method: "POST",
-      headers: { Accept: "application/json", "Content-Type": "application/json" },
-      body: JSON.stringify(payload),
-    });
+    await postPeakForm(payload);
   } catch (e: any) {
     console.error("formspree failed", e?.message || e);
     st.emailed = false;
@@ -730,13 +778,23 @@ function handleTool(st: CallState, name: string, args: Record<string, any>): str
 
 const POLLY_FALLBACK = `<?xml version="1.0" encoding="UTF-8"?><Response><Say voice="Polly.Joanna">${SPOKEN}</Say></Response>`;
 
-export const voiceAraRouter = Router();
+function queryParam(req: Request, name: string): string {
+  const raw = req.query?.[name];
+  if (Array.isArray(raw)) return String(raw[0] || "");
+  return String(raw || "");
+}
 
-voiceAraRouter.post("/", (req: Request, res: Response) => {
-  const sid = String(req.body?.CallSid || crypto.randomBytes(8).toString("hex"));
-  const st = state(sid);
-  st.from = String(req.body?.From || "");
+function streamTwiml(sid: string): string {
+  const streamUrl = `wss://${HOSTNAME}/api/voice/stream/${encodeURIComponent(sid)}`;
+  return `<?xml version="1.0" encoding="UTF-8"?>
+<Response>
+  <Connect>
+    <Stream url="${streamUrl}" track="inbound_track" />
+  </Connect>
+</Response>`;
+}
 
+function sendAgentOrPolly(res: Response, sid: string) {
   if (!process.env.XAI_API_KEY) {
     console.error("XAI_API_KEY missing — Polly fallback");
     const copy = inboundVoice();
@@ -746,15 +804,84 @@ voiceAraRouter.post("/", (req: Request, res: Response) => {
     res.type("text/xml").send(xml);
     return;
   }
+  res.type("text/xml").send(streamTwiml(sid));
+}
 
-  const streamUrl = `wss://${HOSTNAME}/api/voice/stream/${encodeURIComponent(sid)}`;
-  const twiml = `<?xml version="1.0" encoding="UTF-8"?>
-<Response>
-  <Connect>
-    <Stream url="${streamUrl}" track="inbound_track" />
-  </Connect>
-</Response>`;
-  res.type("text/xml").send(twiml);
+/** Test hook: a caller line makes the hangup summary count as a real agent call. */
+export function recordCallerUtterance(callSid: string, text: string) {
+  pushTurn(state(callSid), "caller", text);
+}
+
+export const voiceAraRouter = Router();
+
+voiceAraRouter.post("/", (req: Request, res: Response) => {
+  const sid = String(req.body?.CallSid || crypto.randomBytes(8).toString("hex"));
+  const st = state(sid);
+  st.from = String(req.body?.From || "");
+  const called = String(req.body?.Called || req.body?.To || "");
+
+  if (peakVoiceMode() === "forward_then_agent") {
+    const target = resolveForwardTarget({
+      raw: process.env.PEAK_FORWARD_TO || "",
+      called,
+      from: st.from,
+      forwardedFrom: String(req.body?.ForwardedFrom || ""),
+      calledVia: String(req.body?.CalledVia || ""),
+    });
+    if (target) {
+      res.type("text/xml").send(forwardDialTwiml({
+        hostname: HOSTNAME,
+        parentSid: sid,
+        from: st.from,
+        target,
+      }));
+      return;
+    }
+  }
+
+  sendAgentOrPolly(res, sid);
+});
+
+/** Whisper on the forwarded leg. Digit 1 bridges. Anything else hangs up that leg only. */
+voiceAraRouter.post("/screen", (req: Request, res: Response) => {
+  const parent = queryParam(req, "parent") || String(req.body?.ParentCallSid || "");
+  const from = queryParam(req, "from") || (parent ? state(parent).from : "");
+  if (queryParam(req, "gather") === "1") {
+    const digits = String(req.body?.Digits ?? "");
+    if (digits === "1") {
+      if (parent) state(parent).humanAccepted = true;
+      res.type("text/xml").send(emptyTwiml());
+      return;
+    }
+    res.type("text/xml").send(hangupTwiml());
+    return;
+  }
+  res.type("text/xml").send(screenGatherTwiml({ hostname: HOSTNAME, parentSid: parent, from }));
+});
+
+/**
+ * Dial action. Press 1 + completed hangs up the parent (Brian took the call).
+ * no-answer, busy, failed, canceled, and an unaccepted completed (whisper hangup)
+ * return the Peak agent stream.
+ */
+voiceAraRouter.post("/after-dial", async (req: Request, res: Response) => {
+  const sid = String(req.body?.CallSid || "unknown");
+  const st = state(sid);
+  if (req.body?.From) st.from = String(req.body.From);
+  const decision = decideForward({
+    dialStatus: String(req.body?.DialCallStatus || ""),
+    accepted: st.humanAccepted,
+  });
+  st.forwardOutcome = decision.email;
+  st.forwardReason = decision.reason;
+  if (decision.email === "answered" || decision.email === "hungup") {
+    await sendForwardLine(st, st.from);
+  }
+  if (decision.twiml === "hangup") {
+    res.type("text/xml").send(hangupTwiml());
+    return;
+  }
+  sendAgentOrPolly(res, sid);
 });
 
 voiceAraRouter.post("/status", async (req: Request, res: Response) => {
@@ -764,6 +891,10 @@ voiceAraRouter.post("/status", async (req: Request, res: Response) => {
   if (req.body?.From) st.from = String(req.body.From);
   if (status === "completed") {
     await fileAssessment(st, st.from || String(req.body?.From || ""), sid);
+    if (peakVoiceMode() === "forward_then_agent" && !st.emailed) {
+      if (!st.forwardOutcome) st.forwardOutcome = "hungup";
+      await sendForwardLine(st, st.from || String(req.body?.From || ""));
+    }
   }
   res.type("text/xml").send(`<?xml version="1.0" encoding="UTF-8"?><Response></Response>`);
 });
