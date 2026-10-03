@@ -1,7 +1,29 @@
 {
+  "cleanUrls": false,
+  "trailingSlash": false,
+  "redirects": [
+    {
+      "source": "/:path*",
+      "has": [{ "type": "host", "value": "www.getpeaksignal.com" }],
+      "destination": "https://getpeaksignal.com/:path*",
+      "statusCode": 301
+    }
+  ],
   "rewrites": [
-    { "source": "/contact", "destination": "/contact.html" },
-    { "source": "/privacy", "destination": "/privacy.html" },
-    { "source": "/terms", "destination": "/terms.html" }
+    { "source": "/", "destination": "/static-site/index.html" },
+    { "source": "/index.html", "destination": "/static-site/index.html" },
+    { "source": "/contact", "destination": "/static-site/contact.html" },
+    { "source": "/contact.html", "destination": "/static-site/contact.html" },
+    { "source": "/privacy", "destination": "/static-site/privacy.html" },
+    { "source": "/privacy.html", "destination": "/static-site/privacy.html" },
+    { "source": "/terms", "destination": "/static-site/terms.html" },
+    { "source": "/terms.html", "destination": "/static-site/terms.html" },
+    { "source": "/robots.txt", "destination": "/static-site/robots.txt" },
+    { "source": "/google166e848c42566a74.html", "destination": "/static-site/google166e848c42566a74.html" },
+    { "source": "/sitemap.xml", "destination": "/seo/sitemap.xml" },
+    { "source": "/ai-websites-evergreen-co", "destination": "/seo/landers/ai-websites-evergreen-co.html" },
+    { "source": "/ai-automation-evergreen-colorado", "destination": "/seo/landers/ai-automation-evergreen-colorado.html" },
+    { "source": "/ai-agents-small-business-evergreen", "destination": "/seo/landers/ai-agents-small-business-evergreen.html" },
+    { "source": "/api/(.*)", "destination": "https://peak-signal.replit.app/api/$1" }
   ]
 }
