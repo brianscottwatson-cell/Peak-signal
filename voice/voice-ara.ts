@@ -2,12 +2,22 @@
  * Peak Signal inbound voice — Grok Voice (Ara) via Twilio Media Streams.
  * Mount on the existing Express api-server.
  * XAI_API_KEY from env only. Never log the key.
+ *
+ * PEAK_VOICE_AGENT unset/off: this assessment agent (unchanged).
+ * PEAK_VOICE_AGENT=1: studio persona in ./peak/peak-prompt.ts. Voice id: PEAK_VOICE (default ara).
  */
 import { Router, type Express, type Request, type Response } from "express";
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import crypto from "node:crypto";
 import WebSocket from "ws";
+import {
+  PEAK_CALENDLY,
+  PEAK_GREETING,
+  PEAK_INSTRUCTIONS,
+  peakVoiceAgentEnabled,
+  peakVoiceName,
+} from "./peak/peak-prompt";
 
 const BASE = process.env.PUBLIC_BASE_URL || "https://peak-signal.replit.app";
 const HOSTNAME = (process.env.HOSTNAME || "peak-signal.replit.app").replace(/^https?:\/\//, "");
@@ -34,6 +44,9 @@ type CallState = {
   turns: { role: "agent" | "caller"; text: string; itemId?: string }[];
   revenueMonth: number | null;
   siteLookup: { url: string; sells: string; area: string; health: string };
+  businessType: string;
+  timeline: string;
+  linkChannel: string;
 };
 const calls = new Map<string, CallState>();
 
@@ -55,6 +68,9 @@ function state(sid: string): CallState {
       turns: [],
       revenueMonth: null,
       siteLookup: { url: "", sells: "", area: "", health: "" },
+      businessType: "",
+      timeline: "",
+      linkChannel: "",
     });
   }
   return calls.get(sid)!;
@@ -62,10 +78,25 @@ function state(sid: string): CallState {
 
 function loadInstructions(): string {
   try {
-    return readFileSync(join(__dirname, "ara-prompt.md"), "utf8");
+    // Replit CJS has __dirname. The strip-types test is ESM and runs from the repo root.
+    const dir = typeof __dirname !== "undefined" ? __dirname : join(process.cwd(), "voice");
+    return readFileSync(join(dir, "ara-prompt.md"), "utf8");
   } catch {
     return "You are the Peak Signal free AI assessment line. Ask five questions in order, then wrap. No pitch. No dollar amounts. No Pax8 or Loc8.";
   }
+}
+
+/** What the media-stream session loads. Flag off keeps the assessment agent. */
+export function inboundVoice(): { greeting: string; instructions: string; voice: string; peak: boolean } {
+  if (!peakVoiceAgentEnabled()) {
+    return { greeting: SPOKEN, instructions: loadInstructions(), voice: "ara", peak: false };
+  }
+  return {
+    greeting: PEAK_GREETING,
+    instructions: PEAK_INSTRUCTIONS,
+    voice: peakVoiceName(),
+    peak: true,
+  };
 }
 
 const tools = [
@@ -147,6 +178,73 @@ const tools = [
         reason: { type: "string" },
       },
       required: ["window"],
+    },
+  },
+];
+
+const peakTools = [
+  {
+    type: "function",
+    name: "log_qualification",
+    description: "Save business name, business type, need, timeline, callback number, and email as you learn them.",
+    parameters: {
+      type: "object",
+      properties: {
+        name: { type: "string" },
+        business: { type: "string" },
+        business_type: { type: "string" },
+        need: { type: "string" },
+        timeline: { type: "string" },
+        phone: { type: "string" },
+        email: { type: "string" },
+      },
+    },
+  },
+  {
+    type: "function",
+    name: "send_booking_link",
+    description: "Caller wants the Calendly link. email copies them on the hangup summary. text records a request for Brian at Peak Signal; this server does not send SMS. speak means you will read the link.",
+    parameters: {
+      type: "object",
+      properties: {
+        channel: { type: "string", enum: ["email", "text", "speak"] },
+        email: { type: "string" },
+        phone: { type: "string" },
+      },
+      required: ["channel"],
+    },
+  },
+  {
+    type: "function",
+    name: "confirm_lead",
+    description: "Call after you read back the lead and the caller confirms. summary is a clean 3-6 sentence recap.",
+    parameters: {
+      type: "object",
+      properties: {
+        name: { type: "string" },
+        business: { type: "string" },
+        business_type: { type: "string" },
+        need: { type: "string" },
+        timeline: { type: "string" },
+        phone: { type: "string" },
+        email: { type: "string" },
+        summary: { type: "string" },
+      },
+      required: ["summary"],
+    },
+  },
+  {
+    type: "function",
+    name: "request_callback",
+    description: "Safety handoff, or the caller wants Brian at Peak Signal to call back.",
+    parameters: {
+      type: "object",
+      properties: {
+        name: { type: "string" },
+        window: { type: "string" },
+        reason: { type: "string" },
+      },
+      required: ["reason"],
     },
   },
 ];
@@ -441,6 +539,10 @@ async function fileAssessment(st: CallState, fromNumber: string, sid: string) {
   const notify = shouldNotify(st);
   console.log("hangup", sid, "notify", notify, "token", !!process.env.GITHUB_TOKEN, "turns", (st.turns || []).length, "name", st.name, "business", st.business);
   await emailBrian(st, fromNumber);
+  if (peakVoiceAgentEnabled()) {
+    console.log("hangup skip github — peak voice agent", sid);
+    return;
+  }
   if (!notify) {
     console.log("hangup skip github — empty or already sent", sid);
     return;
@@ -459,6 +561,31 @@ async function fileAssessment(st: CallState, fromNumber: string, sid: string) {
   console.log("hangup github", slug, "transcript", tOk, "scorecard", sOk, "recap", rOk);
 }
 
+function peakCallSummary(st: CallState, from: string): string {
+  const lines = [
+    "Peak Signal call summary",
+    "Brian at Peak Signal",
+    "getpeaksignal.com",
+    "",
+    `Name: ${st.name || "(not given)"}`,
+    `Business: ${st.business || "(not given)"}`,
+    `Business type: ${st.businessType || "(not given)"}`,
+    `Need: ${st.need || "(not given)"}`,
+    `Timeline: ${st.timeline || "(not given)"}`,
+    `Callback: ${from || st.from || "(unknown)"}`,
+    `Email: ${isEmail(st.email) ? st.email.trim() : "(not given)"}`,
+    `Booking: ${st.linkChannel || "(not requested)"}`,
+  ];
+  if (st.linkChannel) {
+    lines.push(`Calendly: ${PEAK_CALENDLY}`);
+    if (st.linkChannel === "text") lines.push("They asked for the link by text. This server did not send a text.");
+    if (st.linkChannel === "email") lines.push("They asked for the link by email. It is in this message.");
+  }
+  if ((st.summary || "").trim()) lines.push("", st.summary.trim());
+  lines.push("", formatTurns(st));
+  return lines.join("\n");
+}
+
 async function emailBrian(st: CallState, fromNumber: string) {
   if (!shouldNotify(st)) {
     console.log("formspree skip: empty hangup or already sent");
@@ -469,11 +596,11 @@ async function emailBrian(st: CallState, fromNumber: string) {
   const leadEmail = isEmail(st.email) ? st.email.trim() : "";
   const leadName = (st.name || "").trim();
   const outcome = st.outcome || "qualified";
-  const recap = buildRecap(st);
-  const transcript = formatTurns(st);
-  const scorecard = buildScorecard(st);
-  const body = [
-    recap,
+  const peakOn = peakVoiceAgentEnabled();
+  const body = peakOn
+    ? peakCallSummary(st, from)
+    : [
+    buildRecap(st),
     "",
     "----- internal -----",
     `From-line: Brian at Peak Signal`,
@@ -483,15 +610,17 @@ async function emailBrian(st: CallState, fromNumber: string) {
     `Email: ${leadEmail || "(not given — recap not promised)"}`,
     "",
     "===== TRANSCRIPT (final utterances only) =====",
-    transcript,
+    formatTurns(st),
     "",
     "===== SCORECARD =====",
-    scorecard,
+    buildScorecard(st),
   ].join("\n");
   const ccs = ["brianscottwatson@gmail.com"];
   if (leadEmail) ccs.push(leadEmail);
   const payload: Record<string, string> = {
-    _subject: `Peak Signal Assessment — ${leadName || st.business || "inbound"}`,
+    _subject: peakOn
+      ? `Peak Signal call — ${leadName || st.business || "inbound"}`
+      : `Peak Signal Assessment — ${leadName || st.business || "inbound"}`,
     message: body,
     phone: from,
     interest: "inbound-voice",
@@ -523,6 +652,8 @@ function applyLead(st: CallState, args: Record<string, any>) {
   if (args.phone && String(args.phone).trim()) st.from = String(args.phone).trim();
   if (args.summary) st.summary = String(args.summary).trim();
   if (args.window) st.callbackWindow = String(args.window).trim();
+  if (args.business_type || args.businessType) st.businessType = String(args.business_type || args.businessType).trim();
+  if (args.timeline) st.timeline = String(args.timeline).trim();
   const rm = args.revenue_month ?? args.revenueMonth;
   if (rm != null && Number.isFinite(Number(rm)) && Number(rm) > 0) st.revenueMonth = Number(rm);
 }
@@ -582,6 +713,18 @@ function handleTool(st: CallState, name: string, args: Record<string, any>): str
     st.outcome = "callback";
     return JSON.stringify({ ok: true });
   }
+  if (name === "send_booking_link") {
+    applyLead(st, args);
+    const channel = String(args.channel || "speak").trim().toLowerCase();
+    st.linkChannel = channel === "email" || channel === "text" || channel === "speak" ? channel : "speak";
+    st.outcome = st.linkChannel === "email" ? "calendly email" : st.linkChannel === "text" ? "calendly text" : "calendly spoken";
+    return JSON.stringify({
+      ok: true,
+      calendly: PEAK_CALENDLY,
+      channel: st.linkChannel,
+      sms: false,
+    });
+  }
   return JSON.stringify({ error: "unknown tool" });
 }
 
@@ -596,7 +739,11 @@ voiceAraRouter.post("/", (req: Request, res: Response) => {
 
   if (!process.env.XAI_API_KEY) {
     console.error("XAI_API_KEY missing — Polly fallback");
-    res.type("text/xml").send(POLLY_FALLBACK);
+    const copy = inboundVoice();
+    const xml = copy.greeting === SPOKEN
+      ? POLLY_FALLBACK
+      : `<?xml version="1.0" encoding="UTF-8"?><Response><Say voice="Polly.Joanna">${copy.greeting}</Say></Response>`;
+    res.type("text/xml").send(xml);
     return;
   }
 
@@ -643,7 +790,8 @@ export function attachVoiceStream(app: Express) {
     let agentBuf = "";
     let agentSpeaking = false;
     let muteUntil = 0;
-    let lastAgentText = SPOKEN;
+    const voiceCopy = inboundVoice();
+    let lastAgentText = voiceCopy.greeting;
     let echoResets = 0;
     const xaiWs = new WebSocket(XAI_URL, {
       headers: { Authorization: `Bearer ${key}` },
@@ -672,8 +820,8 @@ export function attachVoiceStream(app: Express) {
         JSON.stringify({
           type: "session.update",
           session: {
-            instructions: loadInstructions(),
-            voice: "ara",
+            instructions: voiceCopy.instructions,
+            voice: voiceCopy.voice,
             audio: {
               input: {
                 format: { type: "audio/pcmu" },
@@ -682,7 +830,7 @@ export function attachVoiceStream(app: Express) {
               output: { format: { type: "audio/pcmu" } },
             },
             turn_detection: { type: "server_vad" },
-            tools,
+            tools: voiceCopy.peak ? peakTools : tools,
           },
         }),
       );
@@ -707,7 +855,7 @@ export function attachVoiceStream(app: Express) {
         ws.send(JSON.stringify({ event: "media", streamSid, media: { payload: message.delta } }));
       } else if (message.type === "session.updated") {
         sessionReady = true;
-        st.turns.push({ role: "agent", text: SPOKEN });
+        st.turns.push({ role: "agent", text: voiceCopy.greeting });
         xaiWs.send(
           JSON.stringify({
             type: "conversation.item.create",
@@ -715,7 +863,7 @@ export function attachVoiceStream(app: Express) {
               type: "force_message",
               role: "assistant",
               interruptible: false,
-              content: [{ type: "output_text", text: SPOKEN }],
+              content: [{ type: "output_text", text: voiceCopy.greeting }],
             },
           }),
         );
@@ -738,7 +886,7 @@ export function attachVoiceStream(app: Express) {
       } else if (message.type === "response.output_audio_transcript.done" && (message.transcript || agentBuf)) {
         const text = String(message.transcript || agentBuf).trim();
         agentBuf = "";
-        if (text && text !== SPOKEN) {
+        if (text && text !== voiceCopy.greeting) {
           pushTurn(st, "agent", text);
           lastAgentText = text;
         }
@@ -748,7 +896,7 @@ export function attachVoiceStream(app: Express) {
         if (agentBuf.trim()) {
           const text = agentBuf.trim();
           agentBuf = "";
-          if (text && text !== SPOKEN) {
+          if (text && text !== voiceCopy.greeting) {
             pushTurn(st, "agent", text);
             lastAgentText = text;
           }
