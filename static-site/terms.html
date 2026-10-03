@@ -111,5 +111,17 @@
       · <a href="/contact" class="hover:text-zinc-300">Contact</a>
     </div>
   </footer>
+  <!-- Cloudflare Web Analytics: cookie-free page views. Harmless until the token is set. -->
+  <script>
+    (function () {
+      var token = "REPLACE_WITH_CLOUDFLARE_WEB_ANALYTICS_TOKEN";
+      if (!token || token.indexOf("REPLACE_WITH_") === 0) return;
+      var s = document.createElement("script");
+      s.type = "module";
+      s.src = "https://static.cloudflareinsights.com/beacon.min.js";
+      s.setAttribute("data-cf-beacon", JSON.stringify({ token: token }));
+      document.body.appendChild(s);
+    })();
+  </script>
 </body>
 </html>
