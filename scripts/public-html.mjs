@@ -4,7 +4,8 @@
  * Pages:
  *   - static-site/*.html, except the Google Search Console verification token
  *   - seo/landers/*.html
- *   - root HTML that Vercel serves (index.html, and vercel.json rewrite targets)
+ *   - HTML files named by vercel.json rewrites
+ *   - a root twin (index.html, contact.html, ...) only when that file exists
  *
  * Non-page routes, when the files exist:
  *   - /sitemap.xml from seo/sitemap.xml

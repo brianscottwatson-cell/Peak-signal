@@ -2,7 +2,7 @@
 
 Each `##` heading is one public route. The heading is the route only, so `scripts/check-feature-map.mjs` can parse it.
 
-These routes come from `static-site/*.html`, `seo/landers/*.html`, the Express routers, and `vercel.json`. The four main pages also exist as root HTML files. Vercel serves those root files. The static-site copies are what the Express router serves. `/index.html`, `/contact.html`, `/privacy.html`, and `/terms.html` are the same routes, not extra sections.
+These routes come from `static-site/*.html`, `seo/landers/*.html`, the Express routers, and `vercel.json`. Vercel rewrites each route to the source file below. `/contact.html` and the other `.html` aliases are the same pages, not extra sections.
 
 `/sitemap.xml` and `/robots.txt` are not HTML pages. The Google Search Console verification file is served by the routers and is not a page, so it is not listed. Ops pages are not public marketing routes.
 
@@ -12,7 +12,6 @@ Nav links are the anchors in the header `<nav>` (or the lander header nav). CTAs
 
 - Route: /
 - Source file: static-site/index.html
-- Vercel file: index.html
 - Purpose: Homepage for the operating system, with an assessment invitation.
 - H1: Put AI to work on the tools you already have.
 - Key sections:
@@ -46,7 +45,6 @@ Nav links are the anchors in the header `<nav>` (or the lander header nav). CTAs
 
 - Route: /contact
 - Source file: static-site/contact.html
-- Vercel file: contact.html
 - Purpose: Assessment request, by a booked call or the contact form.
 - H1: Book your assessment
 - Key sections:
@@ -78,7 +76,6 @@ Nav links are the anchors in the header `<nav>` (or the lander header nav). CTAs
 
 - Route: /privacy
 - Source file: static-site/privacy.html
-- Vercel file: privacy.html
 - Purpose: Privacy policy for the site and the text program.
 - H1: Privacy Policy
 - Key sections:
@@ -112,7 +109,6 @@ Nav links are the anchors in the header `<nav>` (or the lander header nav). CTAs
 
 - Route: /terms
 - Source file: static-site/terms.html
-- Vercel file: terms.html
 - Purpose: Terms for the site and the text program.
 - H1: Terms
 - Key sections:
