@@ -5,13 +5,19 @@
  * Routes match static-site/static-site-router.ts and seo/seo-landers-router.ts.
  * The script serves those files over HTTP, then:
  *   (a) fails if removed writer-note phrases appear in served HTML
- *       (including JSON-LD) or in the Vercel root HTML copies
+ *       (including JSON-LD)
  *   (b) fails if an internal href 404s, or a #fragment has no matching id
+ *   (c) fails if vercel.json does not serve those same files, proxy /api to
+ *       Replit, or 301 www to the apex
+ *   (d) fails if .vercelignore drops a public file or uploads a private one
+ *   (e) fails unless each public HTML page has the Cloudflare beacon once
  *
  * Usage: node scripts/check-public-links.mjs
  */
 import http from "node:http";
-import { readFileSync } from "node:fs";
+import { execFileSync } from "node:child_process";
+import { existsSync, mkdirSync, mkdtempSync, readFileSync, writeFileSync } from "node:fs";
+import { tmpdir } from "node:os";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -59,7 +65,8 @@ const banned = [
   "#loop-signal",
 ];
 
-const vercelCopies = ["index.html", "contact.html", "privacy.html", "terms.html"];
+const beacon = "6a067e22aec645c6b9e360ce149ae7ad";
+const staleRootCopies = ["index.html", "contact.html", "privacy.html", "terms.html"];
 
 const failures = [];
 
@@ -153,6 +160,83 @@ function checkBanned(label, body) {
   }
 }
 
+function assertVercelConfig() {
+  const config = JSON.parse(readFileSync(join(root, "vercel.json"), "utf8"));
+  if (config.cleanUrls === true) fail("vercel.json cleanUrls is on, so .html URLs would redirect");
+  if (config.trailingSlash === true) fail("vercel.json trailingSlash is on");
+
+  const rewrites = config.rewrites ?? [];
+  for (const [path, file] of Object.entries(routes)) {
+    const rule = rewrites.find((item) => item.source === path);
+    if (!rule) {
+      fail(`vercel.json has no rewrite for ${path}`);
+      continue;
+    }
+    const destFile = String(rule.destination || "").replace(/^\//, "");
+    if (destFile !== file) fail(`vercel.json ${path} rewrites to /${destFile}, expected /${file}`);
+  }
+
+  const api = rewrites.find((item) => item.source === "/api/(.*)");
+  if (!api || api.destination !== "https://peak-signal.replit.app/api/$1") {
+    fail("vercel.json must proxy /api/(.*) to https://peak-signal.replit.app/api/$1");
+  }
+
+  const www = (config.redirects ?? []).find(
+    (item) =>
+      item.source === "/:path*" &&
+      item.destination === "https://getpeaksignal.com/:path*" &&
+      item.statusCode === 301 &&
+      Array.isArray(item.has) &&
+      item.has.some((has) => has.type === "host" && has.value === "www.getpeaksignal.com"),
+  );
+  if (!www) fail("vercel.json is missing the www.getpeaksignal.com 301");
+
+  for (const file of staleRootCopies) {
+    if (existsSync(join(root, file))) fail(`stale Vercel root copy still present: ${file}`);
+  }
+
+  assertVercelIgnore();
+}
+
+function ignoredByVercelIgnore(files) {
+  const dir = mkdtempSync(join(tmpdir(), "vercelignore-"));
+  writeFileSync(join(dir, ".gitignore"), readFileSync(join(root, ".vercelignore")));
+  execFileSync("git", ["init", "-q"], { cwd: dir });
+  for (const file of files) {
+    mkdirSync(join(dir, dirname(file)), { recursive: true });
+    writeFileSync(join(dir, file), "");
+  }
+  try {
+    const out = execFileSync("git", ["check-ignore", "--stdin"], {
+      cwd: dir,
+      input: files.join("\n") + "\n",
+      encoding: "utf8",
+    });
+    return new Set(out.split("\n").filter(Boolean));
+  } catch (err) {
+    if (err && err.status === 1) return new Set();
+    throw err;
+  }
+}
+
+function assertVercelIgnore() {
+  const hidden = [
+    "voice/ara-prompt.md",
+    "spine.md",
+    "business-plan.md",
+    "static-site/static-site-router.ts",
+    "seo/seo-landers-router.ts",
+    "ops/ops.html",
+  ];
+  const ignored = ignoredByVercelIgnore([...new Set([...Object.values(routes), ...hidden])]);
+  for (const file of new Set(Object.values(routes))) {
+    if (ignored.has(file)) fail(`.vercelignore excludes public file ${file}`);
+  }
+  for (const file of hidden) {
+    if (!ignored.has(file)) fail(`.vercelignore still uploads ${file}`);
+  }
+}
+
 async function main() {
   const server = http.createServer((req, res) => {
     const path = new URL(req.url ?? "/", "http://127.0.0.1").pathname;
@@ -174,11 +258,11 @@ async function main() {
       if (res.status !== 200) fail(`${path} returned ${res.status}`);
       pages.set(path, res.body);
       checkBanned(path, res.body);
+      const count = res.body.split(beacon).length - 1;
+      if (count !== 1) fail(`${path} has the Cloudflare beacon ${count} times`);
     }
 
-    for (const file of vercelCopies) {
-      checkBanned(`vercel copy ${file}`, readFileSync(join(root, file), "utf8"));
-    }
+    assertVercelConfig();
 
     const home = pages.get("/");
     for (const id of ["system", "offers", "how"]) {
@@ -245,7 +329,8 @@ async function main() {
     }
 
     console.log(`OK: ${pages.size} public pages, ${sitemapLocs.length} sitemap URLs, ${checked.length} internal hrefs.`);
-    console.log("Banned phrases absent from served HTML and the Vercel root copies.");
+    console.log("Banned phrases absent. Cloudflare beacon once per page.");
+    console.log("vercel.json serves static-site/ and seo/, proxies /api/(.*) to Replit, and 301s www to the apex.");
     console.log("Home #system, #offers, and #how resolve.");
   } finally {
     server.close();

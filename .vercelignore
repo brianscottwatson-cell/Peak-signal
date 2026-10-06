@@ -1,0 +1,10 @@
+# Upload only the public pages Vercel rewrites. The rest of the repo stays in Git.
+*
+!static-site/
+!static-site/*.html
+!static-site/robots.txt
+!seo/
+!seo/landers/
+!seo/landers/*.html
+!seo/sitemap.xml
+!vercel.json
