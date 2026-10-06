@@ -12,41 +12,44 @@ Nav links are the anchors in the header `<nav>` (or the lander header nav). CTAs
 
 - Route: /
 - Source file: static-site/index.html
-- Purpose: Homepage for the operating system, with an assessment invitation.
-- H1: Put AI to work on the tools you already have.
+- Purpose: Homepage for AI-first modernization, with the Foundation, Solutions, Colorado Hot Tub case study, FAQ, and a booked call.
+- H1: Modernize your business.
 - Key sections:
-  - One system. Every customer, every call, every follow-up — connected.
-  - Three jobs. One system.
-  - We built it for our own business first.
-  - Results
-  - A ladder, not a menu.
-  - See what it does for your business.
+  - Foundation
+  - Solutions
+  - Case study
+  - Frequently Asked Questions
+  - Book a call
 - CTAs:
-  - Book an assessment → /contact
   - Book a call → https://calendly.com/hello-peaksignal/30min
-  - See the offers → #offers
-  - Book your assessment → /contact
 - In-page links:
-  - Evergreen → /ai-websites-evergreen-co
+  - coloradohottubllc.com → https://coloradohottubllc.com/
+  - privacy policy → /privacy
 - Forms: none
-- JSON-LD @types: none
+- JSON-LD @types: ProfessionalService, Person, FAQPage
 - Nav links:
+  - Peak Signal → /
   - The System → #system
   - Offers → #offers
   - How it Works → #how
+  - About → /about
   - Contact → /contact
-  - Book an assessment → /contact
   - Book a call → https://calendly.com/hello-peaksignal/30min
 - Footer links:
-  - Book an assessment → /contact
+  - Evergreen → /ai-websites-evergreen-co
+  - 970-660-5088 → tel:+19706605088
+  - hello.peaksignal@gmail.com → mailto:hello.peaksignal@gmail.com
+  - About → /about
   - Contact → /contact
+  - Privacy → /privacy
+  - Terms → /terms
 
 ## /contact
 
 - Route: /contact
 - Source file: static-site/contact.html
 - Purpose: Assessment request, by a booked call or the contact form.
-- H1: Book your assessment
+- H1: Book a call
 - Key sections:
   - Booking call
   - Assessment form
@@ -54,6 +57,7 @@ Nav links are the anchors in the header `<nav>` (or the lander header nav). CTAs
   - Book a call → https://calendly.com/hello-peaksignal/30min
   - Book a 30-min call → https://calendly.com/hello-peaksignal/30min
 - In-page links:
+  - 970-660-5088 → tel:+19706605088
   - Privacy Policy → /privacy
   - Terms → /terms
   - hello.peaksignal@gmail.com → mailto:hello.peaksignal@gmail.com
@@ -69,6 +73,37 @@ Nav links are the anchors in the header `<nav>` (or the lander header nav). CTAs
   - Contact → /contact
   - Book a call → https://calendly.com/hello-peaksignal/30min
 - Footer links:
+  - About → /about
+  - Privacy → /privacy
+  - Terms → /terms
+
+## /about
+
+- Route: /about
+- Source file: static-site/about.html
+- Purpose: About Brian at Peak Signal, the studio in Evergreen, Colorado.
+- H1: About Peak Signal
+- Key sections: none
+- CTAs:
+  - Book a call → https://calendly.com/hello-peaksignal/30min
+- In-page links:
+  - See the Colorado Hot Tub case study → /#case-study
+- Forms: none
+- JSON-LD @types: ProfessionalService, Person
+- Nav links:
+  - Peak Signal → /
+  - The System → /#system
+  - Offers → /#offers
+  - How it Works → /#how
+  - About → /about
+  - Contact → /contact
+  - Book a call → https://calendly.com/hello-peaksignal/30min
+- Footer links:
+  - Evergreen → /ai-websites-evergreen-co
+  - 970-660-5088 → tel:+19706605088
+  - hello.peaksignal@gmail.com → mailto:hello.peaksignal@gmail.com
+  - About → /about
+  - Contact → /contact
   - Privacy → /privacy
   - Terms → /terms
 
