@@ -181,5 +181,114 @@ const acceptedXml = await post("/api/cht-voice/agent", {
 assert(acceptedXml === `<?xml version="1.0" encoding="UTF-8"?><Response></Response>`, acceptedXml);
 assert(!acceptedXml.includes("<Stream"), acceptedXml);
 
+// GET health is read-only JSON. It reports ring-first and does not echo secrets or create a call.
+const { existsSync } = await import("node:fs");
+const { join } = await import("node:path");
+const { tmpdir } = await import("node:os");
+const callsPath = join(tmpdir(), `cht-health-${process.pid}.json`);
+process.env.CHT_CALLS_PATH = callsPath;
+process.env.CHT_FORMSPREE = "https://formspree.io/f/healthleakshop";
+process.env.PEAK_FORMSPREE = "https://formspree.io/f/healthleakpeak";
+process.env.XAI_API_KEY = "xai-health-leak-key";
+process.env.TWILIO_ACCOUNT_SID = "AChealthleak";
+process.env.TWILIO_AUTH_TOKEN = "twilio-health-leak-token";
+process.env.CHT_SHOP_NUMBER = "+19998887777";
+const ringSecret = "+15557654321";
+process.env.CHT_RING_NUMBERS = ringSecret;
+
+async function getJson(path: string): Promise<{ status: number; type: string; cache: string; body: any; text: string }> {
+  const res = await fetch(`http://127.0.0.1:${port}${path}`);
+  const text = await res.text();
+  let body: any = null;
+  try {
+    body = JSON.parse(text);
+  } catch {
+    body = null;
+  }
+  return {
+    status: res.status,
+    type: res.headers.get("content-type") || "",
+    cache: res.headers.get("cache-control") || "",
+    body,
+    text,
+  };
+}
+
+function assertHealth(path: string, body: any, text: string, status: number, type: string, cache: string, ringShop: boolean) {
+  assert(status === 200, `${path} status ${status} ${text}`);
+  assert(type.includes("application/json"), `${path} type ${type}`);
+  assert(cache.includes("no-store"), `${path} cache ${cache}`);
+  assert(body && typeof body === "object", text);
+  assert(JSON.stringify(Object.keys(body).sort()) === JSON.stringify(["ok", "ringShop", "screenRoute", "service", "version"]), text);
+  assert(body.ok === true, text);
+  assert(body.service === "cht-voice", text);
+  assert(body.ringShop === ringShop, text);
+  assert(body.screenRoute === true, text);
+  assert(typeof body.version === "string" && body.version.length > 0, text);
+  assert(!text.includes("<Response"), text);
+  assert(!text.includes(ringSecret), text);
+  assert(!text.includes("15557654321"), text);
+  assert(!text.includes("xai-health-leak-key"), text);
+  assert(!text.includes("test-not-a-real-key"), text);
+  assert(!text.includes("twilio-health-leak-token"), text);
+  assert(!text.includes("AChealthleak"), text);
+  assert(!text.includes("healthleakshop"), text);
+  assert(!text.includes("healthleakpeak"), text);
+  assert(!text.includes("xgogybaj"), text);
+  assert(!text.includes("mgobgrlr"), text);
+  assert(!text.includes("formspree"), text);
+  assert(!text.includes("+19998887777"), text);
+  assert(!text.includes("9705312897"), text);
+  assert(!text.includes("voice-test.example"), text);
+}
+
+const origFetch = globalThis.fetch;
+let outbound = 0;
+globalThis.fetch = (async (input: RequestInfo | URL, init?: RequestInit) => {
+  const url = String(input);
+  if (url.startsWith(`http://127.0.0.1:${port}`)) return origFetch(input, init);
+  outbound += 1;
+  throw new Error(`health made an outbound call ${url}`);
+}) as typeof fetch;
+
+process.env.CHT_RING_SHOP = "0";
+let health: Awaited<ReturnType<typeof getJson>>;
+let root: Awaited<ReturnType<typeof getJson>>;
+try {
+  health = await getJson("/api/cht-voice/health");
+  root = await getJson("/api/cht-voice");
+  assert(outbound === 0, `outbound calls ${outbound}`);
+} finally {
+  globalThis.fetch = origFetch;
+}
+assertHealth("/api/cht-voice/health", health.body, health.text, health.status, health.type, health.cache, false);
+assertHealth("/api/cht-voice", root.body, root.text, root.status, root.type, root.cache, false);
+assert(JSON.stringify(health.body) === JSON.stringify(root.body), root.text);
+assert(!existsSync(callsPath), "GET health wrote a call log");
+
+const offXml = await post("/api/cht-voice", inbound({ CallSid: "CAhealthoff" }));
+assert(!offXml.includes("<Dial"), offXml);
+assert(!offXml.includes(ringSecret), offXml);
+assert(offXml.includes("<Stream"), offXml);
+assert(!existsSync(callsPath), "ring-off POST wrote a call log");
+
+process.env.CHT_RING_SHOP = "1";
+const onHealth = await getJson("/api/cht-voice/health?ring=%2B15557654321");
+assertHealth("/api/cht-voice/health", onHealth.body, onHealth.text, onHealth.status, onHealth.type, onHealth.cache, true);
+const onXml = await post("/api/cht-voice", inbound({ CallSid: "CAhealthon" }));
+assert(onXml.includes("<Dial"), onXml);
+assert(onXml.includes(`${ringSecret}</Number>`), onXml);
+assert(!onHealth.text.includes(ringSecret), onHealth.text);
+
+delete process.env.CHT_RING_SHOP;
+const unsetHealth = await getJson("/api/cht-voice/health");
+assert(unsetHealth.body.ringShop === false, unsetHealth.text);
+
+const screenGet = await fetch(`http://127.0.0.1:${port}/api/cht-voice/screen`);
+const agentGet = await fetch(`http://127.0.0.1:${port}/api/cht-voice/agent`);
+assert(screenGet.status === 404, `GET /screen ${screenGet.status}`);
+assert(agentGet.status === 404, `GET /agent ${agentGet.status}`);
+assert(!existsSync(callsPath), "GET health wrote a call log");
+
 await new Promise<void>((resolve, reject) => server.close((err) => (err ? reject(err) : resolve())));
 console.log("cht-voice.test.ts ok");
