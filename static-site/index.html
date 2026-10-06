@@ -18,10 +18,57 @@
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
   <style>
-    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Space+Grotesk:wght@500;600&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;600&display=swap');
     body { font-family: 'Inter', system-ui, sans-serif; }
     .font-display { font-family: 'Space Grotesk', 'Inter', sans-serif; font-weight: 600; }
     a:focus-visible, button:focus-visible { outline: 2px solid #3B82F6; outline-offset: 3px; }
+    .cht-carousel { width: min(100%, 34rem); max-width: 100%; margin-inline: auto; color: #fff; font-family: Inter, "Helvetica Neue", Arial, sans-serif; }
+    .cht-carousel, .cht-carousel * { font-family: Inter, "Helvetica Neue", Arial, sans-serif; }
+    .cht-carousel .cht-track { display: flex; flex-direction: row; flex-wrap: nowrap; align-items: flex-start; gap: 16px; width: 100%; overflow-x: auto; overflow-y: hidden; scroll-snap-type: x mandatory; scroll-behavior: smooth; scrollbar-width: none; -webkit-overflow-scrolling: touch; outline: none; cursor: grab; overscroll-behavior-x: contain; }
+    .cht-carousel .cht-track::-webkit-scrollbar { display: none; }
+    .cht-carousel .cht-track.is-dragging { cursor: grabbing; scroll-snap-type: none; }
+    .cht-carousel .cht-track:focus-visible { outline: 2px solid #FCD116; outline-offset: 4px; }
+    .cht-carousel .cht-card { flex: 0 0 100%; width: 100%; min-width: 100%; scroll-snap-align: start; scroll-snap-stop: always; container-type: inline-size; border-radius: 2.2cqw; overflow: hidden; }
+    .cht-carousel .cht-in { width: 100%; min-height: 125cqw; position: relative; padding: 6.5cqw 7cqw 5.5cqw 8cqw; display: flex; flex-direction: column; background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='60' height='60' viewBox='0 0 60 60'%3E%3Cg fill='%23ffffff' fill-opacity='0.05'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/svg%3E") 0 0 / 5.56cqw 5.56cqw, linear-gradient(135deg, #002868 0%, #001a4a 60%, #000e2e 100%); }
+    .cht-carousel .cht-in::before { content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: .75cqw; background: #BF0A30; }
+    .cht-carousel .cht-top { position: relative; z-index: 1; display: flex; justify-content: space-between; align-items: center; margin: -6.5cqw -7cqw 5cqw -8cqw; padding: 2.1cqw 7cqw 2.1cqw 8cqw; background: #fff; border-top: 1.1cqw solid #f5c518; box-shadow: 0 .4cqw 1.6cqw rgba(0, 0, 0, .25); }
+    .cht-carousel .cht-mark { display: flex; align-items: center; gap: 1.8cqw; min-width: 0; }
+    .cht-carousel .cht-mark svg { width: 7.4cqw; height: 8.7cqw; flex-shrink: 0; }
+    .cht-carousel .cht-mark-name { display: block; font-weight: 700; font-size: 3.5cqw; line-height: 1.15; color: #002868; letter-spacing: -.01em; }
+    .cht-carousel .cht-mark-sub { display: block; font-size: 1.65cqw; line-height: 1.3; color: #6b7280; margin-top: .35cqw; font-weight: 500; }
+    .cht-carousel .cht-pg { flex-shrink: 0; font-size: 1.6cqw; letter-spacing: .14em; color: #002868; font-weight: 700; background: #FCD116; padding: .7cqw 1.5cqw; border-radius: 99cqw; }
+    .cht-carousel .cht-eyebrow { font-size: 1.75cqw; letter-spacing: .16em; text-transform: uppercase; color: #FCD116; font-weight: 700; margin-bottom: 2cqw; }
+    .cht-carousel h3 { font-weight: 700; font-size: 6.6cqw; letter-spacing: -.025em; line-height: 1.06; margin: 0 0 2.2cqw; color: #fff; }
+    .cht-carousel .cht-lead { color: #FCD116; font-size: 2.6cqw; line-height: 1.42; margin: 0 0 3.5cqw; font-weight: 500; }
+    .cht-carousel ul { list-style: none; display: flex; flex-direction: column; gap: 1.8cqw; margin: 0; padding: 0; }
+    .cht-carousel li { background: rgba(255, 255, 255, .07); border: 1px solid rgba(255, 255, 255, .14); border-left: .55cqw solid #BF0A30; border-radius: 1.4cqw; padding: 2.3cqw 2.8cqw 2.3cqw 5.6cqw; font-size: 2.35cqw; line-height: 1.4; color: #dbeafe; position: relative; }
+    .cht-carousel li::before { content: ""; position: absolute; left: 2.3cqw; top: 3.1cqw; width: 1.3cqw; height: 1.3cqw; border-radius: 50%; background: #FCD116; box-shadow: 0 0 0 .45cqw rgba(252, 209, 22, .18); }
+    .cht-carousel li b { display: block; color: #fff; font-size: 2.7cqw; margin-bottom: .3cqw; font-weight: 700; }
+    .cht-carousel .cht-shot { border-radius: 1.4cqw; overflow: hidden; background: #fff; border: .35cqw solid #fff; box-shadow: 0 1cqw 3cqw rgba(0, 0, 0, .35); }
+    .cht-carousel .cht-shot img { display: block; width: 100%; height: auto; }
+    .cht-carousel .cht-cap { font-size: 1.6cqw; color: #bfdbfe; opacity: .85; margin: 1.2cqw 0 0; }
+    .cht-carousel .cht-cap.c2 { margin-top: 1.6cqw; }
+    .cht-carousel .cht-nums { display: grid; grid-template-columns: 1fr 1fr; gap: 2cqw; margin-top: 3cqw; }
+    .cht-carousel .cht-num { background: #fff; border-radius: 1.6cqw; padding: 2.6cqw 3cqw; border-top: .9cqw solid #BF0A30; box-shadow: 0 1cqw 3cqw rgba(0, 0, 0, .3); }
+    .cht-carousel .cht-num .v { font-size: 9.6cqw; font-weight: 800; letter-spacing: -.04em; line-height: 1; color: #002868; }
+    .cht-carousel .cht-num .l { font-size: 2.5cqw; color: #BF0A30; font-weight: 700; margin-top: .8cqw; }
+    .cht-carousel .cht-foot { margin-top: auto; display: flex; justify-content: space-between; align-items: baseline; gap: 2cqw; font-size: 1.6cqw; color: #fff; font-weight: 600; letter-spacing: .04em; border-top: 1px solid rgba(255, 255, 255, .18); padding-top: 1.8cqw; }
+    .cht-carousel .cht-foot a { color: #fff; text-decoration: none; }
+    .cht-carousel .cht-foot a:hover { text-decoration: underline; }
+    .cht-carousel .cht-credit { font-size: 1.3cqw; font-weight: 500; color: rgba(255, 255, 255, .45); letter-spacing: .06em; }
+    .cht-carousel .cht-nav { display: flex; align-items: center; justify-content: center; gap: 16px; margin-top: 14px; max-width: 100%; }
+    .cht-carousel .cht-prev, .cht-carousel .cht-next { display: none; width: 44px; height: 44px; border-radius: 50%; border: 1px solid rgba(255, 255, 255, .2); background: #002868; color: #fff; font-size: 20px; line-height: 1; cursor: pointer; align-items: center; justify-content: center; flex-shrink: 0; }
+    .cht-carousel .cht-prev:disabled, .cht-carousel .cht-next:disabled { opacity: .3; cursor: default; }
+    .cht-carousel .cht-dots { display: flex; gap: 0; }
+    .cht-carousel .cht-dots button { width: 44px; height: 44px; border: 0; padding: 0; background: transparent; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; }
+    .cht-carousel .cht-dots button::before { content: ""; width: 8px; height: 8px; border-radius: 50%; background: rgba(255, 255, 255, .25); }
+    .cht-carousel .cht-dots button[aria-current="true"]::before { background: #FCD116; }
+    @media (min-width: 768px) {
+      .cht-carousel .cht-prev, .cht-carousel .cht-next { display: inline-flex; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .cht-carousel .cht-track { scroll-behavior: auto; }
+    }
   </style>
   <script type="application/ld+json">
   {
@@ -166,154 +213,212 @@
     <section id="offers" class="max-w-screen-xl mx-auto px-4 sm:px-6 py-16 border-t border-zinc-800" aria-labelledby="solutions-heading">
       <h2 id="solutions-heading" class="font-display text-3xl sm:text-4xl font-semibold tracking-tighter">Solutions</h2>
       <p class="text-base text-[#3B82F6] leading-relaxed mt-3 mb-8 max-w-[60ch]" style="text-wrap: pretty">We work with businesses to identify the areas they want to enable with AI. Every client's mix is different, so we put together whatever your business needs, all tied together.</p>
-      <div class="grid md:grid-cols-2 gap-6">
-        <article id="case-study" class="md:col-span-2 bg-zinc-900 border border-zinc-800 rounded-3xl p-6 sm:p-8" aria-labelledby="case-study-heading">
-          <p class="text-xs font-medium tracking-[2px] uppercase text-[#3B82F6]">Website results</p>
-          <h3 id="case-study-heading" class="font-display text-2xl sm:text-3xl font-semibold tracking-tighter mt-2">Colorado Hot Tub case study</h3>
-          <p class="text-base text-[#3B82F6] leading-relaxed mt-3 mb-6">We rebuilt Colorado Hot Tub's website and optimized it for search and their Google Business Profile.</p>
-          <figure>
-            <img src="/images/cht-before-after.webp" width="1600" height="594" loading="lazy" decoding="async" alt="Colorado Hot Tub homepage before the rebuild (old Wix site, April 2026) and after (current site)." class="block w-full h-auto max-w-full rounded-3xl">
-            <figcaption class="text-sm text-zinc-500 mt-3">Before: archived April 2026. After: live site.</figcaption>
-          </figure>
-          <div class="mt-8 grid grid-cols-2 gap-6">
-            <p>
-              <span class="block font-display text-4xl sm:text-5xl font-semibold tracking-tighter text-white" aria-hidden="true">+633%</span>
-              <span class="block text-sm text-zinc-400 mt-2" aria-hidden="true">Calls from Google</span>
-            </p>
-            <p>
-              <span class="block font-display text-4xl sm:text-5xl font-semibold tracking-tighter text-white" aria-hidden="true">+272%</span>
-              <span class="block text-sm text-zinc-400 mt-2" aria-hidden="true">Website visits</span>
-            </p>
+      <div class="cht-carousel" role="region" aria-roledescription="carousel" aria-label="Colorado Hot Tub solutions">
+        <div class="cht-track" tabindex="0">
+          <section class="cht-card" id="case-study" role="group" aria-roledescription="slide" aria-label="1 of 6">
+            <div class="cht-in">
+              <div class="cht-top">
+                <div class="cht-mark"><svg viewBox="0 0 100 118" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Colorado Hot Tub LLC logo"><path d="M50 8 C30 30 12 55 12 78 A38 38 0 0 0 88 78 C88 55 70 30 50 8Z" fill="#002868"/><path d="M70.78 90 A24 24 0 1 1 70.78 66 L61.26 71.5 A13 13 0 1 0 61.26 84.5Z" fill="#BF0A30"/><circle cx="50" cy="78" r="10" fill="#FCD116"/></svg><div><span class="cht-mark-name">Colorado Hot Tub LLC</span><span class="cht-mark-sub">Celtic · Icelandic · Harmonic Dealer · Evergreen, CO</span></div></div>
+                <span class="cht-pg" aria-hidden="true">1/6</span>
+              </div>
+              <p class="cht-eyebrow">Website results</p>
+              <h3 id="case-study-heading">Colorado Hot Tub case study</h3>
+              <p class="cht-lead">We rebuilt their site and optimized it for search and their Google Business Profile.</p>
+              <div class="cht-shot"><img src="/images/cht-before-after.webp" width="1600" height="594" loading="lazy" decoding="async" alt="Colorado Hot Tub homepage before the rebuild (old Wix site, April 2026) and after (current site)."></div>
+              <p class="cht-cap">Before: archived April 2026. After: live site.</p>
+              <div class="cht-nums"><div class="cht-num"><div class="v">+633%</div><div class="l">Calls from Google</div></div><div class="cht-num"><div class="v">+272%</div><div class="l">Website visits</div></div></div>
+              <p class="cht-cap c2">Source: Google Business Profile performance report, August 2026 vs. July 2026.</p>
+              <div class="cht-foot"><a href="https://coloradohottubllc.com/" target="_blank" rel="noopener">coloradohottubllc.com</a><span class="cht-credit">Built by Peak Signal</span></div>
+            </div>
+          </section>
+          <section class="cht-card" role="group" aria-roledescription="slide" aria-label="2 of 6">
+            <div class="cht-in">
+              <div class="cht-top">
+                <div class="cht-mark"><svg viewBox="0 0 100 118" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Colorado Hot Tub LLC logo"><path d="M50 8 C30 30 12 55 12 78 A38 38 0 0 0 88 78 C88 55 70 30 50 8Z" fill="#002868"/><path d="M70.78 90 A24 24 0 1 1 70.78 66 L61.26 71.5 A13 13 0 1 0 61.26 84.5Z" fill="#BF0A30"/><circle cx="50" cy="78" r="10" fill="#FCD116"/></svg><div><span class="cht-mark-name">Colorado Hot Tub LLC</span><span class="cht-mark-sub">Celtic · Icelandic · Harmonic Dealer · Evergreen, CO</span></div></div>
+                <span class="cht-pg" aria-hidden="true">2/6</span>
+              </div>
+              <p class="cht-eyebrow">Colorado Hot Tub · Website</p>
+              <h3>AI-first website</h3>
+              <p class="cht-lead">Instant updates with zero friction.</p>
+              <ul>
+                <li><b>Your info and branding, baked in</b>So changes take seconds.</li>
+                <li><b>A site for every city or industry</b>Spin up custom-built sites for each one, instantly.</li>
+                <li><b>Feeds the voice agent</b>The phone agent gets its info from the site, so everything stays current automatically.</li>
+              </ul>
+              <div class="cht-foot"><a href="https://coloradohottubllc.com/" target="_blank" rel="noopener">coloradohottubllc.com</a><span class="cht-credit">Built by Peak Signal</span></div>
+            </div>
+          </section>
+          <section class="cht-card" role="group" aria-roledescription="slide" aria-label="3 of 6">
+            <div class="cht-in">
+              <div class="cht-top">
+                <div class="cht-mark"><svg viewBox="0 0 100 118" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Colorado Hot Tub LLC logo"><path d="M50 8 C30 30 12 55 12 78 A38 38 0 0 0 88 78 C88 55 70 30 50 8Z" fill="#002868"/><path d="M70.78 90 A24 24 0 1 1 70.78 66 L61.26 71.5 A13 13 0 1 0 61.26 84.5Z" fill="#BF0A30"/><circle cx="50" cy="78" r="10" fill="#FCD116"/></svg><div><span class="cht-mark-name">Colorado Hot Tub LLC</span><span class="cht-mark-sub">Celtic · Icelandic · Harmonic Dealer · Evergreen, CO</span></div></div>
+                <span class="cht-pg" aria-hidden="true">3/6</span>
+              </div>
+              <p class="cht-eyebrow">Colorado Hot Tub · Search &amp; Google</p>
+              <h3>AI-first SEO</h3>
+              <p class="cht-lead">Its own solution, not just part of the website build.</p>
+              <ul>
+                <li><b>Ongoing SEO</b>Pages keep getting tuned so traffic keeps growing.</li>
+                <li><b>Google Business Profile, managed</b>The shop's profile stays current and complete.</li>
+                <li><b>Shows up in local search</b>Built to be found when nearby customers search.</li>
+                <li><b>Measured</b>Tracked against the Google Business Profile performance report.</li>
+              </ul>
+              <div class="cht-foot"><a href="https://coloradohottubllc.com/" target="_blank" rel="noopener">coloradohottubllc.com</a><span class="cht-credit">Built by Peak Signal</span></div>
+            </div>
+          </section>
+          <section class="cht-card" role="group" aria-roledescription="slide" aria-label="4 of 6">
+            <div class="cht-in">
+              <div class="cht-top">
+                <div class="cht-mark"><svg viewBox="0 0 100 118" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Colorado Hot Tub LLC logo"><path d="M50 8 C30 30 12 55 12 78 A38 38 0 0 0 88 78 C88 55 70 30 50 8Z" fill="#002868"/><path d="M70.78 90 A24 24 0 1 1 70.78 66 L61.26 71.5 A13 13 0 1 0 61.26 84.5Z" fill="#BF0A30"/><circle cx="50" cy="78" r="10" fill="#FCD116"/></svg><div><span class="cht-mark-name">Colorado Hot Tub LLC</span><span class="cht-mark-sub">Celtic · Icelandic · Harmonic Dealer · Evergreen, CO</span></div></div>
+                <span class="cht-pg" aria-hidden="true">4/6</span>
+              </div>
+              <p class="cht-eyebrow">Colorado Hot Tub · Live now</p>
+              <h3>AI-first phone</h3>
+              <p class="cht-lead">Picks up the call, summarizes it, and then emails the owners a summary of every call.</p>
+              <ul>
+                <li><b>Picks up the call</b>On the shop phone, handling real calls today.</li>
+                <li><b>Summarizes it</b>Who called, what they need, and how to reach them.</li>
+                <li><b>Emails the owners</b>A summary of every call lands in their inbox.</li>
+                <li><b>Same answers as the site FAQ</b>Handles the questions the website FAQ answers, so callers and visitors hear the same thing.</li>
+              </ul>
+              <div class="cht-foot"><a href="https://coloradohottubllc.com/" target="_blank" rel="noopener">coloradohottubllc.com</a><span class="cht-credit">Built by Peak Signal</span></div>
+            </div>
+          </section>
+          <section class="cht-card" role="group" aria-roledescription="slide" aria-label="5 of 6">
+            <div class="cht-in">
+              <div class="cht-top">
+                <div class="cht-mark"><svg viewBox="0 0 100 118" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Colorado Hot Tub LLC logo"><path d="M50 8 C30 30 12 55 12 78 A38 38 0 0 0 88 78 C88 55 70 30 50 8Z" fill="#002868"/><path d="M70.78 90 A24 24 0 1 1 70.78 66 L61.26 71.5 A13 13 0 1 0 61.26 84.5Z" fill="#BF0A30"/><circle cx="50" cy="78" r="10" fill="#FCD116"/></svg><div><span class="cht-mark-name">Colorado Hot Tub LLC</span><span class="cht-mark-sub">Celtic · Icelandic · Harmonic Dealer · Evergreen, CO</span></div></div>
+                <span class="cht-pg" aria-hidden="true">5/6</span>
+              </div>
+              <p class="cht-eyebrow">Colorado Hot Tub · Shop inbox</p>
+              <h3>AI-first email</h3>
+              <p class="cht-lead">Watches the shop's info@ inbox and drafts replies. The owners review and send, so nothing goes out without them.</p>
+              <ul>
+                <li><b>Watches the inbox</b>Reads what comes in to the shop.</li>
+                <li><b>Puts first things first</b>Customers waiting and quote follow-ups rise to the top.</li>
+                <li><b>Catches what slips</b>Flags emails they'd otherwise miss.</li>
+                <li><b>Drafts replies</b>In the shop's voice, ready for owner approval.</li>
+                <li><b>Tracks follow-ups</b>Flags threads waiting on the shop.</li>
+              </ul>
+              <div class="cht-foot"><a href="https://coloradohottubllc.com/" target="_blank" rel="noopener">coloradohottubllc.com</a><span class="cht-credit">Built by Peak Signal</span></div>
+            </div>
+          </section>
+          <section class="cht-card" role="group" aria-roledescription="slide" aria-label="6 of 6">
+            <div class="cht-in">
+              <div class="cht-top">
+                <div class="cht-mark"><svg viewBox="0 0 100 118" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Colorado Hot Tub LLC logo"><path d="M50 8 C30 30 12 55 12 78 A38 38 0 0 0 88 78 C88 55 70 30 50 8Z" fill="#002868"/><path d="M70.78 90 A24 24 0 1 1 70.78 66 L61.26 71.5 A13 13 0 1 0 61.26 84.5Z" fill="#BF0A30"/><circle cx="50" cy="78" r="10" fill="#FCD116"/></svg><div><span class="cht-mark-name">Colorado Hot Tub LLC</span><span class="cht-mark-sub">Celtic · Icelandic · Harmonic Dealer · Evergreen, CO</span></div></div>
+                <span class="cht-pg" aria-hidden="true">6/6</span>
+              </div>
+              <p class="cht-eyebrow">Colorado Hot Tub · Quote generator</p>
+              <h3>AI-first bid generator</h3>
+              <p class="cht-lead">Job details and vendor pricing become a clean, branded Colorado Hot Tub quote.</p>
+              <ul>
+                <li><b>Builds quotes faster</b>The packet comes together without starting from scratch.</li>
+                <li><b>Clean and branded</b>Shop logo and contact info on every packet.</li>
+                <li><b>Real product detail</b>Actual photos and specs for tubs, saunas, and plunges.</li>
+                <li><b>Real prices only</b>Pricing comes from the shop's own catalog, never guessed.</li>
+                <li><b>Owner reviewed</b>The owners approve before it goes out.</li>
+              </ul>
+              <div class="cht-foot"><a href="https://coloradohottubllc.com/" target="_blank" rel="noopener">coloradohottubllc.com</a><span class="cht-credit">Built by Peak Signal</span></div>
+            </div>
+          </section>
+        </div>
+        <div class="cht-nav">
+          <button type="button" class="cht-prev" aria-label="Previous slide" disabled>&#8592;</button>
+          <div class="cht-dots" role="group" aria-label="Choose a slide">
+            <button type="button" aria-label="Show slide 1 of 6" aria-current="true"></button>
+            <button type="button" aria-label="Show slide 2 of 6"></button>
+            <button type="button" aria-label="Show slide 3 of 6"></button>
+            <button type="button" aria-label="Show slide 4 of 6"></button>
+            <button type="button" aria-label="Show slide 5 of 6"></button>
+            <button type="button" aria-label="Show slide 6 of 6"></button>
           </div>
-          <p class="text-zinc-300 mt-6">Calls from Google +633% and website visits +272% in two months after the rebuild.</p>
-          <p class="text-sm text-zinc-500 mt-3">Source: Google Business Profile performance report, August 2026 vs. July 2026.</p>
-          <p class="mt-6">
-            <a href="https://coloradohottubllc.com/" class="text-zinc-200 underline underline-offset-4" target="_blank" rel="noopener">coloradohottubllc.com</a>
-          </p>
-        </article>
-
-        <article class="bg-zinc-900 border border-zinc-800 rounded-3xl p-6 sm:p-8">
-          <p class="text-xs font-medium tracking-[2px] uppercase text-[#3B82F6]">Website</p>
-          <h3 class="font-display text-2xl sm:text-3xl font-semibold tracking-tighter mt-2">AI-first website</h3>
-          <p class="text-base text-[#3B82F6] leading-relaxed mt-3 mb-6">Instant updates with zero friction.</p>
-          <ul class="space-y-4">
-            <li>
-              <p class="text-zinc-100 font-medium">Your info and branding, baked in</p>
-              <p class="text-sm text-zinc-400 mt-1">So changes take seconds.</p>
-            </li>
-            <li>
-              <p class="text-zinc-100 font-medium">A site for every city or industry</p>
-              <p class="text-sm text-zinc-400 mt-1">Spin up custom-built sites for each one, instantly.</p>
-            </li>
-            <li>
-              <p class="text-zinc-100 font-medium">Feeds the voice agent</p>
-              <p class="text-sm text-zinc-400 mt-1">The phone agent gets its info from the site, so everything stays current automatically.</p>
-            </li>
-          </ul>
-        </article>
-
-        <article class="bg-zinc-900 border border-zinc-800 rounded-3xl p-6 sm:p-8">
-          <p class="text-xs font-medium tracking-[2px] uppercase text-[#3B82F6]">Search &amp; Google</p>
-          <h3 class="font-display text-2xl sm:text-3xl font-semibold tracking-tighter mt-2">AI-first SEO</h3>
-          <p class="text-base text-[#3B82F6] leading-relaxed mt-3 mb-6">Its own solution, not just part of the website build.</p>
-          <ul class="space-y-4">
-            <li>
-              <p class="text-zinc-100 font-medium">Ongoing SEO</p>
-              <p class="text-sm text-zinc-400 mt-1">Pages keep getting tuned, with ongoing optimization.</p>
-            </li>
-            <li>
-              <p class="text-zinc-100 font-medium">Google Business Profile, managed</p>
-              <p class="text-sm text-zinc-400 mt-1">The profile stays current and complete.</p>
-            </li>
-            <li>
-              <p class="text-zinc-100 font-medium">Shows up in local search</p>
-              <p class="text-sm text-zinc-400 mt-1">Built to be found when nearby customers search.</p>
-            </li>
-            <li>
-              <p class="text-zinc-100 font-medium">Measured</p>
-              <p class="text-sm text-zinc-400 mt-1">Results tracked against Google performance.</p>
-            </li>
-          </ul>
-        </article>
-
-        <article class="bg-zinc-900 border border-zinc-800 rounded-3xl p-6 sm:p-8">
-          <p class="text-xs font-medium tracking-[2px] uppercase text-[#3B82F6]">Phone</p>
-          <h3 class="font-display text-2xl sm:text-3xl font-semibold tracking-tighter mt-2">AI-first phone</h3>
-          <p class="text-base text-[#3B82F6] leading-relaxed mt-3 mb-6">Picks up the call, summarizes it, and emails the owners a summary of every call.</p>
-          <ul class="space-y-4">
-            <li>
-              <p class="text-zinc-100 font-medium">Picks up the call</p>
-            </li>
-            <li>
-              <p class="text-zinc-100 font-medium">Summarizes it</p>
-              <p class="text-sm text-zinc-400 mt-1">Who called, what they need, how to reach them.</p>
-            </li>
-            <li>
-              <p class="text-zinc-100 font-medium">Emails the owners</p>
-              <p class="text-sm text-zinc-400 mt-1">A summary of every call lands in their inbox.</p>
-            </li>
-            <li>
-              <p class="text-zinc-100 font-medium">Same answers as the site FAQ</p>
-              <p class="text-sm text-zinc-400 mt-1">Handles the questions the website FAQ answers, so callers and visitors hear the same thing.</p>
-            </li>
-          </ul>
-        </article>
-
-        <article class="bg-zinc-900 border border-zinc-800 rounded-3xl p-6 sm:p-8">
-          <p class="text-xs font-medium tracking-[2px] uppercase text-[#3B82F6]">Shop inbox</p>
-          <h3 class="font-display text-2xl sm:text-3xl font-semibold tracking-tighter mt-2">AI-first email</h3>
-          <p class="text-base text-[#3B82F6] leading-relaxed mt-3 mb-6">Watches the shop inbox and drafts replies. The owners approve every send.</p>
-          <ul class="space-y-4">
-            <li>
-              <p class="text-zinc-100 font-medium">Watches the inbox</p>
-              <p class="text-sm text-zinc-400 mt-1">Reads what comes in.</p>
-            </li>
-            <li>
-              <p class="text-zinc-100 font-medium">Puts first things first</p>
-              <p class="text-sm text-zinc-400 mt-1">Customers waiting and quote follow-ups rise to the top.</p>
-            </li>
-            <li>
-              <p class="text-zinc-100 font-medium">Catches what slips</p>
-              <p class="text-sm text-zinc-400 mt-1">Flags emails they'd otherwise miss.</p>
-            </li>
-            <li>
-              <p class="text-zinc-100 font-medium">Drafts replies</p>
-              <p class="text-sm text-zinc-400 mt-1">Ready for owner approval before anything is sent.</p>
-            </li>
-            <li>
-              <p class="text-zinc-100 font-medium">Tracks follow-ups</p>
-              <p class="text-sm text-zinc-400 mt-1">Flags threads waiting on a reply.</p>
-            </li>
-          </ul>
-        </article>
-
-        <article class="bg-zinc-900 border border-zinc-800 rounded-3xl p-6 sm:p-8">
-          <p class="text-xs font-medium tracking-[2px] uppercase text-[#3B82F6]">Quote generator</p>
-          <h3 class="font-display text-2xl sm:text-3xl font-semibold tracking-tighter mt-2">AI-first bid generator</h3>
-          <p class="text-base text-[#3B82F6] leading-relaxed mt-3 mb-6">Job details and vendor pricing become a clean, branded quote.</p>
-          <ul class="space-y-4">
-            <li>
-              <p class="text-zinc-100 font-medium">Builds quotes faster</p>
-              <p class="text-sm text-zinc-400 mt-1">The packet comes together without starting from scratch.</p>
-            </li>
-            <li>
-              <p class="text-zinc-100 font-medium">Clean and branded</p>
-              <p class="text-sm text-zinc-400 mt-1">Your logo and contact info on every packet.</p>
-            </li>
-            <li>
-              <p class="text-zinc-100 font-medium">Owner reviewed</p>
-              <p class="text-sm text-zinc-400 mt-1">The owner approves before it goes out.</p>
-            </li>
-          </ul>
-        </article>
-
-        <article class="bg-zinc-900 border border-zinc-800 rounded-3xl p-6 sm:p-8">
-          <p class="text-xs font-medium tracking-[2px] uppercase text-[#3B82F6]">Tools</p>
-          <h3 class="font-display text-2xl sm:text-3xl font-semibold tracking-tighter mt-2">Integrations</h3>
-          <p class="text-base text-[#3B82F6] leading-relaxed mt-3 mb-6">Everything feeds itself through one intelligence layer.</p>
-          <p class="text-sm text-zinc-300"><span class="text-[#3B82F6] font-medium">Outcome:</span> Your tools share what they know, so nothing gets entered twice and every agent works from the full picture.</p>
-        </article>
+          <button type="button" class="cht-next" aria-label="Next slide">&#8594;</button>
+        </div>
+        <p class="sr-only" aria-live="polite"></p>
       </div>
+      <article class="bg-zinc-900 border border-zinc-800 rounded-3xl p-6 sm:p-8 mt-8">
+        <p class="text-xs font-medium tracking-[2px] uppercase text-[#3B82F6]">Tools</p>
+        <h3 class="font-display text-2xl sm:text-3xl font-semibold tracking-tighter mt-2">Integrations</h3>
+        <p class="text-base text-[#3B82F6] leading-relaxed mt-3 mb-6">Everything feeds itself through one intelligence layer.</p>
+        <p class="text-sm text-zinc-300"><span class="text-[#3B82F6] font-medium">Outcome:</span> Your tools share what they know, so nothing gets entered twice and every agent works from the full picture.</p>
+      </article>
+      <script>
+      (function () {
+        var root = document.querySelector(".cht-carousel");
+        if (!root || !root.querySelector) return;
+        var track = root.querySelector(".cht-track");
+        var cards = Array.prototype.slice.call(root.querySelectorAll(".cht-card"));
+        var prev = root.querySelector(".cht-prev");
+        var next = root.querySelector(".cht-next");
+        var dots = Array.prototype.slice.call(root.querySelectorAll(".cht-dots button"));
+        var live = root.querySelector("[aria-live]");
+        var reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+        var drag = null;
+        function gap() {
+          var g = parseFloat(getComputedStyle(track).columnGap);
+          return isNaN(g) ? 0 : g;
+        }
+        function step() {
+          return cards[0].getBoundingClientRect().width + gap();
+        }
+        function index() {
+          var s = step();
+          if (!s) return 0;
+          return Math.max(0, Math.min(cards.length - 1, Math.round(track.scrollLeft / s)));
+        }
+        function go(i) {
+          var n = Math.max(0, Math.min(cards.length - 1, i));
+          track.scrollTo({ left: Math.round(n * step()), behavior: reduce ? "auto" : "smooth" });
+        }
+        function update() {
+          var i = index();
+          dots.forEach(function (d, k) {
+            if (k === i) d.setAttribute("aria-current", "true");
+            else d.removeAttribute("aria-current");
+          });
+          prev.disabled = i === 0;
+          next.disabled = i === cards.length - 1;
+          cards.forEach(function (card, k) {
+            var on = k === i;
+            card.inert = !on;
+            if (on) card.removeAttribute("aria-hidden");
+            else card.setAttribute("aria-hidden", "true");
+          });
+          if (live.textContent !== "Slide " + (i + 1) + " of 6") live.textContent = "Slide " + (i + 1) + " of 6";
+        }
+        prev.addEventListener("click", function () { go(index() - 1); });
+        next.addEventListener("click", function () { go(index() + 1); });
+        dots.forEach(function (d, k) { d.addEventListener("click", function () { go(k); }); });
+        track.addEventListener("scroll", function () { requestAnimationFrame(update); }, { passive: true });
+        root.addEventListener("keydown", function (e) {
+          if (!root.contains(document.activeElement)) return;
+          if (e.key !== "ArrowRight" && e.key !== "ArrowLeft") return;
+          e.preventDefault();
+          go(index() + (e.key === "ArrowRight" ? 1 : -1));
+        });
+        track.addEventListener("pointerdown", function (e) {
+          if (e.pointerType !== "mouse" || e.button !== 0) return;
+          if (e.target.closest("a, button")) return;
+          drag = { x: e.clientX, left: track.scrollLeft, id: e.pointerId };
+          track.setPointerCapture(e.pointerId);
+          track.classList.add("is-dragging");
+        });
+        track.addEventListener("pointermove", function (e) {
+          if (!drag || e.pointerId !== drag.id) return;
+          track.scrollLeft = drag.left - (e.clientX - drag.x);
+        });
+        function endDrag(e) {
+          if (!drag || (e && e.pointerId !== drag.id)) return;
+          drag = null;
+          track.classList.remove("is-dragging");
+          go(index());
+        }
+        track.addEventListener("pointerup", endDrag);
+        track.addEventListener("pointercancel", endDrag);
+        update();
+      })();
+      </script>
     </section>
 
     <section id="how" class="max-w-screen-xl mx-auto px-4 sm:px-6 py-16 border-t border-zinc-800" aria-labelledby="faq-heading">
