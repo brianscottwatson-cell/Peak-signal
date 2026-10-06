@@ -177,7 +177,7 @@ Nav links are the anchors in the header `<nav>` (or the lander header nav). CTAs
 - Route: /ai-websites-evergreen-co
 - Source file: seo/landers/ai-websites-evergreen-co.html
 - Purpose: Landing page for a local website build in Evergreen.
-- H1: Get Found by More Evergreen, CO Customers
+- H1: Website & SEO in Evergreen, CO
 - Key sections:
   - Who this is for
   - What you get (Capture)
@@ -212,7 +212,7 @@ Nav links are the anchors in the header `<nav>` (or the lander header nav). CTAs
 - Route: /ai-automation-evergreen-colorado
 - Source file: seo/landers/ai-automation-evergreen-colorado.html
 - Purpose: Landing page for follow-up automation in Evergreen.
-- H1: AI Automation for Evergreen, Colorado Small Businesses
+- H1: AI Harness & Integrations in Evergreen, CO
 - Key sections:
   - The pain
   - What we automate (Keep)
@@ -246,7 +246,7 @@ Nav links are the anchors in the header `<nav>` (or the lander header nav). CTAs
 - Route: /ai-agents-small-business-evergreen
 - Source file: seo/landers/ai-agents-small-business-evergreen.html
 - Purpose: Landing page for phone and text coverage in Evergreen.
-- H1: AI Agents for Small Businesses in Evergreen
+- H1: Voice & Email Agents in Evergreen
 - Key sections:
   - What an AI agent does (plain English)
   - Answer
