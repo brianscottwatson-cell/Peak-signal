@@ -65,6 +65,10 @@ for (const [route, file] of Object.entries(PAGES)) {
     }
     res.type("html").send(html);
   });
+  seoLandersRouter.get(route + ".html", (req: Request, res: Response) => {
+    const query = req.originalUrl.includes("?") ? req.originalUrl.slice(req.originalUrl.indexOf("?")) : "";
+    res.redirect(301, route + query);
+  });
 }
 
 seoLandersRouter.get("/sitemap.xml", (_req: Request, res: Response) => {

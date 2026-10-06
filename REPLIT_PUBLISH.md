@@ -2,9 +2,9 @@
 
 `artifacts/api-server/build.mjs` is not in this repo. This repository holds `static-site/` (and the Express router). The Replit app is what copies those files into `dist/` at publish time. Apply the diff below in the Replit repo, then rebuild and publish.
 
-The static-site router already serves both routes. No router change is required for this copy:
+Copy the router files into the Replit app when you publish. The HTML files are not enough on their own: `static-site/static-site-router.ts` and `seo/seo-landers-router.ts` are what turn the duplicate `.html` URLs into 301s.
 
-- `GET /about` and `GET /about.html` read `about.html`
+- `GET /about` reads `about.html` and returns 200. `GET /about.html` 301s to `/about` and keeps the query string. The same split applies to `/`, `/contact`, `/privacy`, `/terms`, and the three SEO landers.
 - `GET /images/cht-before-after.webp` reads `images/cht-before-after.webp` and sends `image/webp`
 
 The router looks in `dist/static-site/` (among other candidates). An HTML-only copy leaves the image 404 on Autoscale.

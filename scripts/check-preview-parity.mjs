@@ -33,15 +33,10 @@ const routes = JSON.parse(readFileSync(join(root, "vercel.json"), "utf8")).rewri
 
 const htmlPages = new Set([
   "/",
-  "/index.html",
   "/contact",
-  "/contact.html",
   "/privacy",
-  "/privacy.html",
   "/terms",
-  "/terms.html",
   "/about",
-  "/about.html",
   "/ai-websites-evergreen-co",
   "/ai-automation-evergreen-colorado",
   "/ai-agents-small-business-evergreen",
