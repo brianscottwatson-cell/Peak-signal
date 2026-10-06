@@ -200,8 +200,8 @@ function assertVercelConfig() {
     if (rule.destination !== destination) {
       fail(`vercel.json ${source} redirects to ${rule.destination}, expected ${destination}`);
     }
-    if (rule.permanent !== true || rule.statusCode !== 301) {
-      fail(`vercel.json ${source} must be a permanent 301`);
+    if (rule.statusCode !== 301 || Object.prototype.hasOwnProperty.call(rule, "permanent")) {
+      fail(`vercel.json ${source} must be a 301 via statusCode only`);
     }
   }
 
