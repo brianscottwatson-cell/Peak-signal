@@ -9,6 +9,8 @@
  * Never Dial ForwardedFrom, CalledVia, From, or the inbound Called number.
  * Hangup: Formspree shop (CHT_FORMSPREE → intended info@coloradohottubllc.com)
  * + Peak form. Recording is a URL in the body — Formspree cannot attach MP3s.
+ *
+ * GET / and GET /health are read-only: no Twilio, Formspree, or call state.
  */
 import { Router, type Express, type Request, type Response } from "express";
 import { readFileSync } from "node:fs";
@@ -31,6 +33,8 @@ import {
 
 const HOSTNAME = (process.env.HOSTNAME || "peak-signal.replit.app").replace(/^https?:\/\//, "");
 const SHOP = process.env.CHT_SHOP_NUMBER || DEFAULT_SHOP_E164;
+/** Public build marker on GET /health. Safe to expose — no secrets in this string. */
+const CHT_VOICE_BUILD = "cht-voice-health-1";
 function ringShopEnabled(): boolean {
   return ringFirstEnabled(process.env.CHT_RING_SHOP || "", process.env.CHT_RING_NUMBERS || "");
 }
@@ -391,6 +395,24 @@ function queryParam(req: Request, name: string): string {
   if (Array.isArray(raw)) return String(raw[0] || "");
   return String(raw || "");
 }
+
+/**
+ * Read-only deploy check for QA. No Twilio, Formspree, recording, or call state.
+ * ringShop is the same flag the inbound POST uses. Nothing else from env is returned.
+ */
+function sendHealth(_req: Request, res: Response): void {
+  res.set("Cache-Control", "no-store");
+  res.status(200).json({
+    ok: true,
+    service: "cht-voice",
+    ringShop: ringShopEnabled(),
+    screenRoute: true,
+    version: CHT_VOICE_BUILD,
+  });
+}
+
+chtVoiceRouter.get("/health", sendHealth);
+chtVoiceRouter.get("/", sendHealth);
 
 /** Inbound: ring owners ~10s when explicitly enabled, else Grok. Never Dial the shop by default. */
 chtVoiceRouter.post("/", (req: Request, res: Response) => {

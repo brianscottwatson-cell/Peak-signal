@@ -3,6 +3,8 @@
 !static-site/
 !static-site/*.html
 !static-site/robots.txt
+!static-site/images/
+!static-site/images/cht-before-after.webp
 !seo/
 !seo/landers/
 !seo/landers/*.html

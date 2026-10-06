@@ -1,227 +1,639 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="bg-zinc-950">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Peak Signal • The operating system for your business</title>
-  <meta name="description" content="We connect your website, phone, inbox, files, and job software so you get more calls, faster quotes, and less busywork.">
+  <title>Peak Signal • Modernize your business</title>
+  <meta name="description" content="AI-first solutions for small businesses. Websites, voice and email agents, quoting and integrations from Brian at Peak Signal in Evergreen and Golden, Colorado.">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="https://getpeaksignal.com/">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Peak Signal • Modernize your business">
+  <meta property="og:description" content="AI-first solutions for small businesses. Websites, voice and email agents, quoting and integrations from Brian at Peak Signal in Evergreen and Golden, Colorado.">
+  <meta property="og:url" content="https://getpeaksignal.com/">
+  <meta property="og:site_name" content="Peak Signal">
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="Peak Signal • Modernize your business">
+  <meta name="twitter:description" content="AI-first solutions for small businesses. Websites, voice and email agents, quoting and integrations from Brian at Peak Signal in Evergreen and Golden, Colorado.">
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
   <style>
-    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Space+Grotesk:wght@500;600&display=swap');
-    body { font-family: 'Inter', system_ui, sans-serif; }
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;600&display=swap');
+    html { scroll-padding-top: 9rem; }
+    @media (min-width: 768px) {
+      html { scroll-padding-top: 7rem; }
+    }
+    body { font-family: 'Inter', system-ui, sans-serif; }
     .font-display { font-family: 'Space Grotesk', 'Inter', sans-serif; font-weight: 600; }
+    a:focus-visible, button:focus-visible { outline: 2px solid #3B82F6; outline-offset: 3px; }
+    .cht-carousel { width: min(100%, 34rem); max-width: 100%; margin-inline: auto; color: #fff; font-family: Inter, "Helvetica Neue", Arial, sans-serif; }
+    .cht-carousel, .cht-carousel * { font-family: Inter, "Helvetica Neue", Arial, sans-serif; }
+    .cht-carousel .cht-track { display: flex; flex-direction: row; flex-wrap: nowrap; align-items: flex-start; gap: 16px; width: 100%; overflow-x: auto; overflow-y: hidden; scroll-snap-type: x mandatory; scroll-behavior: smooth; scrollbar-width: none; -webkit-overflow-scrolling: touch; outline: none; cursor: grab; overscroll-behavior-x: contain; }
+    .cht-carousel .cht-track::-webkit-scrollbar { display: none; }
+    .cht-carousel .cht-track.is-dragging { cursor: grabbing; scroll-snap-type: none; }
+    .cht-carousel .cht-track:focus-visible { outline: 2px solid #FCD116; outline-offset: 4px; }
+    .cht-carousel .cht-card { flex: 0 0 100%; width: 100%; min-width: 100%; scroll-snap-align: start; scroll-snap-stop: always; container-type: inline-size; border-radius: 2.2cqw; overflow: hidden; }
+    .cht-carousel .cht-in { width: 100%; min-height: 125cqw; position: relative; padding: 6.5cqw 7cqw 5.5cqw 8cqw; display: flex; flex-direction: column; background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='60' height='60' viewBox='0 0 60 60'%3E%3Cg fill='%23ffffff' fill-opacity='0.05'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/svg%3E") 0 0 / 5.56cqw 5.56cqw, linear-gradient(135deg, #002868 0%, #001a4a 60%, #000e2e 100%); }
+    .cht-carousel .cht-in::before { content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: .75cqw; background: #BF0A30; }
+    .cht-carousel .cht-top { position: relative; z-index: 1; display: flex; justify-content: space-between; align-items: center; margin: -6.5cqw -7cqw 5cqw -8cqw; padding: 2.1cqw 7cqw 2.1cqw 8cqw; background: #fff; border-top: 1.1cqw solid #f5c518; box-shadow: 0 .4cqw 1.6cqw rgba(0, 0, 0, .25); }
+    .cht-carousel .cht-mark { display: flex; align-items: center; gap: 1.8cqw; min-width: 0; }
+    .cht-carousel .cht-mark svg { width: 7.4cqw; height: 8.7cqw; flex-shrink: 0; }
+    .cht-carousel .cht-mark-name { display: block; font-weight: 700; font-size: 3.5cqw; line-height: 1.15; color: #002868; letter-spacing: -.01em; }
+    .cht-carousel .cht-mark-sub { display: block; font-size: 1.65cqw; line-height: 1.3; color: #6b7280; margin-top: .35cqw; font-weight: 500; }
+    .cht-carousel .cht-pg { flex-shrink: 0; font-size: 1.6cqw; letter-spacing: .14em; color: #002868; font-weight: 700; background: #FCD116; padding: .7cqw 1.5cqw; border-radius: 99cqw; }
+    .cht-carousel .cht-eyebrow { font-size: 1.75cqw; letter-spacing: .16em; text-transform: uppercase; color: #FCD116; font-weight: 700; margin-bottom: 2cqw; }
+    .cht-carousel h3 { font-weight: 700; font-size: 6.6cqw; letter-spacing: -.025em; line-height: 1.06; margin: 0 0 2.2cqw; color: #fff; }
+    .cht-carousel .cht-lead { color: #FCD116; font-size: 2.6cqw; line-height: 1.42; margin: 0 0 3.5cqw; font-weight: 500; }
+    .cht-carousel ul { list-style: none; display: flex; flex-direction: column; gap: 1.8cqw; margin: 0; padding: 0; }
+    .cht-carousel li { background: rgba(255, 255, 255, .07); border: 1px solid rgba(255, 255, 255, .14); border-left: .55cqw solid #BF0A30; border-radius: 1.4cqw; padding: 2.3cqw 2.8cqw 2.3cqw 5.6cqw; font-size: 2.35cqw; line-height: 1.4; color: #dbeafe; position: relative; }
+    .cht-carousel li::before { content: ""; position: absolute; left: 2.3cqw; top: 3.1cqw; width: 1.3cqw; height: 1.3cqw; border-radius: 50%; background: #FCD116; box-shadow: 0 0 0 .45cqw rgba(252, 209, 22, .18); }
+    .cht-carousel li b { display: block; color: #fff; font-size: 2.7cqw; margin-bottom: .3cqw; font-weight: 700; }
+    .cht-carousel .cht-shot { border-radius: 1.4cqw; overflow: hidden; background: #fff; border: .35cqw solid #fff; box-shadow: 0 1cqw 3cqw rgba(0, 0, 0, .35); }
+    .cht-carousel .cht-shot img { display: block; width: 100%; height: auto; }
+    .cht-carousel .cht-cap { font-size: 1.6cqw; color: #bfdbfe; opacity: .85; margin: 1.2cqw 0 0; }
+    .cht-carousel .cht-cap.c2 { margin-top: 1.6cqw; }
+    .cht-carousel .cht-nums { display: grid; grid-template-columns: 1fr 1fr; gap: 2cqw; margin-top: 3cqw; }
+    .cht-carousel .cht-num { background: #fff; border-radius: 1.6cqw; padding: 2.6cqw 3cqw; border-top: .9cqw solid #BF0A30; box-shadow: 0 1cqw 3cqw rgba(0, 0, 0, .3); }
+    .cht-carousel .cht-num .v { font-size: 9.6cqw; font-weight: 800; letter-spacing: -.04em; line-height: 1; color: #002868; }
+    .cht-carousel .cht-num .l { font-size: 2.5cqw; color: #BF0A30; font-weight: 700; margin-top: .8cqw; }
+    .cht-carousel .cht-foot { margin-top: auto; display: flex; justify-content: space-between; align-items: baseline; gap: 2cqw; font-size: 1.6cqw; color: #fff; font-weight: 600; letter-spacing: .04em; border-top: 1px solid rgba(255, 255, 255, .18); padding-top: 1.8cqw; }
+    .cht-carousel .cht-foot a { color: #fff; text-decoration: none; }
+    .cht-carousel .cht-foot a:hover { text-decoration: underline; }
+    .cht-carousel .cht-credit { font-size: 1.3cqw; font-weight: 500; color: rgba(255, 255, 255, .45); letter-spacing: .06em; }
+    .cht-carousel .cht-nav { display: flex; align-items: center; justify-content: center; gap: 16px; margin-top: 14px; max-width: 100%; }
+    .cht-carousel .cht-prev, .cht-carousel .cht-next { display: none; width: 44px; height: 44px; border-radius: 50%; border: 1px solid rgba(255, 255, 255, .2); background: #002868; color: #fff; font-size: 20px; line-height: 1; cursor: pointer; align-items: center; justify-content: center; flex-shrink: 0; }
+    .cht-carousel .cht-prev:disabled, .cht-carousel .cht-next:disabled { opacity: .3; cursor: default; }
+    .cht-carousel .cht-dots { display: flex; gap: 0; }
+    .cht-carousel .cht-dots button { width: 44px; height: 44px; border: 0; padding: 0; background: transparent; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; }
+    .cht-carousel .cht-dots button::before { content: ""; width: 8px; height: 8px; border-radius: 50%; background: rgba(255, 255, 255, .25); }
+    .cht-carousel .cht-dots button[aria-current="true"]::before { background: #FCD116; }
+    @media (min-width: 768px) {
+      .cht-carousel .cht-prev, .cht-carousel .cht-next { display: inline-flex; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .cht-carousel .cht-track { scroll-behavior: auto; }
+    }
   </style>
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "ProfessionalService",
+    "name": "Peak Signal",
+    "url": "https://getpeaksignal.com/",
+    "telephone": "+1-970-660-5088",
+    "email": "hello.peaksignal@gmail.com",
+    "areaServed": ["Golden, CO", "Evergreen, CO", "the foothills", "Colorado"],
+    "description": "AI-first solutions for small businesses. Websites, voice and email agents, quoting and integrations from Brian at Peak Signal in Evergreen and Golden, Colorado.",
+    "founder": { "@type": "Person", "name": "Brian" }
+  }
+  </script>
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": [
+      {
+        "@type": "Question",
+        "name": "What is an assessment, and what does it cost?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "An assessment is a paid engagement where we learn your business, goals, systems, current technology, and bottlenecks, then design a solution that gets you to the outcomes you want. Cost depends on the size of your business. Book a call and we'll scope it with you."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Does this replace my software?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "In most cases, it doesn't replace your software, but helps connect all your existing software."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Does AI send emails without my OK?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "No. Drafts are for your approval. It sends on your behalf only if you turn that on."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "What happens to a missed call?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "An AI voice agent answers when you can't, books meetings, handles FAQs, and filters low-priority calls."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "How long does a build take?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "It depends on the business. Book a call to talk through the work. No timeline is promised here."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Who owns the data and the accounts?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Your email, drive, CRM, and phone accounts stay yours. Peak Signal plugs into them. Information you send through the site is handled as described in the privacy policy."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Where do you work?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Evergreen, Golden, and the Colorado foothills, plus remote."
+        }
+      }
+    ]
+  }
+  </script>
 </head>
 <body class="bg-zinc-950 text-zinc-200">
-  <!-- Navbar -->
   <nav class="border-b border-zinc-800 bg-zinc-950/80 backdrop-blur-lg sticky top-0 z-50">
-    <div class="max-w-screen-xl mx-auto px-6 py-5 flex items-center justify-between">
-      <div class="flex items-center gap-x-3">
-        <div class="flex items-center gap-x-2">
-          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M3 17L8.5 8.5L12 13L15.5 8.5L21 17" stroke="#3b82f6" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
-            <path d="M3 17H21" stroke="#3b82f6" stroke-width="2" stroke-linecap="round"/>
-          </svg>
-          <span class="font-display text-2xl font-semibold tracking-tighter">Peak Signal</span>
-        </div>
-      </div>
+    <div class="max-w-screen-xl mx-auto px-4 sm:px-6 py-4 sm:py-5 flex flex-wrap items-center gap-x-4 gap-y-3">
+      <a href="/" class="flex items-center gap-x-2 shrink-0" aria-label="Peak Signal home">
+        <svg aria-hidden="true" width="28" height="28" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M3 17L8.5 8.5L12 13L15.5 8.5L21 17" stroke="#3B82F6" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M3 17H21" stroke="#3B82F6" stroke-width="2" stroke-linecap="round"/>
+        </svg>
+        <span class="font-display text-xl sm:text-2xl font-semibold tracking-tighter">Peak Signal</span>
+      </a>
 
-      <div class="hidden md:flex items-center gap-x-8 text-sm">
+      <div class="hidden md:flex items-center gap-x-6 lg:gap-x-8 text-sm">
         <a href="#system" class="hover:text-white transition-colors">The System</a>
         <a href="#offers" class="hover:text-white transition-colors">Offers</a>
         <a href="#how" class="hover:text-white transition-colors">How it Works</a>
+        <a href="/about" class="hover:text-white transition-colors">About</a>
         <a href="/contact" class="hover:text-white transition-colors">Contact</a>
       </div>
 
-      <div class="flex items-center gap-x-3">
-        <a href="/contact"
-           class="px-5 py-2.5 text-sm font-medium border border-zinc-700 hover:bg-zinc-900 transition-colors rounded-xl">
-          Book an assessment
-        </a>
-        <a href="https://calendly.com/hello-peaksignal/30min" target="_blank" rel="noopener"
-           class="px-5 py-2.5 text-sm font-medium bg-white text-zinc-950 hover:bg-zinc-100 transition-colors rounded-xl">
+      <div class="flex items-center gap-2 sm:gap-3 w-full sm:w-auto sm:ml-auto">
+        <a href="https://calendly.com/hello-peaksignal/30min" target="_blank" rel="noopener" class="flex-1 sm:flex-none text-center px-3 sm:px-5 py-2.5 text-sm font-medium bg-white text-zinc-950 hover:bg-zinc-100 transition-colors rounded-xl whitespace-nowrap">
           Book a call
         </a>
       </div>
     </div>
   </nav>
 
-  <!-- Hero -->
-  <section class="max-w-screen-xl mx-auto px-6 pt-20 pb-16">
-    <div class="max-w-3xl">
-      <div class="inline-flex items-center gap-x-2 px-4 py-1.5 rounded-full border border-zinc-800 mb-6">
-        <div class="w-2 h-2 bg-emerald-400 rounded-full animate-pulse"></div>
-        <span class="text-sm text-zinc-400">Serving <a href="/ai-websites-evergreen-co" class="hover:text-white transition-colors">Evergreen</a> & the Foothills</span>
+  <main>
+    <section class="max-w-screen-xl mx-auto px-4 sm:px-6 pt-16 sm:pt-20 pb-16">
+      <div class="max-w-3xl">
+        <p class="text-sm font-medium tracking-[3px] text-[#3B82F6] mb-4">PEAK SIGNAL</p>
+        <h1 class="font-display text-4xl sm:text-5xl md:text-6xl font-semibold tracking-tighter leading-none mb-6">
+          Modernize your business.
+        </h1>
+        <p class="max-w-xl text-lg sm:text-xl text-zinc-400">
+          AI-first solutions for small businesses.
+        </p>
       </div>
+    </section>
 
-      <h1 class="font-display text-5xl md:text-6xl font-semibold tracking-tighter leading-none mb-6">
-        Put AI to work on the tools you already have.
-      </h1>
+    <section id="system" class="max-w-screen-xl mx-auto px-4 sm:px-6 py-16 border-t border-zinc-800" aria-labelledby="foundation-heading">
+      <h2 id="foundation-heading" class="font-display text-3xl sm:text-4xl font-semibold tracking-tighter">Foundation</h2>
+      <p class="text-base text-[#3B82F6] leading-relaxed mt-3 mb-8 max-w-[60ch]" style="text-wrap: pretty">The groundwork for your AI-optimized business: an assessment, data that's ready to use, and an AI harness that ties every solution together.</p>
+      <div class="grid md:grid-cols-3 gap-6">
+        <article class="bg-zinc-900 border border-zinc-800 rounded-3xl p-6 sm:p-8">
+          <p class="text-[#3B82F6] mb-4" aria-hidden="true"><i class="fa-solid fa-map text-3xl"></i></p>
+          <h3 class="font-display text-2xl font-semibold mb-3">Assessment</h3>
+          <p class="text-zinc-400">In an assessment, we meet with you to understand your business, your goals, your systems, the technology you use today, and the bottlenecks you're facing. Then we design a solution that gets you to the outcomes you want.</p>
+        </article>
+        <article class="bg-zinc-900 border border-zinc-800 rounded-3xl p-6 sm:p-8">
+          <p class="text-[#3B82F6] mb-4" aria-hidden="true"><i class="fa-solid fa-database text-3xl"></i></p>
+          <h3 class="font-display text-2xl font-semibold mb-3">Data Readiness</h3>
+          <p class="text-zinc-400">We clean and organize your data and processes so the AI can use them.</p>
+        </article>
+        <article class="bg-zinc-900 border border-zinc-800 rounded-3xl p-6 sm:p-8">
+          <p class="text-[#3B82F6] mb-4" aria-hidden="true"><i class="fa-solid fa-diagram-project text-3xl"></i></p>
+          <h3 class="font-display text-2xl font-semibold mb-3">AI Harness</h3>
+          <p class="text-zinc-400">It gives the intelligence layer a holistic view of what you do, who your customers are, and how things work, then plugs your email, drive, CRM, phone system, and any other tools into one unified AI system.</p>
+        </article>
+      </div>
+    </section>
 
-      <p class="max-w-xl text-xl text-zinc-400 mb-10">
-        We connect your website, phone, inbox, files, and job software so you get more calls, faster quotes, and less busywork.
-      </p>
+    <section id="offers" class="max-w-screen-xl mx-auto px-4 sm:px-6 py-16 border-t border-zinc-800" aria-labelledby="solutions-heading">
+      <h2 id="solutions-heading" class="font-display text-3xl sm:text-4xl font-semibold tracking-tighter">Solutions</h2>
+      <p class="text-base text-[#3B82F6] leading-relaxed mt-3 mb-8 max-w-[60ch]" style="text-wrap: pretty">We work with businesses to identify the areas they want to enable with AI. Every client's mix is different, so we put together whatever your business needs, all tied together.</p>
+      <div class="grid md:grid-cols-2 gap-6">
+        <article class="bg-zinc-900 border border-zinc-800 rounded-3xl p-6 sm:p-8">
+          <p class="text-xs font-medium tracking-[2px] uppercase text-[#3B82F6]">Website</p>
+          <h3 class="font-display text-2xl sm:text-3xl font-semibold tracking-tighter mt-2">AI-first website</h3>
+          <p class="text-base text-[#3B82F6] leading-relaxed mt-3 mb-6">Instant updates with zero friction.</p>
+          <ul class="space-y-4">
+            <li>
+              <p class="text-zinc-100 font-medium">Your info and branding, baked in</p>
+              <p class="text-sm text-zinc-400 mt-1">So changes take seconds.</p>
+            </li>
+            <li>
+              <p class="text-zinc-100 font-medium">A site for every city or industry</p>
+              <p class="text-sm text-zinc-400 mt-1">Spin up custom-built sites for each one, instantly.</p>
+            </li>
+            <li>
+              <p class="text-zinc-100 font-medium">Feeds the voice agent</p>
+              <p class="text-sm text-zinc-400 mt-1">The phone agent gets its info from the site, so everything stays current automatically.</p>
+            </li>
+          </ul>
+        </article>
 
-      <div class="flex flex-col sm:flex-row gap-4">
-        <a href="/contact"
-           class="inline-flex items-center justify-center px-8 py-4 bg-white text-zinc-950 font-medium rounded-2xl hover:bg-zinc-100 transition-colors">
-          Book an assessment
+        <article class="bg-zinc-900 border border-zinc-800 rounded-3xl p-6 sm:p-8">
+          <p class="text-xs font-medium tracking-[2px] uppercase text-[#3B82F6]">Search &amp; Google</p>
+          <h3 class="font-display text-2xl sm:text-3xl font-semibold tracking-tighter mt-2">AI-first SEO</h3>
+          <p class="text-base text-[#3B82F6] leading-relaxed mt-3 mb-6">Its own solution, not just part of the website build.</p>
+          <ul class="space-y-4">
+            <li>
+              <p class="text-zinc-100 font-medium">Ongoing SEO</p>
+              <p class="text-sm text-zinc-400 mt-1">Pages keep getting tuned, with ongoing optimization.</p>
+            </li>
+            <li>
+              <p class="text-zinc-100 font-medium">Google Business Profile, managed</p>
+              <p class="text-sm text-zinc-400 mt-1">The profile stays current and complete.</p>
+            </li>
+            <li>
+              <p class="text-zinc-100 font-medium">Shows up in local search</p>
+              <p class="text-sm text-zinc-400 mt-1">Built to be found when nearby customers search.</p>
+            </li>
+            <li>
+              <p class="text-zinc-100 font-medium">Measured</p>
+              <p class="text-sm text-zinc-400 mt-1">Results tracked against Google performance.</p>
+            </li>
+          </ul>
+        </article>
+
+        <article class="bg-zinc-900 border border-zinc-800 rounded-3xl p-6 sm:p-8">
+          <p class="text-xs font-medium tracking-[2px] uppercase text-[#3B82F6]">Phone</p>
+          <h3 class="font-display text-2xl sm:text-3xl font-semibold tracking-tighter mt-2">AI-first phone</h3>
+          <p class="text-base text-[#3B82F6] leading-relaxed mt-3 mb-6">Picks up the call, summarizes it, and emails the owners a summary of every call.</p>
+          <ul class="space-y-4">
+            <li>
+              <p class="text-zinc-100 font-medium">Picks up the call</p>
+            </li>
+            <li>
+              <p class="text-zinc-100 font-medium">Summarizes it</p>
+              <p class="text-sm text-zinc-400 mt-1">Who called, what they need, how to reach them.</p>
+            </li>
+            <li>
+              <p class="text-zinc-100 font-medium">Emails the owners</p>
+              <p class="text-sm text-zinc-400 mt-1">A summary of every call lands in their inbox.</p>
+            </li>
+            <li>
+              <p class="text-zinc-100 font-medium">Same answers as the site FAQ</p>
+              <p class="text-sm text-zinc-400 mt-1">Handles the questions the website FAQ answers, so callers and visitors hear the same thing.</p>
+            </li>
+          </ul>
+        </article>
+
+        <article class="bg-zinc-900 border border-zinc-800 rounded-3xl p-6 sm:p-8">
+          <p class="text-xs font-medium tracking-[2px] uppercase text-[#3B82F6]">Shop inbox</p>
+          <h3 class="font-display text-2xl sm:text-3xl font-semibold tracking-tighter mt-2">AI-first email</h3>
+          <p class="text-base text-[#3B82F6] leading-relaxed mt-3 mb-6">Watches the shop inbox and drafts replies. The owners approve every send.</p>
+          <ul class="space-y-4">
+            <li>
+              <p class="text-zinc-100 font-medium">Watches the inbox</p>
+              <p class="text-sm text-zinc-400 mt-1">Reads what comes in.</p>
+            </li>
+            <li>
+              <p class="text-zinc-100 font-medium">Puts first things first</p>
+              <p class="text-sm text-zinc-400 mt-1">Customers waiting and quote follow-ups rise to the top.</p>
+            </li>
+            <li>
+              <p class="text-zinc-100 font-medium">Catches what slips</p>
+              <p class="text-sm text-zinc-400 mt-1">Flags emails they'd otherwise miss.</p>
+            </li>
+            <li>
+              <p class="text-zinc-100 font-medium">Drafts replies</p>
+              <p class="text-sm text-zinc-400 mt-1">Ready for owner approval before anything is sent.</p>
+            </li>
+            <li>
+              <p class="text-zinc-100 font-medium">Tracks follow-ups</p>
+              <p class="text-sm text-zinc-400 mt-1">Flags threads waiting on a reply.</p>
+            </li>
+          </ul>
+        </article>
+
+        <article class="bg-zinc-900 border border-zinc-800 rounded-3xl p-6 sm:p-8">
+          <p class="text-xs font-medium tracking-[2px] uppercase text-[#3B82F6]">Quote generator</p>
+          <h3 class="font-display text-2xl sm:text-3xl font-semibold tracking-tighter mt-2">AI-first bid generator</h3>
+          <p class="text-base text-[#3B82F6] leading-relaxed mt-3 mb-6">Job details and vendor pricing become a clean, branded quote.</p>
+          <ul class="space-y-4">
+            <li>
+              <p class="text-zinc-100 font-medium">Builds quotes faster</p>
+              <p class="text-sm text-zinc-400 mt-1">The packet comes together without starting from scratch.</p>
+            </li>
+            <li>
+              <p class="text-zinc-100 font-medium">Clean and branded</p>
+              <p class="text-sm text-zinc-400 mt-1">Your logo and contact info on every packet.</p>
+            </li>
+            <li>
+              <p class="text-zinc-100 font-medium">Owner reviewed</p>
+              <p class="text-sm text-zinc-400 mt-1">The owner approves before it goes out.</p>
+            </li>
+          </ul>
+        </article>
+
+        <article class="bg-zinc-900 border border-zinc-800 rounded-3xl p-6 sm:p-8">
+          <p class="text-xs font-medium tracking-[2px] uppercase text-[#3B82F6]">Tools</p>
+          <h3 class="font-display text-2xl sm:text-3xl font-semibold tracking-tighter mt-2">Integrations</h3>
+          <p class="text-base text-[#3B82F6] leading-relaxed mt-3 mb-6">Everything feeds itself through one intelligence layer.</p>
+          <p class="text-sm text-zinc-300"><span class="text-[#3B82F6] font-medium">Outcome:</span> Your tools share what they know, so nothing gets entered twice and every agent works from the full picture.</p>
+        </article>
+      </div>
+    </section>
+
+    <section id="case-study" class="max-w-screen-xl mx-auto px-4 sm:px-6 py-16 border-t border-zinc-800" aria-labelledby="case-study-heading">
+      <h2 id="case-study-heading" class="font-display text-3xl sm:text-4xl font-semibold tracking-tighter mb-8">Case study</h2>
+      <div class="cht-carousel" role="region" aria-roledescription="carousel" aria-label="Colorado Hot Tub solutions">
+        <div class="cht-track" tabindex="0">
+          <section class="cht-card" role="group" aria-roledescription="slide" aria-label="1 of 6">
+            <div class="cht-in">
+              <div class="cht-top">
+                <div class="cht-mark"><svg viewBox="0 0 100 118" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Colorado Hot Tub LLC logo"><path d="M50 8 C30 30 12 55 12 78 A38 38 0 0 0 88 78 C88 55 70 30 50 8Z" fill="#002868"/><path d="M70.78 90 A24 24 0 1 1 70.78 66 L61.26 71.5 A13 13 0 1 0 61.26 84.5Z" fill="#BF0A30"/><circle cx="50" cy="78" r="10" fill="#FCD116"/></svg><div><span class="cht-mark-name">Colorado Hot Tub LLC</span><span class="cht-mark-sub">Celtic · Icelandic · Harmonic Dealer · Evergreen, CO</span></div></div>
+                <span class="cht-pg" aria-hidden="true">1/6</span>
+              </div>
+              <p class="cht-eyebrow">Website results</p>
+              <h3>Colorado Hot Tub case study</h3>
+              <p class="cht-lead">We rebuilt their site and optimized it for search and their Google Business Profile.</p>
+              <div class="cht-shot"><img src="/images/cht-before-after.webp" width="1600" height="594" loading="lazy" decoding="async" alt="Colorado Hot Tub homepage before the rebuild (old Wix site, April 2026) and after (current site)."></div>
+              <p class="cht-cap">Before: archived April 2026. After: live site.</p>
+              <div class="cht-nums"><div class="cht-num"><div class="v">+633%</div><div class="l">Calls from Google</div></div><div class="cht-num"><div class="v">+272%</div><div class="l">Website visits</div></div></div>
+              <p class="cht-cap c2">Source: Google Business Profile performance report, August 2026 vs. July 2026.</p>
+              <div class="cht-foot"><a href="https://coloradohottubllc.com/" target="_blank" rel="noopener">coloradohottubllc.com</a><span class="cht-credit">Built by Peak Signal</span></div>
+            </div>
+          </section>
+          <section class="cht-card" role="group" aria-roledescription="slide" aria-label="2 of 6">
+            <div class="cht-in">
+              <div class="cht-top">
+                <div class="cht-mark"><svg viewBox="0 0 100 118" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Colorado Hot Tub LLC logo"><path d="M50 8 C30 30 12 55 12 78 A38 38 0 0 0 88 78 C88 55 70 30 50 8Z" fill="#002868"/><path d="M70.78 90 A24 24 0 1 1 70.78 66 L61.26 71.5 A13 13 0 1 0 61.26 84.5Z" fill="#BF0A30"/><circle cx="50" cy="78" r="10" fill="#FCD116"/></svg><div><span class="cht-mark-name">Colorado Hot Tub LLC</span><span class="cht-mark-sub">Celtic · Icelandic · Harmonic Dealer · Evergreen, CO</span></div></div>
+                <span class="cht-pg" aria-hidden="true">2/6</span>
+              </div>
+              <p class="cht-eyebrow">Colorado Hot Tub · Website</p>
+              <h3>AI-first website</h3>
+              <p class="cht-lead">Instant updates with zero friction.</p>
+              <ul>
+                <li><b>Your info and branding, baked in</b>So changes take seconds.</li>
+                <li><b>A site for every city or industry</b>Spin up custom-built sites for each one, instantly.</li>
+                <li><b>Feeds the voice agent</b>The phone agent gets its info from the site, so everything stays current automatically.</li>
+              </ul>
+              <div class="cht-foot"><a href="https://coloradohottubllc.com/" target="_blank" rel="noopener">coloradohottubllc.com</a><span class="cht-credit">Built by Peak Signal</span></div>
+            </div>
+          </section>
+          <section class="cht-card" role="group" aria-roledescription="slide" aria-label="3 of 6">
+            <div class="cht-in">
+              <div class="cht-top">
+                <div class="cht-mark"><svg viewBox="0 0 100 118" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Colorado Hot Tub LLC logo"><path d="M50 8 C30 30 12 55 12 78 A38 38 0 0 0 88 78 C88 55 70 30 50 8Z" fill="#002868"/><path d="M70.78 90 A24 24 0 1 1 70.78 66 L61.26 71.5 A13 13 0 1 0 61.26 84.5Z" fill="#BF0A30"/><circle cx="50" cy="78" r="10" fill="#FCD116"/></svg><div><span class="cht-mark-name">Colorado Hot Tub LLC</span><span class="cht-mark-sub">Celtic · Icelandic · Harmonic Dealer · Evergreen, CO</span></div></div>
+                <span class="cht-pg" aria-hidden="true">3/6</span>
+              </div>
+              <p class="cht-eyebrow">Colorado Hot Tub · Search &amp; Google</p>
+              <h3>AI-first SEO</h3>
+              <p class="cht-lead">Its own solution, not just part of the website build.</p>
+              <ul>
+                <li><b>Ongoing SEO</b>Pages keep getting tuned so traffic keeps growing.</li>
+                <li><b>Google Business Profile, managed</b>The shop's profile stays current and complete.</li>
+                <li><b>Shows up in local search</b>Built to be found when nearby customers search.</li>
+                <li><b>Measured</b>Tracked against the Google Business Profile performance report.</li>
+              </ul>
+              <div class="cht-foot"><a href="https://coloradohottubllc.com/" target="_blank" rel="noopener">coloradohottubllc.com</a><span class="cht-credit">Built by Peak Signal</span></div>
+            </div>
+          </section>
+          <section class="cht-card" role="group" aria-roledescription="slide" aria-label="4 of 6">
+            <div class="cht-in">
+              <div class="cht-top">
+                <div class="cht-mark"><svg viewBox="0 0 100 118" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Colorado Hot Tub LLC logo"><path d="M50 8 C30 30 12 55 12 78 A38 38 0 0 0 88 78 C88 55 70 30 50 8Z" fill="#002868"/><path d="M70.78 90 A24 24 0 1 1 70.78 66 L61.26 71.5 A13 13 0 1 0 61.26 84.5Z" fill="#BF0A30"/><circle cx="50" cy="78" r="10" fill="#FCD116"/></svg><div><span class="cht-mark-name">Colorado Hot Tub LLC</span><span class="cht-mark-sub">Celtic · Icelandic · Harmonic Dealer · Evergreen, CO</span></div></div>
+                <span class="cht-pg" aria-hidden="true">4/6</span>
+              </div>
+              <p class="cht-eyebrow">Colorado Hot Tub · Live now</p>
+              <h3>AI-first phone</h3>
+              <p class="cht-lead">Picks up the call, summarizes it, and then emails the owners a summary of every call.</p>
+              <ul>
+                <li><b>Picks up the call</b>On the shop phone, handling real calls today.</li>
+                <li><b>Summarizes it</b>Who called, what they need, and how to reach them.</li>
+                <li><b>Emails the owners</b>A summary of every call lands in their inbox.</li>
+                <li><b>Same answers as the site FAQ</b>Handles the questions the website FAQ answers, so callers and visitors hear the same thing.</li>
+              </ul>
+              <div class="cht-foot"><a href="https://coloradohottubllc.com/" target="_blank" rel="noopener">coloradohottubllc.com</a><span class="cht-credit">Built by Peak Signal</span></div>
+            </div>
+          </section>
+          <section class="cht-card" role="group" aria-roledescription="slide" aria-label="5 of 6">
+            <div class="cht-in">
+              <div class="cht-top">
+                <div class="cht-mark"><svg viewBox="0 0 100 118" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Colorado Hot Tub LLC logo"><path d="M50 8 C30 30 12 55 12 78 A38 38 0 0 0 88 78 C88 55 70 30 50 8Z" fill="#002868"/><path d="M70.78 90 A24 24 0 1 1 70.78 66 L61.26 71.5 A13 13 0 1 0 61.26 84.5Z" fill="#BF0A30"/><circle cx="50" cy="78" r="10" fill="#FCD116"/></svg><div><span class="cht-mark-name">Colorado Hot Tub LLC</span><span class="cht-mark-sub">Celtic · Icelandic · Harmonic Dealer · Evergreen, CO</span></div></div>
+                <span class="cht-pg" aria-hidden="true">5/6</span>
+              </div>
+              <p class="cht-eyebrow">Colorado Hot Tub · Shop inbox</p>
+              <h3>AI-first email</h3>
+              <p class="cht-lead">Watches the shop's info@ inbox and drafts replies. The owners review and send, so nothing goes out without them.</p>
+              <ul>
+                <li><b>Watches the inbox</b>Reads what comes in to the shop.</li>
+                <li><b>Puts first things first</b>Customers waiting and quote follow-ups rise to the top.</li>
+                <li><b>Catches what slips</b>Flags emails they'd otherwise miss.</li>
+                <li><b>Drafts replies</b>In the shop's voice, ready for owner approval.</li>
+                <li><b>Tracks follow-ups</b>Flags threads waiting on the shop.</li>
+              </ul>
+              <div class="cht-foot"><a href="https://coloradohottubllc.com/" target="_blank" rel="noopener">coloradohottubllc.com</a><span class="cht-credit">Built by Peak Signal</span></div>
+            </div>
+          </section>
+          <section class="cht-card" role="group" aria-roledescription="slide" aria-label="6 of 6">
+            <div class="cht-in">
+              <div class="cht-top">
+                <div class="cht-mark"><svg viewBox="0 0 100 118" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Colorado Hot Tub LLC logo"><path d="M50 8 C30 30 12 55 12 78 A38 38 0 0 0 88 78 C88 55 70 30 50 8Z" fill="#002868"/><path d="M70.78 90 A24 24 0 1 1 70.78 66 L61.26 71.5 A13 13 0 1 0 61.26 84.5Z" fill="#BF0A30"/><circle cx="50" cy="78" r="10" fill="#FCD116"/></svg><div><span class="cht-mark-name">Colorado Hot Tub LLC</span><span class="cht-mark-sub">Celtic · Icelandic · Harmonic Dealer · Evergreen, CO</span></div></div>
+                <span class="cht-pg" aria-hidden="true">6/6</span>
+              </div>
+              <p class="cht-eyebrow">Colorado Hot Tub · Quote generator</p>
+              <h3>AI-first bid generator</h3>
+              <p class="cht-lead">Job details and vendor pricing become a clean, branded Colorado Hot Tub quote.</p>
+              <ul>
+                <li><b>Builds quotes faster</b>The packet comes together without starting from scratch.</li>
+                <li><b>Clean and branded</b>Shop logo and contact info on every packet.</li>
+                <li><b>Real product detail</b>Actual photos and specs for tubs, saunas, and plunges.</li>
+                <li><b>Real prices only</b>Pricing comes from the shop's own catalog, never guessed.</li>
+                <li><b>Owner reviewed</b>The owners approve before it goes out.</li>
+              </ul>
+              <div class="cht-foot"><a href="https://coloradohottubllc.com/" target="_blank" rel="noopener">coloradohottubllc.com</a><span class="cht-credit">Built by Peak Signal</span></div>
+            </div>
+          </section>
+        </div>
+        <div class="cht-nav">
+          <button type="button" class="cht-prev" aria-label="Previous slide" disabled>&#8592;</button>
+          <div class="cht-dots" role="group" aria-label="Choose a slide">
+            <button type="button" aria-label="Show slide 1 of 6" aria-current="true"></button>
+            <button type="button" aria-label="Show slide 2 of 6"></button>
+            <button type="button" aria-label="Show slide 3 of 6"></button>
+            <button type="button" aria-label="Show slide 4 of 6"></button>
+            <button type="button" aria-label="Show slide 5 of 6"></button>
+            <button type="button" aria-label="Show slide 6 of 6"></button>
+          </div>
+          <button type="button" class="cht-next" aria-label="Next slide">&#8594;</button>
+        </div>
+        <p class="sr-only" aria-live="polite"></p>
+      </div>
+      <script>
+      (function () {
+        var root = document.querySelector(".cht-carousel");
+        if (!root || !root.querySelector) return;
+        var track = root.querySelector(".cht-track");
+        var cards = Array.prototype.slice.call(root.querySelectorAll(".cht-card"));
+        var prev = root.querySelector(".cht-prev");
+        var next = root.querySelector(".cht-next");
+        var dots = Array.prototype.slice.call(root.querySelectorAll(".cht-dots button"));
+        var live = root.querySelector("[aria-live]");
+        var reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+        var drag = null;
+        var ignoreScroll = 0;
+        function gap() {
+          var g = parseFloat(getComputedStyle(track).columnGap);
+          return isNaN(g) ? 0 : g;
+        }
+        function step() {
+          return cards[0].getBoundingClientRect().width + gap();
+        }
+        function index() {
+          var s = step();
+          if (!s) return 0;
+          return Math.max(0, Math.min(cards.length - 1, Math.round(track.scrollLeft / s)));
+        }
+        function go(i) {
+          var n = Math.max(0, Math.min(cards.length - 1, i));
+          track.scrollTo({ left: Math.round(n * step()), behavior: reduce ? "auto" : "smooth" });
+        }
+        function showIndex(i) {
+          dots.forEach(function (d, k) {
+            if (k === i) d.setAttribute("aria-current", "true");
+            else d.removeAttribute("aria-current");
+          });
+          prev.disabled = i === 0;
+          next.disabled = i === cards.length - 1;
+          cards.forEach(function (card, k) {
+            var on = k === i;
+            card.inert = !on;
+            if (on) card.removeAttribute("aria-hidden");
+            else card.setAttribute("aria-hidden", "true");
+          });
+          if (live.textContent !== "Slide " + (i + 1) + " of 6") live.textContent = "Slide " + (i + 1) + " of 6";
+        }
+        function update() {
+          if (ignoreScroll) return;
+          showIndex(index());
+        }
+        function resetToStart() {
+          ignoreScroll += 1;
+          track.style.scrollBehavior = "auto";
+          track.scrollLeft = 0;
+          try {
+            track.scrollTo({ left: 0, behavior: "instant" });
+          } catch (err) {
+            track.scrollTo({ left: 0, behavior: "auto" });
+          }
+          track.style.scrollBehavior = "";
+          showIndex(0);
+          requestAnimationFrame(function () {
+            ignoreScroll = Math.max(0, ignoreScroll - 1);
+          });
+        }
+        prev.addEventListener("click", function () { go(index() - 1); });
+        next.addEventListener("click", function () { go(index() + 1); });
+        dots.forEach(function (d, k) { d.addEventListener("click", function () { go(k); }); });
+        track.addEventListener("scroll", function () {
+          if (ignoreScroll) return;
+          requestAnimationFrame(update);
+        }, { passive: true });
+        root.addEventListener("keydown", function (e) {
+          if (!root.contains(document.activeElement)) return;
+          if (e.key !== "ArrowRight" && e.key !== "ArrowLeft") return;
+          e.preventDefault();
+          go(index() + (e.key === "ArrowRight" ? 1 : -1));
+        });
+        track.addEventListener("pointerdown", function (e) {
+          if (e.pointerType !== "mouse" || e.button !== 0) return;
+          if (e.target.closest("a, button")) return;
+          drag = { x: e.clientX, left: track.scrollLeft, id: e.pointerId };
+          track.setPointerCapture(e.pointerId);
+          track.classList.add("is-dragging");
+        });
+        track.addEventListener("pointermove", function (e) {
+          if (!drag || e.pointerId !== drag.id) return;
+          track.scrollLeft = drag.left - (e.clientX - drag.x);
+        });
+        function endDrag(e) {
+          if (!drag || (e && e.pointerId !== drag.id)) return;
+          drag = null;
+          track.classList.remove("is-dragging");
+          go(index());
+        }
+        track.addEventListener("pointerup", endDrag);
+        track.addEventListener("pointercancel", endDrag);
+        resetToStart();
+        document.addEventListener("DOMContentLoaded", resetToStart);
+        window.addEventListener("load", function () {
+          resetToStart();
+          requestAnimationFrame(resetToStart);
+        });
+        window.addEventListener("pageshow", function () {
+          resetToStart();
+          requestAnimationFrame(resetToStart);
+        });
+      })();
+      </script>
+    </section>
+
+    <section id="how" class="max-w-screen-xl mx-auto px-4 sm:px-6 py-16 border-t border-zinc-800" aria-labelledby="faq-heading">
+      <h2 id="faq-heading" class="font-display text-3xl sm:text-4xl font-semibold tracking-tighter">Frequently Asked Questions</h2>
+      <p class="text-base sm:text-lg text-[#3B82F6] mt-3 mb-8 max-w-2xl">Straight answers before you book.</p>
+      <div class="max-w-3xl space-y-4">
+        <article class="bg-zinc-900 border border-zinc-800 rounded-3xl p-6 sm:p-8">
+          <h3 class="font-display text-xl font-semibold mb-3">What is an assessment, and what does it cost?</h3>
+          <p class="text-zinc-400">An assessment is a paid engagement where we learn your business, goals, systems, current technology, and bottlenecks, then design a solution that gets you to the outcomes you want. Cost depends on the size of your business. Book a call and we'll scope it with you.</p>
+        </article>
+        <article class="bg-zinc-900 border border-zinc-800 rounded-3xl p-6 sm:p-8">
+          <h3 class="font-display text-xl font-semibold mb-3">Does this replace my software?</h3>
+          <p class="text-zinc-400">In most cases, it doesn't replace your software, but helps connect all your existing software.</p>
+        </article>
+        <article class="bg-zinc-900 border border-zinc-800 rounded-3xl p-6 sm:p-8">
+          <h3 class="font-display text-xl font-semibold mb-3">Does AI send emails without my OK?</h3>
+          <p class="text-zinc-400">No. Drafts are for your approval. It sends on your behalf only if you turn that on.</p>
+        </article>
+        <article class="bg-zinc-900 border border-zinc-800 rounded-3xl p-6 sm:p-8">
+          <h3 class="font-display text-xl font-semibold mb-3">What happens to a missed call?</h3>
+          <p class="text-zinc-400">An AI voice agent answers when you can't, books meetings, handles FAQs, and filters low-priority calls.</p>
+        </article>
+        <article class="bg-zinc-900 border border-zinc-800 rounded-3xl p-6 sm:p-8">
+          <h3 class="font-display text-xl font-semibold mb-3">How long does a build take?</h3>
+          <p class="text-zinc-400">It depends on the business. Book a call to talk through the work. No timeline is promised here.</p>
+        </article>
+        <article class="bg-zinc-900 border border-zinc-800 rounded-3xl p-6 sm:p-8">
+          <h3 class="font-display text-xl font-semibold mb-3">Who owns the data and the accounts?</h3>
+          <p class="text-zinc-400">Your email, drive, CRM, and phone accounts stay yours. Peak Signal plugs into them. Information you send through the site is handled as described in the <a href="/privacy" class="text-zinc-200 underline underline-offset-4">privacy policy</a>.</p>
+        </article>
+        <article class="bg-zinc-900 border border-zinc-800 rounded-3xl p-6 sm:p-8">
+          <h3 class="font-display text-xl font-semibold mb-3">Where do you work?</h3>
+          <p class="text-zinc-400">Evergreen, Golden, and the Colorado foothills, plus remote.</p>
+        </article>
+      </div>
+    </section>
+
+    <section class="max-w-screen-xl mx-auto px-4 sm:px-6 py-20 border-t border-zinc-800" aria-labelledby="book-heading">
+      <div class="max-w-xl mx-auto text-center">
+        <h2 id="book-heading" class="font-display text-3xl sm:text-4xl font-semibold tracking-tighter mb-6">Book a call</h2>
+        <a href="https://calendly.com/hello-peaksignal/30min" target="_blank" rel="noopener" class="inline-flex w-full sm:w-auto items-center justify-center px-10 py-4 bg-white text-zinc-950 font-medium rounded-2xl hover:bg-zinc-100 transition-colors text-lg">
+          Book a call
         </a>
-        <a href="#offers"
-           class="inline-flex items-center justify-center px-8 py-4 border border-zinc-700 hover:bg-zinc-900 transition-colors rounded-2xl font-medium">
-          See the offers
-        </a>
       </div>
-    </div>
-  </section>
-
-  <!-- The System -->
-  <section id="system" class="max-w-screen-xl mx-auto px-6 py-16 border-t border-zinc-800">
-    <div class="max-w-3xl mx-auto text-center">
-      <span class="text-sm font-medium tracking-[3px] text-zinc-500">THE SYSTEM</span>
-      <h2 class="font-display text-4xl font-semibold tracking-tighter mt-2 mb-6">One system. Every customer, every call, every follow-up — connected.</h2>
-      <p class="text-lg text-zinc-400">
-        Not three tools you babysit. One operating system that runs the work: demand in, labor out. Capture, Answer, and Keep share one brain — so nothing falls through the cracks and you never have to hire just to keep up.
-      </p>
-    </div>
-  </section>
-
-  <!-- Offers -->
-  <section id="offers" class="max-w-screen-xl mx-auto px-6 py-16 border-t border-zinc-800">
-    <div class="mb-10 text-center">
-      <span class="text-sm font-medium tracking-[3px] text-zinc-500">THE OFFERS</span>
-      <h2 class="font-display text-4xl font-semibold tracking-tighter mt-2">Three jobs. One system.</h2>
-    </div>
-
-    <div class="grid md:grid-cols-3 gap-6">
-
-      <!-- Capture -->
-      <div class="bg-zinc-900 border border-zinc-800 rounded-3xl p-8 hover:border-zinc-700 transition-colors">
-        <div class="text-emerald-400 mb-4">
-          <i class="fa-solid fa-globe text-3xl"></i>
-        </div>
-        <h3 class="font-display text-2xl font-semibold mb-3">Capture</h3>
-        <p class="text-zinc-400 mb-4">Your site, reviews, and local listings work together so the right people find you.</p>
-        <ul class="text-sm text-zinc-400 space-y-2 mb-6">
-          <li>• Ranks in Evergreen and the foothills</li>
-          <li>• Turns visitors into booked calls</li>
-          <li>• Built to convert, not just look good</li>
-        </ul>
-      </div>
-
-      <!-- Answer -->
-      <div class="bg-zinc-900 border border-zinc-800 rounded-3xl p-8 hover:border-zinc-700 transition-colors">
-        <div class="text-emerald-400 mb-4">
-          <i class="fa-solid fa-phone text-3xl"></i>
-        </div>
-        <h3 class="font-display text-2xl font-semibold mb-3">Answer</h3>
-        <p class="text-zinc-400 mb-4">Calls, messages, and leads get handled fast, even when you're on a job.</p>
-        <ul class="text-sm text-zinc-400 space-y-2 mb-6">
-          <li>• 24/7, after hours and weekends</li>
-          <li>• Books straight into your calendar</li>
-          <li>• Feels personal, works automatically</li>
-        </ul>
-      </div>
-
-      <!-- Keep -->
-      <div class="bg-zinc-900 border border-zinc-800 rounded-3xl p-8 hover:border-zinc-700 transition-colors">
-        <div class="text-emerald-400 mb-4">
-          <i class="fa-solid fa-sync text-3xl"></i>
-        </div>
-        <h3 class="font-display text-2xl font-semibold mb-3">Keep</h3>
-        <p class="text-zinc-400 mb-4">Follow-ups and reviews run on their own, so customers come back instead of disappearing.</p>
-        <ul class="text-sm text-zinc-400 space-y-2 mb-6">
-          <li>• Follow-ups that actually get replies</li>
-          <li>• Re-engages the customers you forgot</li>
-          <li>• Scales without extra headcount</li>
-        </ul>
-      </div>
-
-    </div>
-  </section>
-
-  <!-- Proof -->
-  <section class="max-w-screen-xl mx-auto px-6 py-16 border-t border-zinc-800 bg-zinc-900">
-    <div class="max-w-3xl mx-auto text-center">
-      <span class="text-sm font-medium tracking-[3px] text-zinc-500">PROOF</span>
-      <h2 class="font-display text-4xl font-semibold tracking-tighter mt-2 mb-6">We built it for our own business first.</h2>
-      <p class="text-lg text-zinc-300">
-        It answered its first real call in under two minutes — qualified the lead, booked the assessment, and handed us a scorecard. No pitch. No gimmick chatbot on a dark homepage. A working line for the shop.
-      </p>
-    </div>
-  </section>
-
-  <section class="max-w-screen-xl mx-auto px-6 py-16 border-t border-zinc-800">
-    <div class="max-w-xl mb-10">
-      <h2 class="font-display text-4xl font-semibold tracking-tighter mt-2">Results</h2>
-    </div>
-    <div class="grid md:grid-cols-3 gap-6">
-      <div class="bg-zinc-900 border border-zinc-800 rounded-3xl p-8">
-        <h4 class="font-semibold mb-3 text-lg">Colorado Hot Tub</h4>
-        <p class="text-sm text-zinc-400">We connected their catalog, phone line, and local search presence. Now missed calls get answered and qualified automatically, and quotes draft themselves from their own product list. In August 2026, calls from Google went up 633 percent from July, and website visits from Google went up 272 percent.</p>
-        <p class="text-sm text-zinc-500 mt-4">Source: Google Business Profile performance report, August 2026 vs. July 2026 (22 calls, 41 website visits).</p>
-      </div>
-      <div class="bg-zinc-900 border border-zinc-800 rounded-3xl p-8">
-        <h4 class="font-semibold mb-3 text-lg">Moving Mountains</h4>
-        <p class="text-sm text-zinc-400">Their site went from a broken Wix setup to ranking #1 for dog training in Kittredge — the searches that actually fill their calendar.</p>
-      </div>
-      <div class="bg-zinc-900 border border-zinc-800 rounded-3xl p-8">
-        <h4 class="font-semibold mb-3 text-lg">Barrelosophy</h4>
-        <p class="text-sm text-zinc-400">We rebuilt their class pages, cleaned up their Google profile, and locked the Reformer at $52 with a cleaner booking flow.</p>
-      </div>
-    </div>
-  </section>
-
-  <!-- How it Works -->
-  <section id="how" class="max-w-screen-xl mx-auto px-6 py-16 border-t border-zinc-800">
-    <div class="max-w-xl mb-10">
-      <span class="text-sm font-medium tracking-[3px] text-zinc-500">HOW IT WORKS</span>
-      <h2 class="font-display text-4xl font-semibold tracking-tighter mt-2">A ladder, not a menu.</h2>
-    </div>
-
-    <div class="grid md:grid-cols-3 gap-6">
-      <div class="bg-zinc-900 border border-zinc-800 rounded-3xl p-8">
-        <div class="text-emerald-400 text-sm font-medium mb-3">01</div>
-        <h4 class="font-semibold mb-3 text-lg">Book an assessment</h4>
-        <p class="text-sm text-zinc-400">A real conversation with Brian. Five questions, one scorecard — where the leverage is, what to fix first, what it costs. No pitch.</p>
-      </div>
-      <div class="bg-zinc-900 border border-zinc-800 rounded-3xl p-8">
-        <div class="text-emerald-400 text-sm font-medium mb-3">02</div>
-        <h4 class="font-semibold mb-3 text-lg">The build</h4>
-        <p class="text-sm text-zinc-400">We install Capture, Answer, and Keep — done-for-you, wired into your tools, running in about a week.</p>
-      </div>
-      <div class="bg-zinc-900 border border-zinc-800 rounded-3xl p-8">
-        <div class="text-emerald-400 text-sm font-medium mb-3">03</div>
-        <h4 class="font-semibold mb-3 text-lg">The retainer</h4>
-        <p class="text-sm text-zinc-400">The harness, the board, the skills, the follow-up — ongoing, monthly. The layer that compounds while you run the business.</p>
-      </div>
-    </div>
-  </section>
-
-  <!-- CTA -->
-  <section class="max-w-screen-xl mx-auto px-6 py-20 border-t border-zinc-800">
-    <div class="max-w-xl mx-auto text-center">
-      <h2 class="font-display text-5xl font-semibold tracking-tighter mb-6">See what it does for your business.</h2>
-
-      <a href="/contact"
-         class="inline-flex items-center justify-center px-10 py-4 bg-white text-zinc-950 font-medium rounded-2xl hover:bg-zinc-100 transition-colors text-lg mt-4">
-        Book your assessment
-      </a>
-      <p class="text-sm text-zinc-500 mt-4">
-        Five questions · one scorecard · no pitch
-        · hello.peaksignal@gmail.com
-      </p>
-      <p class="text-sm text-zinc-500 mt-4">I'm your advisor through all of it — I set it up with you, stay in the loop, and make sure it's performing.</p>
-    </div>
-  </section>
+    </section>
+  </main>
 
   <footer class="border-t border-zinc-800 py-8">
-    <div class="max-w-screen-xl mx-auto px-6 text-sm text-zinc-500 flex flex-col md:flex-row justify-between items-center gap-y-4">
-      <div>© Peak Signal · Evergreen, CO · hello.peaksignal@gmail.com</div>
-      <div class="flex gap-x-6">
-        <a href="/contact" class="hover:text-zinc-300">Book an assessment</a>
+    <div class="max-w-screen-xl mx-auto px-4 sm:px-6 text-sm text-zinc-500 flex flex-col md:flex-row justify-between items-center gap-y-4 text-center md:text-left">
+      <div>
+        © Peak Signal · Golden, <a href="/ai-websites-evergreen-co" class="hover:text-zinc-300">Evergreen</a>, and the Colorado foothills
+        · <a href="tel:+19706605088" class="hover:text-zinc-300">970-660-5088</a>
+        · <a href="mailto:hello.peaksignal@gmail.com" class="hover:text-zinc-300">hello.peaksignal@gmail.com</a>
+      </div>
+      <div class="flex flex-wrap justify-center gap-x-6 gap-y-2">
+        <a href="/about" class="hover:text-zinc-300">About</a>
         <a href="/contact" class="hover:text-zinc-300">Contact</a>
+        <a href="/privacy" class="hover:text-zinc-300">Privacy</a>
+        <a href="/terms" class="hover:text-zinc-300">Terms</a>
       </div>
     </div>
   </footer>

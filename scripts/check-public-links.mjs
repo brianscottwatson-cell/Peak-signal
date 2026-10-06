@@ -24,22 +24,32 @@ import { fileURLToPath } from "node:url";
 const root = join(dirname(fileURLToPath(import.meta.url)), "..");
 const SITE = "https://getpeaksignal.com";
 
-/** pathname -> repo file. Same paths the Express routers accept. */
+/** pathname -> repo file. Clean routes the Express routers serve as 200. */
 const routes = {
   "/": "static-site/index.html",
-  "/index.html": "static-site/index.html",
   "/contact": "static-site/contact.html",
-  "/contact.html": "static-site/contact.html",
   "/privacy": "static-site/privacy.html",
-  "/privacy.html": "static-site/privacy.html",
   "/terms": "static-site/terms.html",
-  "/terms.html": "static-site/terms.html",
+  "/about": "static-site/about.html",
   "/robots.txt": "static-site/robots.txt",
   "/google166e848c42566a74.html": "static-site/google166e848c42566a74.html",
+  "/images/cht-before-after.webp": "static-site/images/cht-before-after.webp",
   "/sitemap.xml": "seo/sitemap.xml",
   "/ai-websites-evergreen-co": "seo/landers/ai-websites-evergreen-co.html",
   "/ai-automation-evergreen-colorado": "seo/landers/ai-automation-evergreen-colorado.html",
   "/ai-agents-small-business-evergreen": "seo/landers/ai-agents-small-business-evergreen.html",
+};
+
+/** Duplicate .html URLs. 301 to the clean path. Query strings stay on the target. */
+const htmlRedirects = {
+  "/index.html": "/",
+  "/about.html": "/about",
+  "/contact.html": "/contact",
+  "/privacy.html": "/privacy",
+  "/terms.html": "/terms",
+  "/ai-websites-evergreen-co.html": "/ai-websites-evergreen-co",
+  "/ai-automation-evergreen-colorado.html": "/ai-automation-evergreen-colorado",
+  "/ai-agents-small-business-evergreen.html": "/ai-agents-small-business-evergreen",
 };
 
 const publicPages = [
@@ -47,6 +57,7 @@ const publicPages = [
   "/contact",
   "/privacy",
   "/terms",
+  "/about",
   "/ai-websites-evergreen-co",
   "/ai-automation-evergreen-colorado",
   "/ai-agents-small-business-evergreen",
@@ -77,6 +88,7 @@ function fail(message) {
 function contentType(file) {
   if (file.endsWith(".xml")) return "application/xml; charset=utf-8";
   if (file.endsWith(".txt")) return "text/plain; charset=utf-8";
+  if (file.endsWith(".webp")) return "image/webp";
   return "text/html; charset=utf-8";
 }
 
@@ -166,6 +178,7 @@ function assertVercelConfig() {
   if (config.trailingSlash === true) fail("vercel.json trailingSlash is on");
 
   const rewrites = config.rewrites ?? [];
+  const redirects = config.redirects ?? [];
   for (const [path, file] of Object.entries(routes)) {
     const rule = rewrites.find((item) => item.source === path);
     if (!rule) {
@@ -174,6 +187,22 @@ function assertVercelConfig() {
     }
     const destFile = String(rule.destination || "").replace(/^\//, "");
     if (destFile !== file) fail(`vercel.json ${path} rewrites to /${destFile}, expected /${file}`);
+  }
+  for (const [source, destination] of Object.entries(htmlRedirects)) {
+    if (rewrites.some((item) => item.source === source)) {
+      fail(`vercel.json still rewrites ${source}; it must 301 to ${destination}`);
+    }
+    const rule = redirects.find((item) => item.source === source);
+    if (!rule) {
+      fail(`vercel.json has no redirect for ${source}`);
+      continue;
+    }
+    if (rule.destination !== destination) {
+      fail(`vercel.json ${source} redirects to ${rule.destination}, expected ${destination}`);
+    }
+    if (rule.statusCode !== 301 || Object.prototype.hasOwnProperty.call(rule, "permanent")) {
+      fail(`vercel.json ${source} must be a 301 via statusCode only`);
+    }
   }
 
   const api = rewrites.find((item) => item.source === "/api/(.*)");
@@ -239,7 +268,14 @@ function assertVercelIgnore() {
 
 async function main() {
   const server = http.createServer((req, res) => {
-    const path = new URL(req.url ?? "/", "http://127.0.0.1").pathname;
+    const url = new URL(req.url ?? "/", "http://127.0.0.1");
+    const path = url.pathname;
+    const redirectTo = htmlRedirects[path];
+    if (redirectTo) {
+      res.writeHead(301, { Location: redirectTo + url.search });
+      res.end();
+      return;
+    }
     const file = routes[path];
     if (!file) {
       res.writeHead(404, { "content-type": "text/plain; charset=utf-8" });
@@ -263,6 +299,16 @@ async function main() {
     }
 
     assertVercelConfig();
+
+    for (const [source, destination] of Object.entries(htmlRedirects)) {
+      const redirected = await fetch(`http://127.0.0.1:${port}${source}?qa=1`, { redirect: "manual" });
+      const location = redirected.headers.get("location") || "";
+      if (redirected.status !== 301 || location !== `${destination}?qa=1`) {
+        fail(`${source} returned ${redirected.status} Location ${location}, expected 301 ${destination}?qa=1`);
+      }
+      const clean = await get(port, destination);
+      if (clean.status !== 200) fail(`${destination} returned ${clean.status}`);
+    }
 
     const home = pages.get("/");
     for (const id of ["system", "offers", "how"]) {

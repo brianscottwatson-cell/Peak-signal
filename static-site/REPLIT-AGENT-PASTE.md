@@ -6,7 +6,7 @@ Live getpeaksignal.com still serves the old Vite SPA (`index-qKYIH-Tv.js`, title
 
 ## Goal
 - `GET /` HTML contains H1 **Put AI to work on the tools you already have.**
-- `GET /contact` HTML contains H1 **Book your assessment**
+- `GET /contact` HTML contains H1 **Book a call**
 - No SPA `#root` shell for those two routes
 - Leave `/api/voice` alone
 
@@ -25,7 +25,7 @@ Live getpeaksignal.com still serves the old Vite SPA (`index-qKYIH-Tv.js`, title
 6. Verify:
    ```
    curl -sS https://getpeaksignal.com/ | grep -F "Put AI to work on the tools you already have."
-   curl -sS https://getpeaksignal.com/contact | grep -F "Book your assessment"
+   curl -sS https://getpeaksignal.com/contact | grep -F "Book a call"
    ```
    Neither response should contain `id="root"` as the only body.
 
