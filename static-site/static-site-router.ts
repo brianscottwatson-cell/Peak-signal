@@ -1,5 +1,5 @@
 /**
- * Serve Capture/Answer/Keep static homepage, contact, privacy, and terms HTML before SPA.
+ * Serve the public static pages before the SPA.
  * Mount FIRST on the public Express/static host:
  *   app.use(staticSiteRouter)
  */
@@ -56,6 +56,12 @@ staticSiteRouter.get(["/privacy", "/privacy.html"], (_req: Request, res: Respons
 staticSiteRouter.get(["/terms", "/terms.html"], (_req: Request, res: Response) => {
   const html = load("terms.html");
   if (!html) return res.status(404).type("text").send("terms missing");
+  res.type("html").send(html);
+});
+
+staticSiteRouter.get(["/about", "/about.html"], (_req: Request, res: Response) => {
+  const html = load("about.html");
+  if (!html) return res.status(404).type("text").send("about missing");
   res.type("html").send(html);
 });
 

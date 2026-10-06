@@ -40,6 +40,8 @@ const htmlPages = new Set([
   "/privacy.html",
   "/terms",
   "/terms.html",
+  "/about",
+  "/about.html",
   "/ai-websites-evergreen-co",
   "/ai-automation-evergreen-colorado",
   "/ai-agents-small-business-evergreen",

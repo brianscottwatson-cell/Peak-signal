@@ -18,6 +18,8 @@
     { "source": "/privacy.html", "destination": "/static-site/privacy.html" },
     { "source": "/terms", "destination": "/static-site/terms.html" },
     { "source": "/terms.html", "destination": "/static-site/terms.html" },
+    { "source": "/about", "destination": "/static-site/about.html" },
+    { "source": "/about.html", "destination": "/static-site/about.html" },
     { "source": "/robots.txt", "destination": "/static-site/robots.txt" },
     { "source": "/google166e848c42566a74.html", "destination": "/static-site/google166e848c42566a74.html" },
     { "source": "/sitemap.xml", "destination": "/seo/sitemap.xml" },
