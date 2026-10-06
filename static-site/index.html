@@ -476,6 +476,7 @@
         var live = root.querySelector("[aria-live]");
         var reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
         var drag = null;
+        var ignoreScroll = 0;
         function gap() {
           var g = parseFloat(getComputedStyle(track).columnGap);
           return isNaN(g) ? 0 : g;
@@ -492,8 +493,7 @@
           var n = Math.max(0, Math.min(cards.length - 1, i));
           track.scrollTo({ left: Math.round(n * step()), behavior: reduce ? "auto" : "smooth" });
         }
-        function update() {
-          var i = index();
+        function showIndex(i) {
           dots.forEach(function (d, k) {
             if (k === i) d.setAttribute("aria-current", "true");
             else d.removeAttribute("aria-current");
@@ -508,10 +508,32 @@
           });
           if (live.textContent !== "Slide " + (i + 1) + " of 6") live.textContent = "Slide " + (i + 1) + " of 6";
         }
+        function update() {
+          if (ignoreScroll) return;
+          showIndex(index());
+        }
+        function resetToStart() {
+          ignoreScroll += 1;
+          track.style.scrollBehavior = "auto";
+          track.scrollLeft = 0;
+          try {
+            track.scrollTo({ left: 0, behavior: "instant" });
+          } catch (err) {
+            track.scrollTo({ left: 0, behavior: "auto" });
+          }
+          track.style.scrollBehavior = "";
+          showIndex(0);
+          requestAnimationFrame(function () {
+            ignoreScroll = Math.max(0, ignoreScroll - 1);
+          });
+        }
         prev.addEventListener("click", function () { go(index() - 1); });
         next.addEventListener("click", function () { go(index() + 1); });
         dots.forEach(function (d, k) { d.addEventListener("click", function () { go(k); }); });
-        track.addEventListener("scroll", function () { requestAnimationFrame(update); }, { passive: true });
+        track.addEventListener("scroll", function () {
+          if (ignoreScroll) return;
+          requestAnimationFrame(update);
+        }, { passive: true });
         root.addEventListener("keydown", function (e) {
           if (!root.contains(document.activeElement)) return;
           if (e.key !== "ArrowRight" && e.key !== "ArrowLeft") return;
@@ -537,7 +559,16 @@
         }
         track.addEventListener("pointerup", endDrag);
         track.addEventListener("pointercancel", endDrag);
-        update();
+        resetToStart();
+        document.addEventListener("DOMContentLoaded", resetToStart);
+        window.addEventListener("load", function () {
+          resetToStart();
+          requestAnimationFrame(resetToStart);
+        });
+        window.addEventListener("pageshow", function () {
+          resetToStart();
+          requestAnimationFrame(resetToStart);
+        });
       })();
       </script>
     </section>
