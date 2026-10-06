@@ -22,6 +22,7 @@
     { "source": "/about.html", "destination": "/static-site/about.html" },
     { "source": "/robots.txt", "destination": "/static-site/robots.txt" },
     { "source": "/google166e848c42566a74.html", "destination": "/static-site/google166e848c42566a74.html" },
+    { "source": "/images/cht-before-after.webp", "destination": "/static-site/images/cht-before-after.webp" },
     { "source": "/sitemap.xml", "destination": "/seo/sitemap.xml" },
     { "source": "/ai-websites-evergreen-co", "destination": "/seo/landers/ai-websites-evergreen-co.html" },
     { "source": "/ai-automation-evergreen-colorado", "destination": "/seo/landers/ai-automation-evergreen-colorado.html" },

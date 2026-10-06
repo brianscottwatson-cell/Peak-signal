@@ -38,6 +38,7 @@ const routes = {
   "/about.html": "static-site/about.html",
   "/robots.txt": "static-site/robots.txt",
   "/google166e848c42566a74.html": "static-site/google166e848c42566a74.html",
+  "/images/cht-before-after.webp": "static-site/images/cht-before-after.webp",
   "/sitemap.xml": "seo/sitemap.xml",
   "/ai-websites-evergreen-co": "seo/landers/ai-websites-evergreen-co.html",
   "/ai-automation-evergreen-colorado": "seo/landers/ai-automation-evergreen-colorado.html",
@@ -80,6 +81,7 @@ function fail(message) {
 function contentType(file) {
   if (file.endsWith(".xml")) return "application/xml; charset=utf-8";
   if (file.endsWith(".txt")) return "text/plain; charset=utf-8";
+  if (file.endsWith(".webp")) return "image/webp";
   return "text/html; charset=utf-8";
 }
 
