@@ -55,7 +55,7 @@ Formspree to hello.peaksignal@gmail.com is a **backup dump only**. Hangup (POST 
 1. Transcribe the full call and save to brain `clients/<slug>/transcript.md` (create the folder if needed). Speaker labels (Agent / Caller). Five answers clearly sectioned. Note any site-lookup findings.
 2. Generate the one-page scorecard as brain `clients/<slug>/scorecard.md` AND a branded recap as `clients/<slug>/recap.md` (from-line Brian at Peak Signal, no last name). Fill estimates via the formula — never "Brian fills." Email the recap to hello.peaksignal@gmail.com + CC brianscottwatson@gmail.com, and CC the caller once you have their email.
 3. Email the scorecard to **brianscottwatson@gmail.com** (NOT brian@getpeaksignal.com — that mailbox does not exist). Subject: `Peak Signal Assessment — <Name or Company>`. Include paths/links to the two files.
-4. Update the spine in **both** repos (Peak-signal and brain): only the five fields (Objective, Status, Owner, Blockers, Next action) + a log entry. No freeform.
+4. Update the spine only in brianscottwatson-cell/brain: five fields (Objective, Status, Owner, Blockers, Next action) on `spine.md`, history in `spine-log.md`. Never this repo's `spine.md`. No freeform.
 5. Mark the translation board task done (TASK-006 or the current assessment task).
 
 Slug: lowercase kebab from business name, or `sim-task-005` for the proof sim. Never invent a last name.
@@ -102,7 +102,7 @@ If no revenue number was given, leave the estimate as "needs baseline" and flag 
 ```
 
 ## Rules (non-negotiable)
-- Read the spine before acting. Write only the five fields after.
+- Read the brain spine (`spine.md`) before acting. Write only the five fields after, on that file; append history to `spine-log.md`. Never this repo's `spine.md`.
 - Keep the call short — five questions, then wrap.
 - No credentials stored. No writes to production systems without approval.
 - Brian is the human owner. You are the agent.
@@ -121,5 +121,5 @@ If no revenue number was given, leave the estimate as "needs baseline" and flag 
 - [ ] clients/<slug>/transcript.md written on brain
 - [ ] clients/<slug>/scorecard.md written (branded; estimates filled via formula, not "Brian fills")
 - [ ] Email to brianscottwatson@gmail.com sent
-- [ ] Spine five fields + log updated in both repos
+- [ ] Spine five fields updated on brain `spine.md`; history in `spine-log.md` (never this repo's `spine.md`)
 - [ ] Translation board updated
