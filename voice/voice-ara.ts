@@ -64,7 +64,7 @@ function loadInstructions(): string {
   try {
     return readFileSync(join(__dirname, "ara-prompt.md"), "utf8");
   } catch {
-    return "You are the Peak Signal free AI assessment line. Ask five questions in order, then wrap. No pitch. No dollar amounts. No Pax8 or Loc8.";
+    return "You are Peak Signal's line. Ask five questions in order, then wrap. No pitch. No dollar amounts. No Pax8 or Loc8.";
   }
 }
 
