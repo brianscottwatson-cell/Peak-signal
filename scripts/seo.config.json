@@ -1,0 +1,20 @@
+// Titles that are not "<h1> | Peak Signal".
+// Each entry needs its own comment. The value is the exact <title> text.
+{
+  "titleAllowlist": {
+    // Homepage leads with the brand. The h1 is the second clause.
+    "static-site/index.html": "Peak Signal • Modernize your business",
+
+    // "<h1> | Peak Signal" would repeat the brand. This title names the town.
+    "static-site/about.html": "About Peak Signal • Evergreen, Colorado",
+
+    // Published title uses a bullet, not a pipe.
+    "static-site/contact.html": "Book a call • Peak Signal",
+
+    // Published title uses a middle dot, not a pipe.
+    "static-site/privacy.html": "Privacy Policy · Peak Signal",
+
+    // Published title uses a middle dot, not a pipe.
+    "static-site/terms.html": "Terms · Peak Signal"
+  }
+}

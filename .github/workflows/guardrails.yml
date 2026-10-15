@@ -11,7 +11,7 @@ permissions:
 
 jobs:
   guardrails:
-    name: Content rules and feature map
+    name: Content rules, feature map, and SEO
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -23,7 +23,7 @@ jobs:
           node-version: lts/*
 
       - name: Unit tests
-        run: node --test scripts/guardrails.test.mjs
+        run: node --test scripts/guardrails.test.mjs scripts/seo.test.mjs
 
       - name: Feature map
         if: success() || failure()
@@ -32,3 +32,7 @@ jobs:
       - name: Content guardrail
         if: success() || failure()
         run: node scripts/check-guardrails.mjs
+
+      - name: SEO consistency
+        if: success() || failure()
+        run: node scripts/check-seo.mjs
