@@ -8,6 +8,8 @@ These routes come from `static-site/*.html`, `seo/landers/*.html`, the Express r
 
 Nav links are the anchors in the header `<nav>` (or the lander header nav). CTAs are the button-style actions. A control that is both is listed in both places.
 
+`scripts/check-seo.mjs` checks the HTML pages in this map, except `/sitemap.xml` and `/robots.txt`. It runs in the guardrail workflow. After HTML entities and whitespace are normalized, `<title>` must equal `<h1 text> | Peak Signal`. A page that needs a different title is listed, with a comment, in `scripts/seo.config.json`. The homepage, about, contact, privacy, and terms titles are on that list. Each page also needs one `<h1>`, a meta description, a canonical link, and `og:title` and `twitter:title` equal to `<title>`. Every URL in `seo/sitemap.xml` must map to a file in the repo.
+
 ## /
 
 - Route: /

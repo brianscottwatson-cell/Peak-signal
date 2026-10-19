@@ -127,6 +127,9 @@ export function inspectHtml(html) {
   const forms = [];
   const titles = [];
   const descriptions = [];
+  const ogTitles = [];
+  const twitterTitles = [];
+  const canonicals = [];
   const lines = lineStarts(html);
   const lineOf = (index) => lineAt(lines, index);
   let i = 0;
@@ -184,19 +187,33 @@ export function inspectHtml(html) {
 
       if (!isClose && name === "meta") {
         const content = getAttr(tag, "content");
+        const metaName = (getAttr(tag, "name") || "").toLowerCase();
+        const property = (getAttr(tag, "property") || "").toLowerCase();
         if (content != null) {
           regions.push({
             kind: "meta",
             text: content,
             index: attrIndex(html, i, tag, content),
           });
-          const metaName = (getAttr(tag, "name") || "").toLowerCase();
           if (metaName === "description") {
             descriptions.push({ text: content, line: lineOf(i) });
           }
         }
+        if (property === "og:title") {
+          ogTitles.push({ text: content ?? "", line: lineOf(i) });
+        }
+        if (metaName === "twitter:title" || property === "twitter:title") {
+          twitterTitles.push({ text: content ?? "", line: lineOf(i) });
+        }
         i = tagEnd;
         continue;
+      }
+
+      if (!isClose && name === "link") {
+        const rel = (getAttr(tag, "rel") || "").toLowerCase().split(/\s+/).filter(Boolean);
+        if (rel.includes("canonical")) {
+          canonicals.push({ href: (getAttr(tag, "href") || "").trim(), line: lineOf(i) });
+        }
       }
 
       if (!isClose && name === "form") {
@@ -248,7 +265,7 @@ export function inspectHtml(html) {
     i = end;
   }
 
-  return { regions, h1s, forms, titles, descriptions, lineOf };
+  return { regions, h1s, forms, titles, descriptions, ogTitles, twitterTitles, canonicals, lineOf };
 }
 
 export function visibleText(fragment) {
