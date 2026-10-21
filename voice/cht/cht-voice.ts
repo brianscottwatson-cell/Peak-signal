@@ -56,7 +56,11 @@ type CallState = {
   called: string;
   turns: { role: "agent" | "caller"; text: string }[];
   emailed: boolean;
+  /** Set synchronously before the summary posts, so stop/status/flush cannot all pass the check. */
+  summaryClaimed: boolean;
   recordingEmailed: boolean;
+  /** Set synchronously before the recording-ready posts. Separate from the summary claim. */
+  recordingClaimed: boolean;
   confirmed: boolean;
   agentConnected: boolean;
   /** Set only when an owner presses 1 on the whisper. DialCallStatus is not enough. */
@@ -80,7 +84,9 @@ function state(sid: string): CallState {
       called: "",
       turns: [],
       emailed: false,
+      summaryClaimed: false,
       recordingEmailed: false,
+      recordingClaimed: false,
       confirmed: false,
       agentConnected: false,
       humanAccepted: false,
@@ -286,11 +292,16 @@ async function postFormspree(url: string, payload: Record<string, string>, label
   }
 }
 
+function releaseSummaryClaim(st: CallState) {
+  st.summaryClaimed = false;
+  if (!st.recordingEmailed) st.recordingClaimed = false;
+}
+
 async function emailShop(st: CallState, from: string, sid: string, opts?: { recordingOnly?: boolean }) {
   const recordingOnly = !!(opts && opts.recordingOnly);
   if (recordingOnly) {
-    if (st.recordingEmailed || !st.recordingUrl) return;
-  } else if (st.emailed) {
+    if (st.recordingEmailed || st.recordingClaimed || !st.recordingUrl) return;
+  } else if (st.emailed || st.summaryClaimed) {
     return;
   }
   const phone = st.phone || from || st.from || "";
@@ -299,6 +310,15 @@ async function emailShop(st: CallState, from: string, sid: string, opts?: { reco
   if (!recordingOnly && !rich && !(agented && phone)) {
     console.log("cht-voice skip empty hangup", sid, "from", phone, "agent", agented, "turns", st.turns.length);
     return;
+  }
+  // Claim before any await. Stop, status, and socket flush all call this;
+  // the flag check used to run before the posts and the latch after both
+  // finished, so those three could each send a summary.
+  if (recordingOnly) {
+    st.recordingClaimed = true;
+  } else {
+    st.summaryClaimed = true;
+    if (st.recordingUrl) st.recordingClaimed = true;
   }
   // Recording is a URL in the message. Formspree cannot attach Twilio MP3 binaries.
   const recLine = st.recordingUrl
@@ -343,10 +363,18 @@ async function emailShop(st: CallState, from: string, sid: string, opts?: { reco
     name: st.name || "CHT inbound voice",
     _cc: "brianscottwatson@gmail.com",
   };
-  const peakOk = await postFormspree(FORMSPREE_PEAK, peakPayload, "peak-mgobgrlr");
-  // Shop form (CHT_FORMSPREE) is the shop inbox — intended info@coloradohottubllc.com.
-  // Confirm that destination in Formspree; this code does not change Formspree routing.
-  const shopOk = await postFormspree(FORMSPREE_SHOP, shopPayload, "shop-xgogybaj");
+  let peakOk = false;
+  let shopOk = false;
+  try {
+    peakOk = await postFormspree(FORMSPREE_PEAK, peakPayload, "peak-mgobgrlr");
+    // Shop form (CHT_FORMSPREE) is the shop inbox — intended info@coloradohottubllc.com.
+    // Confirm that destination in Formspree; this code does not change Formspree routing.
+    shopOk = await postFormspree(FORMSPREE_SHOP, shopPayload, "shop-xgogybaj");
+  } catch (e: any) {
+    peakOk = false;
+    shopOk = false;
+    console.error("cht-voice email failed", sid, e?.message || e);
+  }
   if (peakOk || shopOk) {
     if (recordingOnly) st.recordingEmailed = true;
     else {
@@ -355,8 +383,27 @@ async function emailShop(st: CallState, from: string, sid: string, opts?: { reco
     }
     console.log("cht-voice emailed", sid, "peak", peakOk, "shop", shopOk, "recordingOnly", recordingOnly);
   } else {
+    // Total failure only. A later stop, status, or recording callback can retry.
+    if (recordingOnly) st.recordingClaimed = false;
+    else releaseSummaryClaim(st);
     console.error("cht-voice email both Formspree failed", sid);
   }
+}
+
+/** Test hook. Stop, status, and socket flush all end in emailShop. */
+export function noteChtCaller(callSid: string, text: string) {
+  state(callSid).turns.push({ role: "caller", text: String(text || "").slice(0, 2000) });
+}
+
+/** Test hook for the hangup summary path. */
+export async function notifyChtHangup(callSid: string, from: string) {
+  const st = state(callSid);
+  const caller = String(from || st.from || "");
+  if (caller) {
+    st.from = caller;
+    if (!st.phone) st.phone = caller;
+  }
+  await emailShop(st, caller, callSid);
 }
 
 export const chtVoiceRouter = Router();
@@ -517,9 +564,10 @@ chtVoiceRouter.post("/recording", async (req: Request, res: Response) => {
     // Twilio media is at RecordingUrl + .mp3 (or play in console)
     st.recordingUrl = url.endsWith(".mp3") || url.endsWith(".wav") ? url : `${url}.mp3`;
     persist(sid, st);
-    if (st.emailed && !st.recordingEmailed) {
+    const summaryBusy = st.emailed || st.summaryClaimed;
+    if (summaryBusy && !st.recordingEmailed && !st.recordingClaimed) {
       await emailShop(st, st.from || "", sid, { recordingOnly: true });
-    } else if (!st.emailed) {
+    } else if (!st.emailed && !st.summaryClaimed) {
       await emailShop(st, st.from || "", sid);
     }
   }
