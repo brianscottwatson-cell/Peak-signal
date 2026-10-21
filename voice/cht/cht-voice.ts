@@ -57,6 +57,10 @@ type CallState = {
   turns: { role: "agent" | "caller"; text: string }[];
   emailed: boolean;
   recordingEmailed: boolean;
+  /** No realtime key, so the caller heard the spoken fallback. */
+  fallback: boolean;
+  /** In-flight missed-call notice. Cleared only when both posts fail. */
+  missedClaimed: boolean;
   confirmed: boolean;
   agentConnected: boolean;
   /** Set only when an owner presses 1 on the whisper. DialCallStatus is not enough. */
@@ -81,6 +85,8 @@ function state(sid: string): CallState {
       turns: [],
       emailed: false,
       recordingEmailed: false,
+      fallback: false,
+      missedClaimed: false,
       confirmed: false,
       agentConnected: false,
       humanAccepted: false,
@@ -286,6 +292,74 @@ async function postFormspree(url: string, payload: Record<string, string>, label
   }
 }
 
+const PRIVATE_CALLER = new Set([
+  "anonymous",
+  "restricted",
+  "unknown",
+  "withheld",
+  "unavailable",
+  "private",
+  "blocked",
+]);
+
+function knownCallerNumber(raw: string): string {
+  const value = String(raw || "").trim();
+  const token = value.toLowerCase().replace(/\s+/g, "");
+  if (!token || PRIVATE_CALLER.has(token)) return "";
+  const digits = token.replace(/\D/g, "");
+  if (digits.length < 8 || digits.length > 15) return "";
+  return value;
+}
+
+/** One short notice when the realtime agent is unavailable. Not the rich summary. */
+async function emailMissedCall(st: CallState, from: string, sid: string) {
+  if (st.emailed || st.missedClaimed) return;
+  const phone = knownCallerNumber(st.phone || from || st.from || "");
+  if (!phone) return;
+  st.missedClaimed = true;
+  const body = [
+    "Colorado Hot Tub — missed call",
+    "(Draft for shop. Do not treat as sent-as-Heather.)",
+    "",
+    `CallSid: ${sid}`,
+    `Caller: ${phone}`,
+    "The voice agent was unavailable. This is the caller id only.",
+  ].join("\n");
+  const subject = `CHT missed call — ${phone}`;
+  const peakPayload: Record<string, string> = {
+    _subject: subject,
+    message: body,
+    phone,
+    name: "CHT inbound voice",
+    interest: "cht-voice",
+    _cc: "brianscottwatson@gmail.com",
+  };
+  const shopPayload: Record<string, string> = {
+    _subject: subject,
+    message: body,
+    phone,
+    name: "CHT inbound voice",
+    _cc: "brianscottwatson@gmail.com",
+  };
+  let peakOk = false;
+  let shopOk = false;
+  try {
+    peakOk = await postFormspree(FORMSPREE_PEAK, peakPayload, "peak-mgobgrlr");
+    shopOk = await postFormspree(FORMSPREE_SHOP, shopPayload, "shop-xgogybaj");
+  } catch (e: any) {
+    peakOk = false;
+    shopOk = false;
+    console.error("cht-voice missed-call failed", sid, e?.message || e);
+  }
+  if (peakOk || shopOk) {
+    st.emailed = true;
+    console.log("cht-voice missed-call emailed", sid);
+  } else {
+    st.missedClaimed = false;
+    console.error("cht-voice missed-call both Formspree failed", sid);
+  }
+}
+
 async function emailShop(st: CallState, from: string, sid: string, opts?: { recordingOnly?: boolean }) {
   const recordingOnly = !!(opts && opts.recordingOnly);
   if (recordingOnly) {
@@ -415,7 +489,7 @@ chtVoiceRouter.get("/health", sendHealth);
 chtVoiceRouter.get("/", sendHealth);
 
 /** Inbound: ring owners ~10s when explicitly enabled, else Grok. Never Dial the shop by default. */
-chtVoiceRouter.post("/", (req: Request, res: Response) => {
+chtVoiceRouter.post("/", async (req: Request, res: Response) => {
   const sid = String(req.body?.CallSid || crypto.randomBytes(8).toString("hex"));
   const st = seedInbound(req, sid);
 
@@ -437,6 +511,8 @@ chtVoiceRouter.post("/", (req: Request, res: Response) => {
 
   if (!process.env.XAI_API_KEY) {
     console.error("cht-voice: XAI_API_KEY missing");
+    st.fallback = true;
+    await emailMissedCall(st, st.from || String(req.body?.From || ""), sid);
     res.type("text/xml").send(sayFallback());
     return;
   }
@@ -473,7 +549,7 @@ chtVoiceRouter.post("/screen", (req: Request, res: Response) => {
 });
 
 /** After Dial: connect Grok unless an owner actually pressed 1. completed ≠ accepted. */
-chtVoiceRouter.post("/agent", (req: Request, res: Response) => {
+chtVoiceRouter.post("/agent", async (req: Request, res: Response) => {
   const sid = String(req.body?.CallSid || "unknown");
   const st = seedInbound(req, sid);
   const dialStatus = String(req.body?.DialCallStatus || "");
@@ -488,6 +564,8 @@ chtVoiceRouter.post("/agent", (req: Request, res: Response) => {
 
   if (!process.env.XAI_API_KEY) {
     console.error("cht-voice: XAI_API_KEY missing");
+    st.fallback = true;
+    await emailMissedCall(st, st.from || String(req.body?.From || ""), sid);
     res.type("text/xml").send(sayFallback());
     return;
   }
@@ -498,7 +576,9 @@ chtVoiceRouter.post("/status", async (req: Request, res: Response) => {
   const sid = String(req.body?.CallSid || "unknown");
   const st = seedInbound(req, sid);
   if (String(req.body?.CallStatus || "") === "completed") {
-    await emailShop(st, st.from || String(req.body?.From || ""), sid);
+    const from = st.from || String(req.body?.From || "");
+    if (st.fallback) await emailMissedCall(st, from, sid);
+    else await emailShop(st, from, sid);
     persist(sid, st);
   }
   res.type("text/xml").send(`<?xml version="1.0" encoding="UTF-8"?><Response></Response>`);
