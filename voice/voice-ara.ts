@@ -668,7 +668,10 @@ async function emailBrian(st: CallState, fromNumber: string) {
     buildScorecard(st),
   ].join("\n");
   const ccs = ["brianscottwatson@gmail.com"];
-  if (leadEmail) ccs.push(leadEmail);
+  // CC the caller only after confirm_lead. log_qualification, book_intro,
+  // send_contact, and send_booking_link may store an email earlier; that
+  // must not copy them on the hangup summary.
+  if (leadEmail && st.confirmed) ccs.push(leadEmail);
   const payload: Record<string, string> = {
     _subject: peakOn
       ? `Peak Signal call — ${leadName || st.business || "inbound"}`
@@ -679,7 +682,7 @@ async function emailBrian(st: CallState, fromNumber: string) {
     _cc: ccs.join(","),
     name: "Brian at Peak Signal",
   };
-  if (leadEmail) {
+  if (leadEmail && st.confirmed) {
     payload.email = leadEmail;
     payload._replyto = leadEmail;
   }
@@ -774,6 +777,11 @@ function handleTool(st: CallState, name: string, args: Record<string, any>): str
     });
   }
   return JSON.stringify({ error: "unknown tool" });
+}
+
+/** Test hook. Tools are otherwise only reachable from the media-stream session. */
+export function applyVoiceTool(callSid: string, name: string, args: Record<string, any>): string {
+  return handleTool(state(callSid), name, args);
 }
 
 const POLLY_FALLBACK = `<?xml version="1.0" encoding="UTF-8"?><Response><Say voice="Polly.Joanna">${SPOKEN}</Say></Response>`;
