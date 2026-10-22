@@ -19,7 +19,8 @@ Inbound stays on `+17207800753`. The shop line `+19705312897` is **not** a ring 
 5. **Forward-loop guard:** never Dial a number equal to `ForwardedFrom`, `CalledVia`, `From`, or inbound `Called`/`To` (E.164). If every target is filtered out, skip Dial and go straight to Grok.
 6. Greeting (no recording disclosure): “Thanks for calling Colorado Hot Tub… What were you calling about today?”
 7. Phone confirm: agent speaks US numbers in **3-3-4** groups with a sentence-break pause between groups (not one digit stream).
-8. Hangup → Formspree **shop** + Peak. Recording URL in the message body (Formspree cannot attach Twilio MP3s).
+8. Hangup → one Formspree **shop** + Peak summary per CallSid (stop, status, and socket flush share a claim taken before the posts). Subject and heading: **Colorado Hot Tub call summary**. The body always includes the caller ID. Recording URL in the message body (Formspree cannot attach Twilio MP3s).
+9. Before goodbye the agent must have name, town, and reason. If any is missing it re-asks once, then it may close. A call with no realtime key sends one missed-call notice (caller ID only) instead of the summary.
 
 ## Mount (Peak Replit api-server — do not replace Peak /api/voice)
 ```ts
@@ -38,7 +39,8 @@ Peak `+19706605088` / `/api/voice` untouched.
 | Var | Role |
 |---|---|
 | `XAI_API_KEY` | Required. Existing Peak key. |
-| `TWILIO_ACCOUNT_SID` / `TWILIO_AUTH_TOKEN` | Start Twilio Call Recording + attach URL. |
+| `TWILIO_ACCOUNT_SID` | Required for the recording link. Account SID only — never commit the value. If this is unset, the summary says `missing TWILIO_ACCOUNT_SID`. |
+| `TWILIO_AUTH_TOKEN` | Required for the recording link. Auth token only — never commit the value. If this is unset, the summary says `missing TWILIO_AUTH_TOKEN`. |
 | `HOSTNAME` | Public host for Stream / Dial action URLs (default `peak-signal.replit.app`). |
 | `CHT_RING_SHOP` | `1`/`true`/`yes`/`on` = ring `CHT_RING_NUMBERS` only. `0`/`false`/`no`/`off` = never ring. **Unset = off** (previously unset rang whenever `CHT_RING_NUMBERS` was non-empty). |
 | `CHT_SHOP_NUMBER` | Spoken fallback number only. Default `+19705312897`. **Not dialed.** |
@@ -61,9 +63,18 @@ CHT_RING_NUMBERS=+1xxxxxxxxxx,+1yyyyyyyyyy
 Do not include `+19705312897`.
 
 ## Recording
-On agent stream start, starts a Twilio Call Recording (needs `TWILIO_ACCOUNT_SID` + `TWILIO_AUTH_TOKEN`).
-Callback: `POST /api/cht-voice/recording` → stores `RecordingUrl` (+ `.mp3`) into the hangup email.
-Hangup email is a **short summary** + recording URL (full transcript not emailed). Formspree gets the URL in `message` — it cannot attach the MP3 binary.
+On agent stream start, starts a Twilio Call Recording. Both of these must be set in the host environment (Replit secrets), not in the repo:
+
+- `TWILIO_ACCOUNT_SID`
+- `TWILIO_AUTH_TOKEN`
+
+The create-recording response is parsed in full (not a truncated slice). The summary uses `https://api.twilio.com/2010-04-01/Accounts/{TWILIO_ACCOUNT_SID}/Recordings/{RecordingSid}.mp3`. If that SID is not in the create response yet, hangup looks up `Calls/{CallSid}/Recordings.json` with the same two variables. The status callback `POST /api/cht-voice/recording` still stores Twilio's `RecordingUrl` (+ `.mp3`) when it arrives.
+
+If either variable is missing, the email names that variable (`missing TWILIO_ACCOUNT_SID` and/or `missing TWILIO_AUTH_TOKEN`). It does not tell you to set a variable that is already present. If both are set and Twilio has not returned a SID yet, the line says the recording is not ready yet.
+
+Hangup email is a **short summary** + that recording line (full transcript not emailed). Formspree gets the URL in `message` — it cannot attach the MP3 binary. One summary per CallSid. A second mail is only the recording-ready note when the URL arrives after the summary was already sent.
+
+No SMS is sent. This repo does not have a Twilio SMS sender, so there is no per-call text alert.
 
 ## Formspree path
 `emailShop()` POSTs the same summary to:
