@@ -9,6 +9,6 @@
     "skipLibCheck": true,
     "types": ["node"]
   },
-  "include": ["voice-ara.ts", "peak/peak-prompt.ts"],
+  "include": ["voice-ara.ts", "peak/peak-prompt.ts", "peak/peak-forward.ts", "peak/peak-outbound.ts"],
   "exclude": ["**/*.test.ts"]
 }

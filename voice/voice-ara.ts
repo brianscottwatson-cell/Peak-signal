@@ -30,6 +30,7 @@ import {
   resolveForwardTarget,
   screenGatherTwiml,
 } from "./peak/peak-forward";
+import { attachPeakOutboundStream, peakOutboundRouter } from "./peak/peak-outbound";
 
 const BASE = process.env.PUBLIC_BASE_URL || "https://peak-signal.replit.app";
 const HOSTNAME = (process.env.HOSTNAME || "peak-signal.replit.app").replace(/^https?:\/\//, "");
@@ -814,6 +815,9 @@ export function recordCallerUtterance(callSid: string, text: string) {
 
 export const voiceAraRouter = Router();
 
+// Manual outbound booking calls. Inbound routes below are unchanged.
+voiceAraRouter.use("/outbound", peakOutboundRouter);
+
 voiceAraRouter.post("/", (req: Request, res: Response) => {
   const sid = String(req.body?.CallSid || crypto.randomBytes(8).toString("hex"));
   const st = state(sid);
@@ -901,6 +905,7 @@ voiceAraRouter.post("/status", async (req: Request, res: Response) => {
 
 /** Attach Twilio Media Stream websocket. Requires express-ws on the app. */
 export function attachVoiceStream(app: Express) {
+  attachPeakOutboundStream(app);
   const anyApp = app as Express & { ws?: Function };
   if (typeof anyApp.ws !== "function") {
     console.error("express-ws not attached; Grok Voice stream disabled");
