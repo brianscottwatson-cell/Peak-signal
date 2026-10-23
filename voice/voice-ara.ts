@@ -31,6 +31,9 @@ import {
   screenGatherTwiml,
 } from "./peak/peak-forward";
 import { attachPeakOutboundStream, peakOutboundRouter } from "./peak/peak-outbound";
+import { installBrotliMitigation, rejectBrotliContentEncoding, SAFE_ACCEPT_ENCODING } from "./brotli-guard";
+
+installBrotliMitigation(typeof __filename === "string" ? __filename : undefined);
 
 const BASE = process.env.PUBLIC_BASE_URL || "https://peak-signal.replit.app";
 const HOSTNAME = (process.env.HOSTNAME || "peak-signal.replit.app").replace(/^https?:\/\//, "");
@@ -521,6 +524,7 @@ async function ghPut(repo: string, path: string, content: string, message: strin
     Accept: "application/vnd.github+json",
     "User-Agent": "peak-signal-voice",
     "X-GitHub-Api-Version": "2022-11-28",
+    "Accept-Encoding": SAFE_ACCEPT_ENCODING,
   };
   let sha = "";
   try {
@@ -613,7 +617,7 @@ function peakCallSummary(st: CallState, from: string): string {
 async function postPeakForm(payload: Record<string, string>): Promise<void> {
   await fetch(FORMSPREE, {
     method: "POST",
-    headers: { Accept: "application/json", "Content-Type": "application/json" },
+    headers: { Accept: "application/json", "Content-Type": "application/json", "Accept-Encoding": SAFE_ACCEPT_ENCODING },
     body: JSON.stringify(payload),
   });
 }
@@ -814,6 +818,7 @@ export function recordCallerUtterance(callSid: string, text: string) {
 }
 
 export const voiceAraRouter = Router();
+voiceAraRouter.use(rejectBrotliContentEncoding);
 
 // Manual outbound booking calls. Inbound routes below are unchanged.
 voiceAraRouter.use("/outbound", peakOutboundRouter);

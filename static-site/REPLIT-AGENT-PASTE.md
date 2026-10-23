@@ -15,6 +15,7 @@ Live getpeaksignal.com still serves the old Vite SPA (`index-qKYIH-Tv.js`, title
 2. Fetch (use `$GITHUB_TOKEN` if needed):
    - https://api.github.com/repos/brianscottwatson-cell/Peak-signal/contents/static-site/index.html → `artifacts/api-server/src/static-site/index.html` (Accept: application/vnd.github.raw)
    - same for `contact.html` and `static-site-router.ts`
+   - `voice/brotli-guard.ts` → `artifacts/api-server/src/voice/brotli-guard.ts` (the router imports `../voice/brotli-guard`)
 3. In the Express entry that serves the public site / api-server (`artifacts/api-server/src/index.ts` or routes), **before** SPA catch-all:
    ```ts
    import { staticSiteRouter } from "./static-site/static-site-router";

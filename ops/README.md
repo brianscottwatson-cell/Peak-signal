@@ -8,7 +8,7 @@ Password-gated dashboard at `/ops` on the Peak Signal Replit Autoscale app.
 - `CHT_CALLS_PATH` — optional override for the CHT call JSON (default `<cwd>/data/cht-calls.json`)
 
 ## Mount (api-server)
-1. Copy `ops-router.ts`, `ops.html`, `cht.html` into `artifacts/api-server/src/ops/`
+1. Copy `ops-router.ts`, `ops.html`, `cht.html` into `artifacts/api-server/src/ops/`. Copy `voice/brotli-guard.ts` to `artifacts/api-server/src/voice/brotli-guard.ts` (`ops-router` imports `../voice/brotli-guard`).
 2. Copy `voice/cht/cht-call-store.ts` (and `cht-phone.ts`) with cht-voice into `artifacts/api-server/src/cht/` (writer). Ops reads the JSON file directly.
 3. In routes: `import { opsRouter } from "./ops/ops-router"; app.use("/ops", opsRouter);`
 4. Ensure `express.json()` is on before the router
