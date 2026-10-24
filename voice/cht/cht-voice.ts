@@ -19,6 +19,7 @@ import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import crypto from "node:crypto";
 import WebSocket from "ws";
+import { installBrotliMitigation, rejectBrotliContentEncoding, SAFE_ACCEPT_ENCODING } from "../brotli-guard";
 import { isPersistableCallSid, persistChtCall } from "./cht-call-store";
 import {
   DEFAULT_SHOP_E164,
@@ -32,6 +33,8 @@ import {
   screenGatherTwiml,
   speakUsNanp,
 } from "./cht-phone";
+
+installBrotliMitigation(typeof __filename === "string" ? __filename : undefined);
 
 const HOSTNAME = (process.env.HOSTNAME || "peak-signal.replit.app").replace(/^https?:\/\//, "");
 const SHOP = process.env.CHT_SHOP_NUMBER || DEFAULT_SHOP_E164;
@@ -415,6 +418,7 @@ async function startTwilioRecording(callSid: string, st: CallState) {
       headers: {
         Authorization: twilioAuthHeader(account, token),
         "Content-Type": "application/x-www-form-urlencoded",
+        "Accept-Encoding": SAFE_ACCEPT_ENCODING,
       },
       body,
     });
@@ -442,7 +446,7 @@ async function attachRecordingUrl(st: CallState, sid: string): Promise<void> {
   if (!callSid) return;
   try {
     const r = await fetch(`https://api.twilio.com/2010-04-01/Accounts/${account}/Calls/${callSid}/Recordings.json`, {
-      headers: { Authorization: twilioAuthHeader(account, token) },
+      headers: { Authorization: twilioAuthHeader(account, token), "Accept-Encoding": SAFE_ACCEPT_ENCODING },
     });
     const text = await r.text();
     if (!r.ok) {
@@ -483,7 +487,7 @@ async function postFormspree(url: string, payload: Record<string, string>, label
   try {
     const r = await fetch(url, {
       method: "POST",
-      headers: { Accept: "application/json", "Content-Type": "application/json" },
+      headers: { Accept: "application/json", "Content-Type": "application/json", "Accept-Encoding": SAFE_ACCEPT_ENCODING },
       body: JSON.stringify(payload),
     });
     const text = (await r.text()).slice(0, 120);
@@ -680,6 +684,7 @@ export async function notifyChtHangup(callSid: string, from: string) {
 }
 
 export const chtVoiceRouter = Router();
+chtVoiceRouter.use(rejectBrotliContentEncoding);
 
 /** Grok Voice stream TwiML (after ring timeout, or when ring is off / unsafe). */
 function streamTwiml(sid: string): string {

@@ -10,14 +10,20 @@ Copy into `artifacts/api-server/src/cht/`:
 - `voice/cht/cht-call-store.ts` → `src/cht/cht-call-store.ts`
 - `voice/cht/cht-prompt.md` → `src/cht/cht-prompt.md`
 
+`cht-voice.ts` imports `../brotli-guard` (CVE-2026-111497). Also copy `voice/brotli-guard.ts` to `artifacts/api-server/src/brotli-guard.ts` and to `artifacts/api-server/src/voice/brotli-guard.ts`. If `voice-ara.ts` is not in `src/voice/`, copy the guard beside that file too.
+
 Fetch with:
 ```
-mkdir -p artifacts/api-server/src/cht
+mkdir -p artifacts/api-server/src/cht artifacts/api-server/src/voice
 for f in cht-voice.ts cht-phone.ts cht-prompt.md cht-call-store.ts; do
   curl -fsSL -H "Authorization: Bearer $GITHUB_TOKEN" -H "Accept: application/vnd.github.raw" \
     -o "artifacts/api-server/src/cht/$f" \
     "https://api.github.com/repos/brianscottwatson-cell/Peak-signal/contents/voice/cht/$f"
 done
+curl -fsSL -H "Authorization: Bearer $GITHUB_TOKEN" -H "Accept: application/vnd.github.raw" \
+  -o "artifacts/api-server/src/brotli-guard.ts" \
+  "https://api.github.com/repos/brianscottwatson-cell/Peak-signal/contents/voice/brotli-guard.ts"
+cp artifacts/api-server/src/brotli-guard.ts artifacts/api-server/src/voice/brotli-guard.ts
 ```
 
 ## Wire

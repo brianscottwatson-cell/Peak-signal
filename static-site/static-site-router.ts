@@ -6,6 +6,9 @@
 import { Router, type Request, type Response } from "express";
 import { readFileSync, existsSync } from "node:fs";
 import { join } from "node:path";
+import { installBrotliMitigation, rejectBrotliContentEncoding } from "../voice/brotli-guard";
+
+installBrotliMitigation(typeof __filename === "string" ? __filename : undefined);
 
 const fileCandidates = (name: string) => [
   join(__dirname, name),
@@ -31,6 +34,7 @@ function loadBuffer(name: string): Buffer | null {
 }
 
 export const staticSiteRouter = Router();
+staticSiteRouter.use(rejectBrotliContentEncoding);
 
 function redirectClean(cleanPath: string) {
   return (req: Request, res: Response) => {

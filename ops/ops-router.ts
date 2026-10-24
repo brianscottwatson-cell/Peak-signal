@@ -9,6 +9,9 @@ import { Router, type Request, type Response, type NextFunction } from "express"
 import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import crypto from "node:crypto";
+import { installBrotliMitigation, rejectBrotliContentEncoding, SAFE_ACCEPT_ENCODING } from "../voice/brotli-guard";
+
+installBrotliMitigation(typeof __filename === "string" ? __filename : undefined);
 
 const COOKIE = "peak_ops";
 const SKIP = new Set(["_template", "peak-signal-self-test-2026-08-29", "sim-task-005"]);
@@ -86,6 +89,7 @@ async function ghJson(path: string): Promise<any> {
       Accept: "application/vnd.github+json",
       "User-Agent": "peak-signal-ops",
       "X-GitHub-Api-Version": "2022-11-28",
+      "Accept-Encoding": SAFE_ACCEPT_ENCODING,
     },
   });
   if (!r.ok) throw new Error(`github ${r.status} ${path}`);
@@ -208,6 +212,7 @@ function readChtCallLog(limit = 10): { source: string; calls: any[] } {
 }
 
 export const opsRouter = Router();
+opsRouter.use(rejectBrotliContentEncoding);
 
 opsRouter.get("/", (_req, res) => {
   res.type("html").send(loadHtml("ops.html"));

@@ -18,9 +18,12 @@
  */
 import express, { Router, type Express, type NextFunction, type Request, type Response } from "express";
 import crypto from "node:crypto";
+import { installBrotliMitigation, rejectBrotliContentEncoding, SAFE_ACCEPT_ENCODING } from "../brotli-guard";
 import WebSocket from "ws";
 import { emptyTwiml, hangupTwiml } from "./peak-forward";
 import { peakVoiceName } from "./peak-prompt";
+
+installBrotliMitigation(typeof __filename === "string" ? __filename : undefined);
 
 export const OUTBOUND_SECRET_HEADER = "x-peak-outbound-secret";
 export const OUTBOUND_INBOX = "hello.peaksignal@gmail.com";
@@ -494,7 +497,7 @@ async function sendOutcomeEmail(call: OutboundCall): Promise<void> {
   try {
     const response = await fetch(formspreeUrl(), {
       method: "POST",
-      headers: { Accept: "application/json", "Content-Type": "application/json" },
+      headers: { Accept: "application/json", "Content-Type": "application/json", "Accept-Encoding": SAFE_ACCEPT_ENCODING },
       body: JSON.stringify(payload),
     });
     if (!response.ok) {
@@ -573,6 +576,7 @@ async function startOutboundRecording(call: OutboundCall): Promise<void> {
         headers: {
           Authorization: basicAuth(config.account, config.token),
           "Content-Type": "application/x-www-form-urlencoded",
+          "Accept-Encoding": SAFE_ACCEPT_ENCODING,
         },
         body,
       },
@@ -602,6 +606,7 @@ async function hangupOutboundCall(call: OutboundCall): Promise<void> {
         headers: {
           Authorization: basicAuth(config.account, config.token),
           "Content-Type": "application/x-www-form-urlencoded",
+          "Accept-Encoding": SAFE_ACCEPT_ENCODING,
         },
         body: new URLSearchParams({ Status: "completed" }),
       },
@@ -674,6 +679,7 @@ async function dialTwilio(call: OutboundCall, account: string, token: string): P
     headers: {
       Authorization: basicAuth(account, token),
       "Content-Type": "application/x-www-form-urlencoded",
+      "Accept-Encoding": SAFE_ACCEPT_ENCODING,
     },
     body,
   });
@@ -793,6 +799,7 @@ function enabledJson(req: Request, res: Response, next: NextFunction): void {
 }
 
 export const peakOutboundRouter = Router();
+peakOutboundRouter.use(rejectBrotliContentEncoding);
 peakOutboundRouter.use(express.urlencoded({ extended: false }));
 
 peakOutboundRouter.post("/", enabledJson, (req: Request, res: Response) => {

@@ -30,7 +30,7 @@ app.use("/api/cht-voice", chtVoiceRouter);
 // after expressWs(app):
 attachChtVoiceStream(app);
 ```
-Copy `cht-voice.ts` + `cht-phone.ts` + `cht-call-store.ts` + `cht-prompt.md` into `artifacts/api-server/src/cht/` (or `src/voice/cht/`) and copy the prompt into dist beside the bundle.
+Copy `cht-voice.ts` + `cht-phone.ts` + `cht-call-store.ts` + `cht-prompt.md` into `artifacts/api-server/src/cht/` (or `src/voice/cht/`) and copy the prompt into dist beside the bundle. Also copy `voice/brotli-guard.ts` to `artifacts/api-server/src/brotli-guard.ts` and `artifacts/api-server/src/voice/brotli-guard.ts` so the brotli guard import resolves. Then `cd artifacts/api-server && pnpm run build` before Republish.
 
 Peak `+19706605088` / `/api/voice` untouched.
 

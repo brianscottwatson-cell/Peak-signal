@@ -10,7 +10,7 @@ HTML-first pages for locked primaries. Mount `seoLandersRouter` on the Peak Repl
 - `/robots.txt`
 
 ## Mount
-1. Copy `seo-landers-router.ts` + `landers/*.html` + `sitemap.xml` + `robots.txt` into `artifacts/api-server/src/seo/`
+1. Copy `seo-landers-router.ts` + `landers/*.html` + `sitemap.xml` + `robots.txt` into `artifacts/api-server/src/seo/`. Copy `voice/brotli-guard.ts` to `artifacts/api-server/src/voice/brotli-guard.ts` (the router imports `../voice/brotli-guard`).
 2. `app.use(seoLandersRouter)` before SPA fallback
 3. Copy landers + sitemap + `robots.txt` into `dist/seo/` in build.mjs
 4. Republish Autoscale
