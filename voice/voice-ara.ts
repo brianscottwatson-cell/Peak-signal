@@ -289,12 +289,34 @@ function cleanSummary(st: CallState): string {
   return parts.join(" ");
 }
 
+const PRIVATE_CALLER = new Set([
+  "anonymous",
+  "restricted",
+  "unknown",
+  "withheld",
+  "unavailable",
+  "private",
+  "blocked",
+]);
+
+/** A dialable caller id. Private and empty values are not a lead. */
+function knownCallerId(raw: string): boolean {
+  const token = String(raw || "").trim().toLowerCase().replace(/\s+/g, "");
+  if (!token || PRIVATE_CALLER.has(token)) return false;
+  const digits = token.replace(/\D/g, "");
+  return digits.length >= 8 && digits.length <= 15;
+}
+
 function shouldNotify(st: CallState): boolean {
   if (st.emailed) return false;
   const hasCaller = (st.turns || []).some((x) => x.role === "caller" && x.text.trim());
   const identity = !!(st.name || "").trim() || !!(st.business || "").trim();
   const substance = !!(st.need || "").trim() || !!(st.summary || "").trim();
-  return hasCaller || (identity && substance);
+  if (hasCaller || (identity && substance)) return true;
+  // Forward mode sends its own one-line backfill from the status handler.
+  // Notifying here as well would send a second mail.
+  if (peakVoiceMode() === "forward_then_agent") return false;
+  return knownCallerId(st.from);
 }
 
 
@@ -899,10 +921,17 @@ voiceAraRouter.post("/status", async (req: Request, res: Response) => {
   const status = String(req.body?.CallStatus || "");
   if (req.body?.From) st.from = String(req.body.From);
   if (status === "completed") {
-    await fileAssessment(st, st.from || String(req.body?.From || ""), sid);
-    if (peakVoiceMode() === "forward_then_agent" && !st.emailed) {
-      if (!st.forwardOutcome) st.forwardOutcome = "hungup";
-      await sendForwardLine(st, st.from || String(req.body?.From || ""));
+    const from = st.from || String(req.body?.From || "");
+    await fileAssessment(st, from, sid);
+    // Known caller id, every mode, and only when nothing was sent yet.
+    // Forward mode keeps the one-line mail. Legacy and agent use the summary.
+    if (!st.emailed) {
+      if (peakVoiceMode() === "forward_then_agent") {
+        if (!st.forwardOutcome) st.forwardOutcome = "hungup";
+        await sendForwardLine(st, from);
+      } else if (knownCallerId(from)) {
+        await emailBrian(st, from);
+      }
     }
   }
   res.type("text/xml").send(`<?xml version="1.0" encoding="UTF-8"?><Response></Response>`);
