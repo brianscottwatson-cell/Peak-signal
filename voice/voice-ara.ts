@@ -57,6 +57,8 @@ type CallState = {
   summary: string;
   confirmed: boolean;
   emailed: boolean;
+  /** In-flight Formspree post. Not a success latch — cleared if the post fails. */
+  emailSending: boolean;
   turns: { role: "agent" | "caller"; text: string; itemId?: string }[];
   revenueMonth: number | null;
   siteLookup: { url: string; sells: string; area: string; health: string };
@@ -84,6 +86,7 @@ function state(sid: string): CallState {
       summary: "",
       confirmed: false,
       emailed: false,
+      emailSending: false,
       turns: [],
       revenueMonth: null,
       siteLookup: { url: "", sells: "", area: "", health: "" },
@@ -583,14 +586,23 @@ async function ghPut(repo: string, path: string, content: string, message: strin
 async function fileAssessment(st: CallState, fromNumber: string, sid: string) {
   const notify = shouldNotify(st);
   console.log("hangup", sid, "notify", notify, "token", !!process.env.GITHUB_TOKEN, "turns", (st.turns || []).length, "name", st.name, "business", st.business);
-  await emailBrian(st, fromNumber);
-  if (peakPersonaOn()) {
-    console.log("hangup skip github — peak voice agent", sid);
-    return;
-  }
+  const emailOk = await emailBrian(st, fromNumber);
   if (!notify) {
     console.log("hangup skip github — empty or already sent", sid);
     return;
+  }
+  if (st.emailSending && !emailOk) {
+    console.log("hangup skip github — email still in flight", sid);
+    return;
+  }
+  // Peak skips the client-file backup only when the email actually went out.
+  // A non-2xx Formspree post is not "sent", so the backup still runs.
+  if (emailOk && peakPersonaOn()) {
+    console.log("hangup skip github — peak voice agent", sid);
+    return;
+  }
+  if (!emailOk) {
+    console.log("hangup github backup — formspree did not succeed", sid);
   }
   let slug = slugify(st.business) || slugify(st.name) || `call-${String(sid).slice(-8).toLowerCase()}`;
   if (slug === "peak-signal-self-test-2026-08-29") {
@@ -637,17 +649,21 @@ function peakCallSummary(st: CallState, from: string): string {
 }
 
 async function postPeakForm(payload: Record<string, string>): Promise<void> {
-  await fetch(FORMSPREE, {
+  const r = await fetch(FORMSPREE, {
     method: "POST",
     headers: { Accept: "application/json", "Content-Type": "application/json", "Accept-Encoding": SAFE_ACCEPT_ENCODING },
     body: JSON.stringify(payload),
   });
+  if (!r.ok) {
+    const text = (await r.text()).slice(0, 120);
+    throw new Error(`formspree status ${r.status} ${text}`);
+  }
 }
 
-/** One-line forward outcome. Sets emailed so the agent summary is not also sent. */
+/** One-line forward outcome. emailed is set only after a 2xx post, so a failed post can be retried and does not suppress the summary. */
 async function sendForwardLine(st: CallState, fromNumber: string): Promise<void> {
-  if (st.emailed || !st.forwardOutcome) return;
-  st.emailed = true;
+  if (st.emailed || st.emailSending || !st.forwardOutcome) return;
+  st.emailSending = true;
   const from = fromNumber || st.from || "";
   const line = forwardSummaryLine({ from, email: st.forwardOutcome, reason: st.forwardReason });
   try {
@@ -659,18 +675,19 @@ async function sendForwardLine(st: CallState, fromNumber: string): Promise<void>
       _cc: "brianscottwatson@gmail.com",
       name: "Brian at Peak Signal",
     });
+    st.emailed = true;
   } catch (e: any) {
     console.error("formspree failed", e?.message || e);
-    st.emailed = false;
+    st.emailSending = false;
   }
 }
 
-async function emailBrian(st: CallState, fromNumber: string) {
-  if (!shouldNotify(st)) {
+async function emailBrian(st: CallState, fromNumber: string): Promise<boolean> {
+  if (!shouldNotify(st) || st.emailSending) {
     console.log("formspree skip: empty hangup or already sent");
-    return;
+    return false;
   }
-  st.emailed = true;
+  st.emailSending = true;
   const from = fromNumber || st.from || "";
   const leadEmail = isEmail(st.email) ? st.email.trim() : "";
   const leadName = (st.name || "").trim();
@@ -712,9 +729,12 @@ async function emailBrian(st: CallState, fromNumber: string) {
   }
   try {
     await postPeakForm(payload);
+    st.emailed = true;
+    return true;
   } catch (e: any) {
     console.error("formspree failed", e?.message || e);
-    st.emailed = false;
+    st.emailSending = false;
+    return false;
   }
 }
 
