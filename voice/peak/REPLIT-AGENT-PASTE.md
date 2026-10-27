@@ -23,7 +23,7 @@ Copy into `artifacts/api-server/src/peak/` (or `src/voice/peak/` if that is wher
 
 `peak-outbound.ts` imports `../brotli-guard` (CVE-2026-111497). Also copy `voice/brotli-guard.ts` to `artifacts/api-server/src/brotli-guard.ts` and to `artifacts/api-server/src/voice/brotli-guard.ts`. If `voice-ara.ts` is not under `src/voice/`, the guard beside `voice-ara.ts` is the one the import resolves.
 
-Do not add a phone number, a token secret, or an allowlist to these files. Callback numbers and approval tokens come from Replit secrets and from the approval request at call time.
+Do not add a phone number, a token secret, or an allowlist to these files. The default quote caller is Peak Signal for Brian. Colorado Hot Tub is optional and is not the default. Callback numbers come from `PEAK_OUTBOUND_CALLBACK_NUMBER` at call time. Approval is two steps: the plan is shown first, and a token is issued only after that plan is confirmed. Both are described in `README.md`. Do not put a personal number in these files.
 
 These paths are on `main` only after this branch is merged. Until then, add `?ref=cursor/outbound-quote-mode-55af` to each contents URL.
 

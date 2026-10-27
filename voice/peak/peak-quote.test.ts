@@ -37,6 +37,7 @@ delete process.env.PEAK_OUTBOUND_CALLBACK_NUMBER;
 delete process.env.PEAK_OUTBOUND_MENTION_MAIN_LINE;
 delete process.env.PEAK_OUTBOUND_IDENTITY;
 delete process.env.PEAK_OUTBOUND_IDENTITIES;
+delete process.env.PEAK_OUTBOUND_LEAVE_VOICEMAIL;
 
 function assert(cond: unknown, msg: string) {
   if (!cond) throw new Error(msg);
@@ -49,8 +50,34 @@ const DNC = "+15555550102";
 const CALLBACK = "+15555550177";
 const SECRET = "test-secret-not-real";
 const TASK = "a two-bedroom local move next month";
-const GREETING = "Hi, this is an AI assistant calling on behalf of Colorado Hot Tub. This call is being recorded. I'm calling to ask for rates on a two-bedroom local move next month.";
-const DESK_GREETING = "Hi, this is an AI assistant calling on behalf of Example Desk. This call is being recorded. I'm calling to ask for rates on a two-bedroom local move next month.";
+const PEAK_FIRST = "Hi, this is an AI assistant calling for Brian at Peak Signal, and this call is recorded.";
+const PEAK_GREETING = `${PEAK_FIRST} I'm calling to ask for rates on a two-bedroom local move next month.`;
+const PEAK_PLAN_LOG_5 = `who=Brian at Peak Signal source=not provided cap=5 minutes voicemail=no commit=never opening=${PEAK_GREETING}`;
+const PEAK_PLAN_LOG_7 = `who=Brian at Peak Signal source=not provided cap=7 minutes voicemail=no commit=never opening=${PEAK_GREETING}`;
+const GREETING = "Hi, this is an AI assistant calling for Justin and Heather at Colorado Hot Tub, and this call is recorded. I'm calling to ask for rates on a two-bedroom local move next month.";
+const DESK_GREETING = "Hi, this is an AI assistant calling for Alex Rivera at Example Desk, and this call is recorded. I'm calling to ask for rates on a two-bedroom local move next month.";
+const PLAN_QUESTIONS = [
+  "Questions:",
+  "- hourly or flat rate",
+  "- crew size",
+  "- minimum hours and travel charge",
+  "- same-day availability and notice needed",
+  "- insurance and certificate of insurance",
+  "- on-call interest",
+  "- person spoken to",
+  "- callback preference",
+].join("\n");
+function peakPlan(cap: string, warning = "(none)", to = TO, source = "not provided"): string {
+  return [
+    "Who: An AI assistant calling for Brian at Peak Signal.",
+    `Destination: ${to}`,
+    `Number source: ${source}`,
+    `Line warning: ${warning}`,
+    `Opening line: ${PEAK_GREETING}`,
+    PLAN_QUESTIONS,
+    `Limits: ${cap}. Never book, pay, give card details, put down a deposit, sign up, or agree to terms. Do not leave voicemail.`,
+  ].join("\n");
+}
 const BOOK_GREETING = "This call may be recorded. Hi, this is Brian's assistant. I'm calling to book table for 2 at 7pm Friday.";
 const ISSUED_AT = "2023-11-14T22:13:20.000Z";
 const TTL_DEFAULT_AT = "2023-11-14T22:43:20.000Z";
@@ -75,6 +102,7 @@ const {
   OUTBOUND_INBOX,
   OUTBOUND_SECRET_HEADER,
   applyQuoteReport,
+  handleOutboundCallerLine,
   outboundSessionFor,
   outboundTokenFor,
   resetOutboundForTest,
@@ -84,13 +112,21 @@ const {
 const {
   LINE_WARNING_MOBILE,
   LINE_WARNING_UNKNOWN,
+  QUOTE_HELLO_CHECK,
+  QUOTE_SILENCE_MS,
   approvalTtlSec,
   buildQuoteGreeting,
+  buildQuotePlanText,
   callbackPolicy,
   captureQuote,
   classifyLineType,
+  initialQuoteTurn,
+  normalizeQuoteOutcome,
   numberList,
+  quoteOpeningSentence,
   quoteTimeLimitSec,
+  reduceQuoteTurn,
+  resolveIdentity,
 } = quote;
 
 assert(typeof buildQuoteGreeting === "function", "buildQuoteGreeting import is missing");
@@ -100,7 +136,84 @@ assert(typeof captureQuote === "function", "captureQuote import is missing");
 assert(typeof callbackPolicy === "function", "callbackPolicy import is missing");
 assert(typeof approvalTtlSec === "function", "approvalTtlSec import is missing");
 assert(typeof applyQuoteReport === "function", "applyQuoteReport import is missing");
-assert(buildQuoteGreeting("Colorado Hot Tub", TASK) === GREETING, buildQuoteGreeting("Colorado Hot Tub", TASK));
+assert(quoteOpeningSentence("Brian", "Peak Signal") === PEAK_FIRST, quoteOpeningSentence("Brian", "Peak Signal"));
+assert(buildQuoteGreeting("Brian", "Peak Signal", TASK) === PEAK_GREETING, buildQuoteGreeting("Brian", "Peak Signal", TASK));
+assert(buildQuoteGreeting("Justin and Heather", "Colorado Hot Tub", TASK) === GREETING, buildQuoteGreeting("Justin and Heather", "Colorado Hot Tub", TASK));
+assert(QUOTE_SILENCE_MS === 5000, "silence window");
+assert(QUOTE_HELLO_CHECK === "Hello?", QUOTE_HELLO_CHECK);
+assert(resolveIdentity("", {} as NodeJS.ProcessEnv).ok === true, "default identity missing");
+{
+  const resolved = resolveIdentity("", {} as NodeJS.ProcessEnv);
+  assert(resolved.ok && resolved.identity.business === "Peak Signal" && resolved.identity.contacts === "Brian", "default is Peak Signal for Brian");
+  const cht = resolveIdentity("cht", {} as NodeJS.ProcessEnv);
+  assert(cht.ok && cht.identity.business === "Colorado Hot Tub" && cht.identity.contacts === "Justin and Heather", "cht stays selectable");
+  const configured = resolveIdentity("", { PEAK_OUTBOUND_IDENTITY: "cht" } as NodeJS.ProcessEnv);
+  assert(configured.ok && configured.identity.id === "cht", "config can still select cht");
+}
+assert(normalizeQuoteOutcome({ outcome: "quoted" }) === "quote_received", "quoted alias");
+assert(normalizeQuoteOutcome({ outcome: "closed" }) === "wrong_number", "closed is wrong_number");
+assert(normalizeQuoteOutcome({ outcome: "partial info" }) === "partial_info", "partial alias");
+assert(normalizeQuoteOutcome({ outcome: "ivr" }) === "ivr_only", "ivr alias");
+assert(normalizeQuoteOutcome({ outcome: "recorded message" }) === "ivr_only", "recorded message alias");
+assert(normalizeQuoteOutcome({ outcome: "callback" }) === "call_back_requested", "callback alias");
+assert(normalizeQuoteOutcome({ outcome: "transfer" }) === "transferred", "transfer alias");
+assert(normalizeQuoteOutcome({ outcome: "declined" }) === "declined", "declined");
+assert(normalizeQuoteOutcome({ outcome: "voicemail" }) === "voicemail", "voicemail");
+assert(normalizeQuoteOutcome({ outcome: "no answer" }) === "no answer", "no answer");
+{
+  const opener = PEAK_GREETING;
+  let state = initialQuoteTurn();
+  let step = reduceQuoteTurn(state, { type: "session_ready", nowMs: 0 }, opener);
+  assert(step.effects.length === 0, "session ready spoke early");
+  assert(step.state.openerSent === false, "opener marked sent before hello");
+  assert(step.state.silenceArmedAt === 0, "silence was not armed");
+  step = reduceQuoteTurn(step.state, { type: "tick", nowMs: 4999 }, opener);
+  assert(step.effects.length === 0, "Hello? came before 5 seconds");
+  step = reduceQuoteTurn(step.state, { type: "tick", nowMs: 5000 }, opener);
+  assert(step.effects.length === 1 && step.effects[0].type === "speak" && step.effects[0].text === "Hello?", JSON.stringify(step.effects));
+  assert(step.state.helloCheckSent === true, "hello check not latched");
+  const repeat = reduceQuoteTurn(step.state, { type: "tick", nowMs: 20000 }, opener);
+  assert(repeat.effects.length === 0, "Hello? was repeated");
+  state = reduceQuoteTurn(initialQuoteTurn(), { type: "session_ready", nowMs: 0 }, opener).state;
+  const hello = reduceQuoteTurn(state, { type: "caller_speech", text: "Hello?", nowMs: 1000 }, opener);
+  assert(hello.effects.length === 1 && hello.effects[0].type === "speak" && hello.effects[0].text === opener, "opener was not the approved line");
+  assert(hello.state.openerSent === true, "opener not latched");
+  const again = reduceQuoteTurn(hello.state, { type: "caller_speech", text: "hello again", nowMs: 2000 }, opener);
+  assert(again.effects.length === 0, "opener was repeated");
+  const barge = reduceQuoteTurn(hello.state, { type: "speech_started", nowMs: 2500 }, opener);
+  assert(barge.effects.length === 1 && barge.effects[0].type === "interrupt", "barge-in did not stop playback");
+  assert(barge.state.openerSent === true, "barge-in reopened the greeting");
+  state = reduceQuoteTurn(initialQuoteTurn(), { type: "session_ready", nowMs: 0 }, opener).state;
+  const talking = reduceQuoteTurn(state, { type: "speech_started", nowMs: 1000 }, opener);
+  assert(talking.effects.length === 0, "speech before hello spoke");
+  assert(talking.state.silenceArmedAt === null, "silence stayed armed while they talked");
+  const stopped = reduceQuoteTurn(talking.state, { type: "speech_stopped", nowMs: 2000 }, opener);
+  assert(stopped.state.silenceArmedAt === 2000, "silence did not re-arm");
+  const notHello = reduceQuoteTurn(stopped.state, { type: "caller_speech", text: "Hi there", nowMs: 2500 }, opener);
+  assert(notHello.effects.length === 0 && notHello.state.openerSent === false, "hi was treated as hello");
+}
+assert(
+  buildQuotePlanText({
+    toNumber: TO,
+    businessName: "Front Range Movers",
+    task: TASK,
+    identity: { id: "peak", business: "Peak Signal", contacts: "Brian" },
+    numberSource: "not provided",
+    capSec: 420,
+    leaveVoicemail: false,
+    lineWarning: "",
+  }) === peakPlan("7 minutes"),
+  buildQuotePlanText({
+    toNumber: TO,
+    businessName: "Front Range Movers",
+    task: TASK,
+    identity: { id: "peak", business: "Peak Signal", contacts: "Brian" },
+    numberSource: "not provided",
+    capSec: 420,
+    leaveVoicemail: false,
+    lineWarning: "",
+  }),
+);
 assert(quoteTimeLimitSec({} as NodeJS.ProcessEnv) === 420, "default cap");
 assert(quoteTimeLimitSec({ PEAK_OUTBOUND_QUOTE_TIME_LIMIT_SEC: "300" } as NodeJS.ProcessEnv) === 300, "300");
 assert(quoteTimeLimitSec({ PEAK_OUTBOUND_QUOTE_TIME_LIMIT_SEC: "60" } as NodeJS.ProcessEnv) === 60, "min cap");
@@ -152,6 +265,11 @@ assert(!outboundSource.includes("Colorado Hot Tub"), "call path hardcodes the CH
 assert(!outboundSource.includes("Justin and Heather"), "call path hardcodes the CHT contacts");
 assert(identitySource.includes("Colorado Hot Tub"), "CHT identity missing");
 assert(identitySource.includes("Justin and Heather"), "CHT contacts missing");
+assert(identitySource.includes('business: "Peak Signal"'), "Peak Signal identity missing");
+assert(identitySource.includes('contacts: "Brian"'), "Brian contact missing");
+assert(outboundSource.includes("reduceQuoteTurn"), "quote turn reducer is not wired");
+assert(outboundSource.includes("interruptible: false"), "booking greeting is no longer uninterruptible");
+assert(!quoteSource.includes("I'm calling to book"), "quote prompt books");
 
 type Mail = { url: string; subject: string; message: string; email: string; interest: string; phone: string; name: string };
 type TwilioHit = { url: string; body: URLSearchParams; auth: string };
@@ -297,7 +415,12 @@ try {
     to_number: TO,
     business_name: "Front Range Movers",
     task: TASK,
-    identity: "cht",
+  };
+  const approvalFields = {
+    to_number: TO,
+    approved_by: "Brian",
+    business_name: "Front Range Movers",
+    task: TASK,
   };
   const booking = {
     to_number: TO,
@@ -324,14 +447,18 @@ try {
   assertError(missingSecret, 401, "unauthorized");
   assert(lookupHits.length === 0, "unauthorized approval looked up a number");
 
-  const emptyList = await postJson("/api/voice/outbound/approvals", { to_number: TO, approved_by: "Brian" }, SECRET);
+  const emptyList = await postJson("/api/voice/outbound/approvals", approvalFields, SECRET);
   assertError(emptyList, 403, "not_allowlisted");
   assert(callsCreated().length === 0, "empty allowlist placed a call");
   assert(lookupHits.length === 0, "blocked approval looked up a number");
 
   process.env.PEAK_OUTBOUND_QUOTE_ALLOWLIST = `${TO},${OTHER},${FROM}`;
   process.env.PEAK_OUTBOUND_DNC = `${DNC}, nope`;
-  const dncApproval = await postJson("/api/voice/outbound/approvals", { to_number: DNC, approved_by: "Brian" }, SECRET);
+  const dncApproval = await postJson(
+    "/api/voice/outbound/approvals",
+    { ...approvalFields, to_number: DNC },
+    SECRET,
+  );
   assertError(dncApproval, 403, "do_not_call");
   assert(lookupHits.length === 0, "do-not-call number was looked up");
   const dncQuote = await postJson("/api/voice/outbound", { ...quoteBody, to_number: DNC, approval_token: "none" }, SECRET);
@@ -345,16 +472,41 @@ try {
   assertError(badBy, 400, "invalid_approved_by");
   assert(logs.some((line) => line.startsWith("outbound approval issued")) === false, "invalid approval was logged as issued");
 
-  async function approve(to: string, by = "Brian"): Promise<{ token: string; id: string; secret: string; json: Record<string, unknown> }> {
+  async function approve(
+    to: string,
+    by = "Brian",
+    fields: { business_name?: string; task?: string; identity?: string; number_source?: string } = {},
+  ): Promise<{ token: string; id: string; secret: string; json: Record<string, unknown>; plan: string; planId: string }> {
     const before = lookupHits.length;
-    const res = await postJson("/api/voice/outbound/approvals", { to_number: to, approved_by: by }, SECRET);
+    const body: Record<string, unknown> = {
+      to_number: to,
+      approved_by: by,
+      business_name: fields.business_name ?? "Front Range Movers",
+      task: fields.task ?? TASK,
+    };
+    if (fields.identity) body.identity = fields.identity;
+    if (fields.number_source) body.number_source = fields.number_source;
+    const preview = await postJson("/api/voice/outbound/approvals", body, SECRET);
+    assert(preview.status === 200, `preview ${preview.status} ${JSON.stringify(preview.json)}`);
+    assert(preview.json.approval_token == null, "preview issued a token");
+    assert(typeof preview.json.plan === "string" && String(preview.json.plan).includes("Opening line:"), "plan missing");
+    assert(String(preview.json.plan).includes("Who: An AI assistant calling for "), String(preview.json.plan));
+    const planId = String(preview.json.plan_id || "");
+    assert(/^[a-f0-9]{16}$/.test(planId), planId);
+    const res = await postJson("/api/voice/outbound/approvals", { ...body, confirm_plan: true, plan_id: planId }, SECRET);
     assert(res.status === 200, `approve ${res.status} ${JSON.stringify(res.json)}`);
     const token = String(res.json.approval_token || "");
     const parts = tokenParts(token);
     assert(res.json.approval_id === parts.id, "approval id mismatch");
     assert(res.json.to_number === to, String(res.json.to_number));
+    assert(res.json.plan === preview.json.plan, "confirm changed the plan");
     assert(!logs.some((line) => line.includes(token) || line.includes(parts.secret)), "approval log contains the token");
     assert(!errors.some((line) => line.includes(token) || line.includes(parts.secret)), "approval error log contains the token");
+    const callback = String(process.env.PEAK_OUTBOUND_CALLBACK_NUMBER || "");
+    if (/^\+1\d{10}$/.test(callback)) {
+      assert(!String(preview.json.plan).includes(callback), "plan included the callback number");
+      assert(!logs.some((line) => line.includes(callback)), "approval log included the callback number");
+    }
     if (String(process.env.TWILIO_ACCOUNT_SID || "") && String(process.env.TWILIO_AUTH_TOKEN || "")) {
       assert(lookupHits.length === before + 1, "approval did not look up the line");
       const hit = lookupHits.at(-1);
@@ -364,15 +516,21 @@ try {
     } else {
       assert(lookupHits.length === before, "missing credentials still called lookup");
     }
-    return { token, id: parts.id, secret: parts.secret, json: res.json };
+    return { token, id: parts.id, secret: parts.secret, json: res.json, plan: String(preview.json.plan), planId };
   }
 
   lineMode = "landline";
+  process.env.PEAK_OUTBOUND_QUOTE_TIME_LIMIT_SEC = "300";
   const grok = await approve(TO, "Grok Bot for Brian");
+  assert(grok.plan === peakPlan("5 minutes"), grok.plan);
   assert(grok.json.line_type === "landline", String(grok.json.line_type));
   assert(grok.json.warning === "", String(grok.json.warning));
   assert(
-    logs.includes(`outbound approval issued id=${grok.id} to=${TO} by=Grok Bot for Brian at=${ISSUED_AT} line=landline reason=issued`),
+    logs.includes(`outbound approval planned id=${grok.planId} to=${TO} by=Grok Bot for Brian at=${ISSUED_AT} line=landline reason=planned plan=${PEAK_PLAN_LOG_5}`),
+    "plan was not logged",
+  );
+  assert(
+    logs.includes(`outbound approval issued id=${grok.id} to=${TO} by=Grok Bot for Brian at=${ISSUED_AT} line=landline reason=issued plan=${PEAK_PLAN_LOG_5}`),
     logs.filter((line) => line.includes(grok.id)).join("\n"),
   );
 
@@ -384,12 +542,9 @@ try {
 
   const badIdentity = await postJson("/api/voice/outbound", { ...quoteBody, identity: "nope", approval_token: grok.token }, SECRET);
   assertError(badIdentity, 400, "unknown_identity");
-  const noIdentity = await postJson(
-    "/api/voice/outbound",
-    { mode: "quote", to_number: TO, business_name: "Front Range Movers", task: TASK, approval_token: grok.token },
-    SECRET,
-  );
-  assertError(noIdentity, 400, "identity_required");
+  const wrongPlan = await postJson("/api/voice/outbound", { ...quoteBody, task: "a piano move", approval_token: grok.token }, SECRET);
+  assertError(wrongPlan, 400, "approval_plan_mismatch");
+  assert(callsCreated().length === 0, "a mismatched plan placed a call");
 
   const mismatch = await postJson("/api/voice/outbound", { ...quoteBody, to_number: OTHER, approval_token: grok.token }, SECRET);
   assertError(mismatch, 400, "approval_mismatch");
@@ -402,7 +557,6 @@ try {
   const same = await postJson("/api/voice/outbound", { ...quoteBody, to_number: FROM, approval_token: grok.token }, SECRET);
   assertError(same, 400, "same_number");
 
-  process.env.PEAK_OUTBOUND_QUOTE_TIME_LIMIT_SEC = "300";
   const bookRes = await postJson("/api/voice/outbound", booking, SECRET);
   assert(bookRes.status === 200, `booking ${bookRes.status} ${JSON.stringify(bookRes.json)}`);
   assert(bookRes.json.mode == null, "booking response gained a quote mode");
@@ -416,6 +570,10 @@ try {
   assert(bookSession?.tools[0]?.name === "report_outcome", "booking tool changed");
   const bookEnum = (bookSession?.tools[0]?.parameters as { properties: { outcome: { enum: string[] } } }).properties.outcome.enum;
   assert(JSON.stringify(bookEnum) === JSON.stringify(["booked", "alternate offered", "declined", "voicemail"]), JSON.stringify(bookEnum));
+  assert(!bookSession?.instructions.includes("You never book, pay"), "booking picked up the quote never-commit rule");
+  assert(!bookSession?.instructions.includes("say Hello? once"), "booking picked up quote silence handling");
+  const bookIvr = await handleOutboundCallerLine(bookSid, "press 1 for the office");
+  assert(bookIvr.hangup === true && bookIvr.outcome === "voicemail", JSON.stringify(bookIvr));
 
   const placed = await postJson("/api/voice/outbound", { ...quoteBody, approval_token: grok.token }, SECRET);
   assert(placed.status === 200, `place ${placed.status} ${JSON.stringify(placed.json)}`);
@@ -430,7 +588,7 @@ try {
   assert(quoteHit?.body.get("MachineDetection") === "Enable", "quote amd");
   assert(quoteHit?.body.get("To") === TO, "quote destination");
   assert(
-    logs.includes(`outbound approval used id=${grok.id} to=${TO} by=Grok Bot for Brian at=${ISSUED_AT} line=landline reason=used`),
+    logs.includes(`outbound approval used id=${grok.id} to=${TO} by=Grok Bot for Brian at=${ISSUED_AT} line=landline reason=used plan=${PEAK_PLAN_LOG_5}`),
     "use was not logged",
   );
   const reused = await postJson("/api/voice/outbound", { ...quoteBody, approval_token: grok.token }, SECRET);
@@ -439,16 +597,39 @@ try {
 
   const sid = String(placed.json.call_sid || "");
   const session = outboundSessionFor(sid);
-  assert(session?.greeting === GREETING, session?.greeting || "");
-  assert(session?.instructions.includes(GREETING), "instructions dropped the opening");
-  assert(session?.instructions.includes("Justin and Heather"), "instructions dropped the contacts");
+  assert(session?.greeting === PEAK_GREETING, session?.greeting || "");
+  assert(session?.greeting.startsWith(PEAK_FIRST), session?.greeting || "");
+  assert(session?.instructions.includes(PEAK_GREETING), "instructions dropped the opening");
+  assert(session?.instructions.includes("calling for Brian at Peak Signal"), "instructions dropped Brian");
+  assert(session?.instructions.includes("You never book, pay, give card details, put down a deposit, sign up, or agree to terms."), session?.instructions || "");
+  assert(session?.instructions.includes("say someone will follow up"), "never-commit follow-up missing");
+  assert(session?.instructions.includes("Repeat each price and each number back and get confirmation before you record it."), "number readback missing");
+  assert(session?.instructions.includes("Before you hang up, read everything back: every figure and every detail you captured."), "full readback missing");
+  assert(session?.instructions.includes("Ask one question at a time."), "one-question rule missing");
+  assert(session?.instructions.includes("Wait until the other party says hello before you speak."), "hello wait missing");
+  assert(session?.instructions.includes("say Hello? once, then wait."), "silence check missing");
+  assert(session?.instructions.includes("Do not press keys."), "ivr keypress missing");
+  assert(!session?.instructions.includes("I'm calling to book"), "quote instructions book the job");
   assert(session?.instructions.includes("Never invent"), "instructions allow invented facts");
   assert(session?.instructions.includes("you cannot give a number on this call"), session?.instructions || "");
   assert(!session?.instructions.includes(CALLBACK), "unset callback number was spoken");
   assert(!/\+1\d{10}/.test(session?.instructions || ""), "instructions contain a phone number");
   assert(session?.tools[0]?.name === "report_quote", session?.tools[0]?.name || "");
   const quoteEnum = (session?.tools[0]?.parameters as { properties: { outcome: { enum: string[] } } }).properties.outcome.enum;
-  assert(JSON.stringify(quoteEnum) === JSON.stringify(["quoted", "declined", "voicemail"]), JSON.stringify(quoteEnum));
+  assert(
+    JSON.stringify(quoteEnum) ===
+      JSON.stringify([
+        "quote_received",
+        "partial_info",
+        "call_back_requested",
+        "transferred",
+        "wrong_number",
+        "declined",
+        "voicemail",
+        "ivr_only",
+      ]),
+    JSON.stringify(quoteEnum),
+  );
 
   const human = await postForm(`/api/voice/outbound/twiml?token=${encodeURIComponent(outboundTokenFor(sid))}`, {
     CallSid: sid,
@@ -465,8 +646,10 @@ try {
     notice: "two days",
     insurance: "general liability",
     contact_name: "Dana",
+    their_words: "one eighty an hour, two people",
+    promised: "send a certificate",
   });
-  assert(reported.ok === true && reported.outcome === "quoted", JSON.stringify(reported));
+  assert(reported.ok === true && reported.outcome === "quote_received", JSON.stringify(reported));
   const rec = await postForm(`/api/voice/outbound/recording?token=${encodeURIComponent(outboundTokenFor(sid))}`, {
     CallSid: sid,
     RecordingStatus: "completed",
@@ -485,17 +668,35 @@ try {
   assert(mail.email === OUTBOUND_INBOX, mail.email);
   assert(mail.interest === "outbound-voice", mail.interest);
   assert(mail.phone === TO, mail.phone);
-  assert(mail.name === "Colorado Hot Tub AI assistant", mail.name);
-  assert(mail.subject === "Peak outbound quote — Front Range Movers — quoted", mail.subject);
+  assert(mail.name === "Peak Signal AI assistant", mail.name);
+  assert(mail.subject === "Peak outbound quote — Front Range Movers — quote_received", mail.subject);
   assert(!mail.message.includes(grok.secret), "summary contains the approval secret");
   assert(!mail.message.includes(grok.token), "summary contains the approval token");
+  const messageLines = mail.message.split("\n");
+  assert(messageLines[0] === "quote_received — 180 dollars per hour", messageLines[0]);
+  assert(messageLines[1] === 'Their words: "one eighty an hour, two people"', messageLines[1]);
+  assert(messageLines[2] === "Promised:", messageLines[2]);
+  assert(messageLines[3] === "- send a certificate", messageLines[3]);
+  assert(messageLines[4] === "Unclear / not provided:", messageLines[4]);
+  assert(messageLines[5] === "- Crew size", messageLines[5]);
+  assert(messageLines[6] === "- Travel charge", messageLines[6]);
+  assert(messageLines[7] === "- Same-day availability", messageLines[7]);
+  assert(messageLines[8] === "- Certificate of insurance", messageLines[8]);
+  assert(messageLines[9] === "- On-call interest", messageLines[9]);
+  assert(messageLines[10] === "- Callback preference", messageLines[10]);
+  assert(messageLines[11] === "- Callback time", messageLines[11]);
+  assert(messageLines[12] === "Rate: 180 dollars per hour", messageLines[12]);
+  const warningAt = mail.message.indexOf("\nLine warning: (none)\n");
+  const recordingAt = mail.message.indexOf("\nRecording: https://api.twilio.com/2010-04-01/Accounts/ACtest/Recordings/RE123.mp3\n");
+  assert(warningAt > mail.message.indexOf("Rate: 180 dollars per hour"), "warning before the fields");
+  assert(recordingAt > warningAt, "recording before the warning");
   for (const line of [
     "Peak Signal outbound quote",
     `Inbox: ${OUTBOUND_INBOX}`,
     "Mode: quote",
-    "Outcome: quoted",
-    "Identity: Colorado Hot Tub",
-    "Contacts: Justin and Heather",
+    "Outcome: quote_received",
+    "Identity: Peak Signal",
+    "Contacts: Brian",
     "Business: Front Range Movers",
     `Task: ${TASK}`,
     `Called: ${TO}`,
@@ -516,6 +717,7 @@ try {
     "On-call interest: not provided",
     "Person spoken to: Dana",
     "Callback preference: not provided",
+    "Callback time: not provided",
     "Detection: (none)",
     "Recording: https://api.twilio.com/2010-04-01/Accounts/ACtest/Recordings/RE123.mp3",
     `CallSid: ${sid}`,
@@ -539,6 +741,19 @@ try {
   );
   assert(lowPlace.status === 200, JSON.stringify(lowPlace.json));
   assert(callsCreated().at(-1)?.body.get("TimeLimit") === "420", "out of range cap was sent");
+  const callbackReport = applyQuoteReport(String(lowPlace.json.call_sid), {
+    outcome: "call_back_requested",
+    contact_name: "Dana",
+    callback_time: "Thursday at 2",
+  });
+  assert(callbackReport.ok === true && callbackReport.outcome === "call_back_requested", JSON.stringify(callbackReport));
+  await postForm(`/api/voice/outbound/status?token=${encodeURIComponent(outboundTokenFor(String(lowPlace.json.call_sid)))}`, {
+    CallSid: String(lowPlace.json.call_sid),
+    CallStatus: "completed",
+  });
+  assert(emails.at(-1)?.message.split("\n")[0] === "call_back_requested — (no headline rate)", emails.at(-1)?.message.split("\n")[0] || "");
+  assertLine(emails.at(-1)?.message || "", "Person spoken to: Dana");
+  assertLine(emails.at(-1)?.message || "", "Callback time: Thursday at 2");
   delete process.env.PEAK_OUTBOUND_QUOTE_TIME_LIMIT_SEC;
 
   emails.length = 0;
@@ -547,7 +762,7 @@ try {
   assert(mobile.json.line_type === "mobile", String(mobile.json.line_type));
   assert(mobile.json.warning === MOBILE_WARNING, String(mobile.json.warning));
   assert(
-    logs.includes(`outbound approval issued id=${mobile.id} to=${TO} by=Brian at=${ISSUED_AT} line=mobile reason=issued`),
+    logs.includes(`outbound approval issued id=${mobile.id} to=${TO} by=Brian at=${ISSUED_AT} line=mobile reason=issued plan=${PEAK_PLAN_LOG_7}`),
     "mobile approval was not logged",
   );
   const unwarned = await postJson("/api/voice/outbound", { ...quoteBody, approval_token: mobile.token, accept_line_warning: "true" }, SECRET);
@@ -564,6 +779,7 @@ try {
     CallStatus: "no-answer",
   });
   assert(emails.length === 1, "mobile summary missing");
+  assert(emails[0].message.split("\n")[0] === "no answer — (no headline rate)", emails[0].message.split("\n")[0]);
   assertLine(emails[0].message, "Outcome: no answer");
   assertLine(emails[0].message, "Line type: mobile");
   assertLine(emails[0].message, `Line warning: ${MOBILE_WARNING}`);
@@ -584,6 +800,7 @@ try {
     CallStatus: "completed",
     AnsweredBy: "machine_start",
   });
+  assert(emails[0].message.split("\n")[0] === "voicemail — (no headline rate)", emails[0].message.split("\n")[0]);
   assertLine(emails[0].message, "Outcome: voicemail");
   assertLine(emails[0].message, "Line type: unknown");
   assertLine(emails[0].message, `Line warning: ${UNKNOWN_WARNING}`);
@@ -605,6 +822,8 @@ try {
   assert(fixed.json.warning === "", String(fixed.json.warning));
   const fixedPlace = await postJson("/api/voice/outbound", { ...quoteBody, approval_token: fixed.token }, SECRET);
   assert(fixedPlace.status === 200, `fixed voip ${fixedPlace.status} ${JSON.stringify(fixedPlace.json)}`);
+  const ivrHeard = await handleOutboundCallerLine(String(fixedPlace.json.call_sid), "press 1 for the office");
+  assert(ivrHeard.hangup === true && ivrHeard.outcome === "ivr_only", JSON.stringify(ivrHeard));
 
   lineMode = "nonFixedVoip";
   const voip = await approve(TO);
@@ -643,7 +862,7 @@ try {
   const listedPlace = await postJson("/api/voice/outbound", { ...quoteBody, approval_token: listed.token }, SECRET);
   assert(listedPlace.status === 200, JSON.stringify(listedPlace.json));
   const listedSession = outboundSessionFor(String(listedPlace.json.call_sid));
-  assert(listedSession?.greeting === GREETING, listedSession?.greeting || "");
+  assert(listedSession?.greeting === PEAK_GREETING, listedSession?.greeting || "");
   assert(!listedSession?.greeting.includes(CALLBACK), "opening spoke the callback number");
   assert(listedSession?.instructions.includes(`The only callback number you may speak is ${CALLBACK}.`), listedSession?.instructions || "");
   const listedSid = String(listedPlace.json.call_sid);
@@ -682,7 +901,7 @@ try {
     { id: "leak", business: "Call +15555550123", contacts: "Alex" },
   ]);
   process.env.PEAK_OUTBOUND_IDENTITY = "desk";
-  const override = await approve(TO);
+  const override = await approve(TO, "Brian", { identity: "cht" });
   const overridePlace = await postJson("/api/voice/outbound", { ...quoteBody, identity: "cht", approval_token: override.token }, SECRET);
   assert(overridePlace.status === 200, JSON.stringify(overridePlace.json));
   assert(outboundSessionFor(String(overridePlace.json.call_sid))?.greeting === GREETING, "config replaced the CHT identity");
@@ -749,7 +968,11 @@ try {
   assertError(tamper, 400, "invalid_approval");
   assert(!logs.some((line) => line.includes(tampered) || line.includes("ab".repeat(32))), "rejected log stored a token");
 
-  const notListed = await postJson("/api/voice/outbound/approvals", { to_number: "+15555550109", approved_by: "Brian" }, SECRET);
+  const notListed = await postJson(
+    "/api/voice/outbound/approvals",
+    { ...approvalFields, to_number: "+15555550109" },
+    SECRET,
+  );
   assertError(notListed, 403, "not_allowlisted");
   const stillBooked = await postJson("/api/voice/outbound", { ...booking, to_number: "+15555550109" }, SECRET);
   assert(stillBooked.status === 200, `allowlist blocked a booking ${stillBooked.status} ${JSON.stringify(stillBooked.json)}`);

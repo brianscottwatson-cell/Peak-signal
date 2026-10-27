@@ -1,6 +1,7 @@
 /**
  * Business identities for outbound quote calls.
- * The call path looks up an id. It does not assume Colorado Hot Tub.
+ * With nothing configured, the caller is Peak Signal for Brian.
+ * cht stays available when a request or PEAK_OUTBOUND_IDENTITY asks for it.
  * Phone numbers do not belong on an identity. The callback number is env-only.
  *
  * PEAK_OUTBOUND_IDENTITY          id used when the request omits identity
@@ -15,6 +16,12 @@ export type BusinessIdentity = {
   contacts: string;
 };
 
+export const PEAK_IDENTITY: BusinessIdentity = {
+  id: "peak",
+  business: "Peak Signal",
+  contacts: "Brian",
+};
+
 export const CHT_IDENTITY: BusinessIdentity = {
   id: "cht",
   business: "Colorado Hot Tub",
@@ -22,6 +29,7 @@ export const CHT_IDENTITY: BusinessIdentity = {
 };
 
 const BUILTIN: Record<string, BusinessIdentity> = {
+  peak: PEAK_IDENTITY,
   cht: CHT_IDENTITY,
 };
 
@@ -69,9 +77,10 @@ export function loadExtraIdentities(env: NodeJS.ProcessEnv = process.env): Recor
 export function resolveIdentity(
   explicit: string,
   env: NodeJS.ProcessEnv = process.env,
-): { ok: true; identity: BusinessIdentity } | { ok: false; error: "identity_required" | "unknown_identity" } {
-  const id = String(explicit || env.PEAK_OUTBOUND_IDENTITY || "").trim().toLowerCase();
-  if (!id) return { ok: false, error: "identity_required" };
+): { ok: true; identity: BusinessIdentity } | { ok: false; error: "unknown_identity" } {
+  const fromRequest = String(explicit || "").trim().toLowerCase();
+  const fromEnv = String(env.PEAK_OUTBOUND_IDENTITY || "").trim().toLowerCase();
+  const id = fromRequest || fromEnv || PEAK_IDENTITY.id;
   if (!ID_RE.test(id)) return { ok: false, error: "unknown_identity" };
   const builtin = BUILTIN[id];
   if (builtin) return { ok: true, identity: builtin };

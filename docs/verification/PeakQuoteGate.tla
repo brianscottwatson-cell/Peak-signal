@@ -1,16 +1,17 @@
 ------------------------------ MODULE PeakQuoteGate ------------------------------
 \* Model of quote-mode dialing in voice/peak/peak-outbound.ts.
 \* A quote dial needs the outbound gate, one live approval for that attempt,
-\* the allowlist, and a number that is not on the do-not-call list.
+\* a plan that matches the dial, the allowlist, and a number that is not on
+\* the do-not-call list.
 \* The approval moves to used and cannot place a second quote call.
-\* Booking does not need an approval token. A do-not-call number is not
-\* dialed in either mode.
+\* Booking does not need an approval token or a plan. A do-not-call number
+\* is not dialed in either mode.
 
 EXTENDS Integers
 
-VARIABLES enabled, mode, allowlisted, dnc, token, quoteDials, bookDials
+VARIABLES enabled, mode, allowlisted, dnc, token, planMatch, quoteDials, bookDials
 
-vars == <<enabled, mode, allowlisted, dnc, token, quoteDials, bookDials>>
+vars == <<enabled, mode, allowlisted, dnc, token, planMatch, quoteDials, bookDials>>
 
 Init ==
   /\ enabled \in BOOLEAN
@@ -18,6 +19,7 @@ Init ==
   /\ allowlisted \in BOOLEAN
   /\ dnc \in BOOLEAN
   /\ token = "none"
+  /\ planMatch \in BOOLEAN
   /\ quoteDials = 0
   /\ bookDials = 0
 
@@ -27,22 +29,23 @@ Issue ==
   /\ ~dnc
   /\ allowlisted
   /\ token' = "live"
-  /\ UNCHANGED <<enabled, mode, allowlisted, dnc, quoteDials, bookDials>>
+  /\ UNCHANGED <<enabled, mode, allowlisted, dnc, planMatch, quoteDials, bookDials>>
 
 Expire ==
   /\ token = "live"
   /\ token' = "expired"
-  /\ UNCHANGED <<enabled, mode, allowlisted, dnc, quoteDials, bookDials>>
+  /\ UNCHANGED <<enabled, mode, allowlisted, dnc, planMatch, quoteDials, bookDials>>
 
 QuoteDial ==
   /\ enabled
   /\ mode = "quote"
   /\ token = "live"
+  /\ planMatch
   /\ allowlisted
   /\ ~dnc
   /\ token' = "used"
   /\ quoteDials' = quoteDials + 1
-  /\ UNCHANGED <<enabled, mode, allowlisted, dnc, bookDials>>
+  /\ UNCHANGED <<enabled, mode, allowlisted, dnc, planMatch, bookDials>>
 
 BookDial ==
   /\ enabled
@@ -50,7 +53,7 @@ BookDial ==
   /\ ~dnc
   /\ bookDials < 2
   /\ bookDials' = bookDials + 1
-  /\ UNCHANGED <<enabled, mode, allowlisted, dnc, token, quoteDials>>
+  /\ UNCHANGED <<enabled, mode, allowlisted, dnc, token, planMatch, quoteDials>>
 
 Next ==
   \/ Issue
@@ -61,7 +64,9 @@ Next ==
 
 Spec == Init /\ [][Next]_vars
 
-QuoteNeedsLiveToken == (quoteDials > 0) => (token = "used" /\ allowlisted /\ ~dnc /\ enabled)
+QuoteNeedsLiveToken == (quoteDials > 0) => (token = "used" /\ planMatch /\ allowlisted /\ ~dnc /\ enabled)
+
+QuoteNeedsPlan == (quoteDials > 0) => planMatch
 
 OneQuoteUse == quoteDials <= 1
 

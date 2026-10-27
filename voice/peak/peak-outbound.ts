@@ -16,7 +16,7 @@
  * PEAK_OUTBOUND_PER_MINUTE          default 1, rolling 60 seconds
  * PEAK_OUTBOUND_PER_DAY             default 10, rolling 24 hours
  * PEAK_OUTBOUND_DNC                 optional, both modes, US E.164 list
- * Quote env (allowlist, cap, callback, identity, approval TTL): peak-quote.ts
+ * Quote env (allowlist, cap, callback, identity, approval TTL, voicemail): peak-quote.ts
  * TWILIO_ACCOUNT_SID / TWILIO_AUTH_TOKEN
  * XAI_API_KEY                       existing Grok realtime key
  * HOSTNAME                          public host Twilio can reach
@@ -37,21 +37,30 @@ import {
   buildQuoteInstructions,
   callbackPolicy,
   captureQuote,
+  captureQuoteNotes,
+  confirmApproval,
   consumeApproval,
   dncDecision,
-  issueApproval,
+  initialQuoteTurn,
+  leaveVoicemailEnabled,
   logApprovalEvent,
   normalizeQuoteOutcome,
   parseApprovalRequest,
   parseQuoteRequest,
   peekApproval,
+  previewApproval,
   quoteAllowlistDecision,
+  QUOTE_SILENCE_MS,
   quoteTimeLimitSec,
   quoteTools,
+  reduceQuoteTurn,
   requestMode,
   resetApprovalsForTest,
   resolveIdentity,
   type QuoteCapture,
+  type QuoteOutcome,
+  type QuoteTurnEffect,
+  type QuoteTurnState,
 } from "./peak-quote";
 
 export { isUsE164 };
@@ -69,7 +78,7 @@ const DEFAULT_PER_DAY = 10;
 
 export const OUTCOMES = ["booked", "alternate offered", "declined", "voicemail", "no answer"] as const;
 export type OutboundOutcome = (typeof OUTCOMES)[number];
-export type StoredOutcome = OutboundOutcome | "quoted";
+export type StoredOutcome = OutboundOutcome | QuoteOutcome;
 
 export type OutboundRequest = {
   toNumber: string;
@@ -115,6 +124,9 @@ type OutboundCall = {
   callbackSpoken: string;
   approvalId: string;
   approvedBy: string;
+  theirWords: string;
+  promised: string;
+  leaveVoicemail: boolean;
 };
 
 type XaiEvent = {
@@ -449,9 +461,10 @@ export function outboundSessionFor(callSid: string): {
         contacts: call.identityContacts,
         task: call.task,
         callbackSpoken: call.callbackSpoken,
+        leaveVoicemail: call.leaveVoicemail,
       }),
       voice: peakVoiceName(),
-      greeting: buildQuoteGreeting(call.identityBusiness, call.task),
+      greeting: buildQuoteGreeting(call.identityContacts, call.identityBusiness, call.task),
       tools: quoteTools,
     };
   }
@@ -481,6 +494,7 @@ function newOutboundCall(fields: {
   callbackSpoken?: string;
   approvalId?: string;
   approvedBy?: string;
+  leaveVoicemail?: boolean;
 }): OutboundCall {
   return {
     token: crypto.randomBytes(32).toString("hex"),
@@ -516,6 +530,9 @@ function newOutboundCall(fields: {
     callbackSpoken: fields.callbackSpoken || "",
     approvalId: fields.approvalId || "",
     approvedBy: fields.approvedBy || "",
+    theirWords: "not provided",
+    promised: "not provided",
+    leaveVoicemail: fields.leaveVoicemail === true,
   };
 }
 
@@ -592,8 +609,12 @@ export function applyQuoteReport(
   const outcome = normalizeQuoteOutcome(raw);
   if (!outcome) return { ok: false, outcome: "", error: "invalid_outcome" };
   call.quote = captureQuote(raw, redactPersonalData);
-  if (outcome === "voicemail") call.machine = true;
-  setOutcome(call, outcome, "", outcome === "voicemail" ? call.detection || "voicemail" : "");
+  const notes = captureQuoteNotes(raw, redactPersonalData);
+  call.theirWords = notes.theirWords;
+  call.promised = notes.promised;
+  if (outcome === "voicemail" || outcome === "ivr_only") call.machine = true;
+  const detection = outcome === "ivr_only" ? "ivr" : outcome === "voicemail" ? call.detection || "voicemail" : "";
+  setOutcome(call, outcome, "", detection);
   return { ok: true, outcome: call.outcome };
 }
 
@@ -609,7 +630,13 @@ export async function handleOutboundCallerLine(
   const heard = looksLikeMachineOrIvr(line) || looksLikeMachineOrIvr(call.callerText);
   if (!heard) return { hangup: false, outcome: "" };
   const ivr = looksLikeIvr(line) || looksLikeIvr(call.callerText);
+  const voicemail = looksLikeVoicemail(line) || looksLikeVoicemail(call.callerText);
   call.machine = true;
+  if (call.mode === "quote" && ivr && !voicemail) {
+    setOutcome(call, "ivr_only", "", "ivr");
+    await hangupOutboundCall(call);
+    return { hangup: true, outcome: "ivr_only" };
+  }
   setOutcome(call, "voicemail", "", ivr ? "ivr" : "voicemail greeting");
   await hangupOutboundCall(call);
   return { hangup: true, outcome: "voicemail" };
@@ -632,6 +659,8 @@ export function buildOutboundEmail(call: OutboundCall): string {
       approvedBy: call.approvedBy,
       approvalId: call.approvalId,
       quote: call.quote,
+      theirWords: call.theirWords,
+      promised: call.promised,
       detection: call.detection,
       recordingUrl: call.recordingUrl,
       callSid: call.callSid,
@@ -971,7 +1000,19 @@ async function createQuoteCall(req: Request, res: Response): Promise<void> {
     return;
   }
   const now = nowFn();
-  const peeked = peekApproval(parsed.value.approvalToken, parsed.value.toNumber, now, secretsMatch);
+  const peeked = peekApproval(
+    parsed.value.approvalToken,
+    {
+      toNumber: parsed.value.toNumber,
+      businessName: parsed.value.businessName,
+      task: parsed.value.task,
+      identity: identity.identity,
+      capSec: quoteTimeLimitSec(),
+      leaveVoicemail: leaveVoicemailEnabled(),
+    },
+    now,
+    secretsMatch,
+  );
   if (!peeked.ok) {
     logApprovalEvent(
       "rejected",
@@ -1027,6 +1068,7 @@ async function createQuoteCall(req: Request, res: Response): Promise<void> {
     callbackSpoken: policy.spoken,
     approvalId: used.id,
     approvedBy: used.approvedBy,
+    leaveVoicemail: leaveVoicemailEnabled(),
   });
   byToken.set(call.token, call);
   try {
@@ -1058,22 +1100,40 @@ async function createQuoteCall(req: Request, res: Response): Promise<void> {
 
 async function createApproval(req: Request, res: Response): Promise<void> {
   if (!gateJson(req, res)) return;
-  const parsed = parseApprovalRequest(req.body);
+  const parsed = parseApprovalRequest(req.body, containsPersonalData);
   if (!parsed.ok) {
     res.status(400).json({ error: parsed.error });
     return;
   }
-  const creds = lookupCreds();
-  const issued = await issueApproval({
-    toNumber: parsed.toNumber,
-    approvedBy: parsed.approvedBy,
-    nowMs: nowFn(),
-    account: creds.account,
-    authToken: creds.token,
-  });
+  if (!parsed.value.confirmPlan) {
+    const creds = lookupCreds();
+    const preview = await previewApproval({
+      value: parsed.value,
+      nowMs: nowFn(),
+      account: creds.account,
+      authToken: creds.token,
+    });
+    if (!preview.ok) {
+      const status = preview.error === "do_not_call" || preview.error === "not_allowlisted" ? 403 : 400;
+      res.status(status).json({ error: preview.error });
+      return;
+    }
+    res.setHeader("Cache-Control", "no-store");
+    res.status(200).json({
+      ok: true,
+      plan_id: preview.planId,
+      plan: preview.plan,
+      expires_at: preview.expiresAt,
+      to_number: preview.toNumber,
+      line_type: preview.lineType,
+      warning: preview.warning,
+      risky: preview.risky,
+    });
+    return;
+  }
+  const issued = confirmApproval({ value: parsed.value, nowMs: nowFn() });
   if (!issued.ok) {
-    const status = issued.error === "do_not_call" || issued.error === "not_allowlisted" ? 403 : 400;
-    res.status(status).json({ error: issued.error });
+    res.status(400).json({ error: issued.error });
     return;
   }
   res.setHeader("Cache-Control", "no-store");
@@ -1085,6 +1145,8 @@ async function createApproval(req: Request, res: Response): Promise<void> {
     to_number: issued.toNumber,
     line_type: issued.lineType,
     warning: issued.warning,
+    risky: issued.risky,
+    plan: issued.plan,
   });
 }
 
@@ -1223,6 +1285,9 @@ export function attachPeakOutboundStream(app: Express): void {
     let stopped = false;
     let agentSpeaking = false;
     let muteUntil = 0;
+    const quoteMode = call.mode === "quote";
+    let quoteTurn: QuoteTurnState = initialQuoteTurn();
+    let silenceTimer: ReturnType<typeof setTimeout> | null = null;
     const session = outboundSessionFor(callId);
     if (!session) {
       ws.close();
@@ -1232,8 +1297,45 @@ export function attachPeakOutboundStream(app: Express): void {
       headers: { Authorization: `Bearer ${key}` },
     });
 
+    const clearSilence = () => {
+      if (silenceTimer) clearTimeout(silenceTimer);
+      silenceTimer = null;
+    };
+
+    const applyQuoteEffects = (effects: QuoteTurnEffect[]) => {
+      for (const effect of effects) {
+        if (effect.type === "speak") {
+          xaiWs.send(JSON.stringify({
+            type: "conversation.item.create",
+            item: {
+              type: "force_message",
+              role: "assistant",
+              interruptible: true,
+              content: [{ type: "output_text", text: effect.text }],
+            },
+          }));
+        } else if (effect.type === "interrupt" && streamSid) {
+          ws.send(JSON.stringify({ event: "clear", streamSid }));
+        }
+      }
+    };
+
+    const syncQuoteSilence = (armedAt: number | null) => {
+      clearSilence();
+      if (!quoteMode || armedAt == null || stopped) return;
+      const delay = Math.max(0, armedAt + QUOTE_SILENCE_MS - Date.now());
+      silenceTimer = setTimeout(() => {
+        silenceTimer = null;
+        if (stopped || xaiWs.readyState !== WebSocket.OPEN) return;
+        const reduced = reduceQuoteTurn(quoteTurn, { type: "tick", nowMs: Date.now() }, session.greeting);
+        quoteTurn = reduced.state;
+        applyQuoteEffects(reduced.effects);
+      }, delay);
+    };
+
     const stopForMachine = () => {
       stopped = true;
+      clearSilence();
       try { xaiWs.close(); } catch { /* ignore */ }
       try { ws.close(); } catch { /* ignore */ }
     };
@@ -1253,9 +1355,10 @@ export function attachPeakOutboundStream(app: Express): void {
         void startOutboundRecording(call);
       } else if (msg.event === "media" && (msg.media?.track === "inbound" || !msg.media?.track)) {
         if (!sessionReady || xaiWs.readyState !== WebSocket.OPEN) return;
-        if (agentSpeaking || Date.now() < muteUntil) return;
+        if (!quoteMode && (agentSpeaking || Date.now() < muteUntil)) return;
         xaiWs.send(JSON.stringify({ type: "input_audio_buffer.append", audio: msg.media?.payload || "" }));
       } else if (msg.event === "stop") {
+        clearSilence();
         try { xaiWs.close(); } catch { /* ignore */ }
       }
     });
@@ -1295,23 +1398,51 @@ export function attachPeakOutboundStream(app: Express): void {
         ws.send(JSON.stringify({ event: "media", streamSid, media: { payload: message.delta } }));
       } else if (message.type === "session.updated") {
         sessionReady = true;
-        xaiWs.send(JSON.stringify({
-          type: "conversation.item.create",
-          item: {
-            type: "force_message",
-            role: "assistant",
-            interruptible: false,
-            content: [{ type: "output_text", text: session.greeting }],
-          },
-        }));
+        if (quoteMode) {
+          const reduced = reduceQuoteTurn(quoteTurn, { type: "session_ready", nowMs: Date.now() }, session.greeting);
+          quoteTurn = reduced.state;
+          applyQuoteEffects(reduced.effects);
+          syncQuoteSilence(quoteTurn.silenceArmedAt);
+        } else {
+          xaiWs.send(JSON.stringify({
+            type: "conversation.item.create",
+            item: {
+              type: "force_message",
+              role: "assistant",
+              interruptible: false,
+              content: [{ type: "output_text", text: session.greeting }],
+            },
+          }));
+        }
       } else if (message.type === "input_audio_buffer.speech_started" && streamSid) {
-        if (agentSpeaking || Date.now() < muteUntil) return;
-        ws.send(JSON.stringify({ event: "clear", streamSid }));
+        if (quoteMode) {
+          const reduced = reduceQuoteTurn(quoteTurn, { type: "speech_started", nowMs: Date.now() }, session.greeting);
+          quoteTurn = reduced.state;
+          applyQuoteEffects(reduced.effects);
+          syncQuoteSilence(quoteTurn.silenceArmedAt);
+        } else if (agentSpeaking || Date.now() < muteUntil) {
+          return;
+        } else {
+          ws.send(JSON.stringify({ event: "clear", streamSid }));
+        }
+      } else if (message.type === "input_audio_buffer.speech_stopped" && quoteMode) {
+        const reduced = reduceQuoteTurn(quoteTurn, { type: "speech_stopped", nowMs: Date.now() }, session.greeting);
+        quoteTurn = reduced.state;
+        applyQuoteEffects(reduced.effects);
+        syncQuoteSilence(quoteTurn.silenceArmedAt);
       } else if (message.type === "conversation.item.input_audio_transcription.completed" && message.transcript) {
         const text = String(message.transcript).trim();
         if (!text) return;
         void handleOutboundCallerLine(call.callSid || callId, text).then((heard) => {
-          if (heard.hangup) stopForMachine();
+          if (heard.hangup) {
+            stopForMachine();
+            return;
+          }
+          if (!quoteMode || stopped) return;
+          const reduced = reduceQuoteTurn(quoteTurn, { type: "caller_speech", text, nowMs: Date.now() }, session.greeting);
+          quoteTurn = reduced.state;
+          applyQuoteEffects(reduced.effects);
+          syncQuoteSilence(quoteTurn.silenceArmedAt);
         });
       } else if (message.type === "response.done") {
         agentSpeaking = false;
@@ -1332,7 +1463,8 @@ export function attachPeakOutboundStream(app: Express): void {
             type: "conversation.item.create",
             item: { type: "function_call_output", call_id: toolCallId, output: JSON.stringify({ ok: result.ok, outcome: result.outcome }) },
           }));
-          if (result.outcome === "voicemail") {
+          const stopNow = result.outcome === "ivr_only" || (result.outcome === "voicemail" && !call.leaveVoicemail);
+          if (stopNow) {
             void hangupOutboundCall(call).then(() => stopForMachine());
             return;
           }
@@ -1369,12 +1501,15 @@ export function attachPeakOutboundStream(app: Express): void {
     });
 
     ws.on("close", () => {
+      clearSilence();
       try { xaiWs.close(); } catch { /* ignore */ }
     });
     xaiWs.on("close", () => {
+      clearSilence();
       try { ws.close(); } catch { /* ignore */ }
     });
     xaiWs.on("error", () => {
+      clearSilence();
       try { ws.close(); } catch { /* ignore */ }
     });
   });
