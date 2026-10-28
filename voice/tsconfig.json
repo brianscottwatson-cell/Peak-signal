@@ -9,6 +9,6 @@
     "skipLibCheck": true,
     "types": ["node"]
   },
-  "include": ["voice-ara.ts", "brotli-guard.ts", "peak/peak-prompt.ts", "peak/peak-forward.ts", "peak/peak-outbound.ts"],
+  "include": ["voice-ara.ts", "brotli-guard.ts", "peak/peak-prompt.ts", "peak/peak-forward.ts", "peak/peak-phone.ts", "peak/peak-identity.ts", "peak/peak-quote.ts", "peak/peak-outbound.ts"],
   "exclude": ["**/*.test.ts"]
 }

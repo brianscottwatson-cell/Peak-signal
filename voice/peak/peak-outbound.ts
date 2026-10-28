@@ -2,6 +2,11 @@
  * Peak Signal outbound voice — one manual Twilio call per authenticated request.
  * Mounted at POST /api/voice/outbound. Off unless PEAK_OUTBOUND_ENABLED=1.
  *
+ * mode "book" (the default) places today's booking call. mode "quote" asks a
+ * business for rates. Quote calls need an allowlist entry and a one-time
+ * approval token. Both modes refuse PEAK_OUTBOUND_DNC. The flag still hides
+ * every route, including approvals, when it is not 1.
+ *
  * The From number is PEAK_OUTBOUND_FROM. Inbound voice mode is left alone.
  * This file does not redial, queue, or retry.
  *
@@ -10,6 +15,8 @@
  * PEAK_OUTBOUND_FROM                US E.164 Twilio line
  * PEAK_OUTBOUND_PER_MINUTE          default 1, rolling 60 seconds
  * PEAK_OUTBOUND_PER_DAY             default 10, rolling 24 hours
+ * PEAK_OUTBOUND_DNC                 optional, both modes, US E.164 list
+ * Quote env (allowlist, cap, callback, identity, approval TTL, voicemail): peak-quote.ts
  * TWILIO_ACCOUNT_SID / TWILIO_AUTH_TOKEN
  * XAI_API_KEY                       existing Grok realtime key
  * HOSTNAME                          public host Twilio can reach
@@ -22,6 +29,41 @@ import { installBrotliMitigation, rejectBrotliContentEncoding, SAFE_ACCEPT_ENCOD
 import WebSocket from "ws";
 import { emptyTwiml, hangupTwiml } from "./peak-forward";
 import { peakVoiceName } from "./peak-prompt";
+import { isUsE164 } from "./peak-phone";
+import {
+  blankQuote,
+  buildQuoteEmail,
+  buildQuoteGreeting,
+  buildQuoteInstructions,
+  callbackPolicy,
+  captureQuote,
+  captureQuoteNotes,
+  confirmApproval,
+  consumeApproval,
+  dncDecision,
+  initialQuoteTurn,
+  leaveVoicemailEnabled,
+  logApprovalEvent,
+  normalizeQuoteOutcome,
+  parseApprovalRequest,
+  parseQuoteRequest,
+  peekApproval,
+  previewApproval,
+  quoteAllowlistDecision,
+  QUOTE_SILENCE_MS,
+  quoteTimeLimitSec,
+  quoteTools,
+  reduceQuoteTurn,
+  requestMode,
+  resetApprovalsForTest,
+  resolveIdentity,
+  type QuoteCapture,
+  type QuoteOutcome,
+  type QuoteTurnEffect,
+  type QuoteTurnState,
+} from "./peak-quote";
+
+export { isUsE164 };
 
 installBrotliMitigation(typeof __filename === "string" ? __filename : undefined);
 
@@ -36,6 +78,7 @@ const DEFAULT_PER_DAY = 10;
 
 export const OUTCOMES = ["booked", "alternate offered", "declined", "voicemail", "no answer"] as const;
 export type OutboundOutcome = (typeof OUTCOMES)[number];
+export type StoredOutcome = OutboundOutcome | QuoteOutcome;
 
 export type OutboundRequest = {
   toNumber: string;
@@ -56,7 +99,7 @@ type OutboundCall = {
   alternatesWindow: string;
   callbackName: string;
   callSid: string;
-  outcome: OutboundOutcome | "";
+  outcome: StoredOutcome | "";
   details: string;
   detection: string;
   recordingUrl: string;
@@ -69,6 +112,21 @@ type OutboundCall = {
   hangupSent: boolean;
   callerText: string;
   hangupTimer: ReturnType<typeof setTimeout> | null;
+  mode: "book" | "quote";
+  identityId: string;
+  identityBusiness: string;
+  identityContacts: string;
+  quote: QuoteCapture;
+  lineType: string;
+  lineWarning: string;
+  callbackNumber: string;
+  mentionMainLine: boolean;
+  callbackSpoken: string;
+  approvalId: string;
+  approvedBy: string;
+  theirWords: string;
+  promised: string;
+  leaveVoicemail: boolean;
 };
 
 type XaiEvent = {
@@ -88,7 +146,6 @@ let hitSeq = 0;
 let nowFn: () => number = () => Date.now();
 
 const FIRST_NAME = /^[A-Za-z][A-Za-z'’-]{0,39}$/;
-const US_E164 = /^\+1[2-9]\d{2}[2-9]\d{6}$/;
 const TERMINAL_STATUSES = new Set(["completed", "no-answer", "busy", "failed", "canceled"]);
 
 const VOICEMAIL_CUES = [
@@ -172,16 +229,6 @@ export function authorizeOutbound(providedRaw: string, expectedRaw: string): boo
   const match = secretsMatch(capped, expected);
   if (!expected) return false;
   return match;
-}
-
-/** US NANP E.164. Area code and exchange cannot start with 0 or 1. N11 codes are rejected. */
-export function isUsE164(raw: string): boolean {
-  const value = String(raw || "").trim();
-  if (!US_E164.test(value)) return false;
-  const area = value.slice(2, 5);
-  const exchange = value.slice(5, 8);
-  if (area.endsWith("11") || exchange.endsWith("11")) return false;
-  return true;
 }
 
 export function containsPersonalData(text: string): boolean {
@@ -399,14 +446,118 @@ Spoken word only. No markdown, no lists, no emojis. One or two short sentences. 
 `;
 }
 
-export function outboundSessionFor(callSid: string): { instructions: string; voice: string; greeting: string; tools: typeof outboundTools } | null {
+export function outboundSessionFor(callSid: string): {
+  instructions: string;
+  voice: string;
+  greeting: string;
+  tools: ReadonlyArray<{ type: string; name: string; description: string; parameters: object }>;
+} | null {
   const call = bySid.get(callSid);
   if (!call) return null;
+  if (call.mode === "quote") {
+    return {
+      instructions: buildQuoteInstructions({
+        business: call.identityBusiness,
+        contacts: call.identityContacts,
+        task: call.task,
+        callbackSpoken: call.callbackSpoken,
+        leaveVoicemail: call.leaveVoicemail,
+      }),
+      voice: peakVoiceName(),
+      greeting: buildQuoteGreeting(call.identityContacts, call.identityBusiness, call.task),
+      tools: quoteTools,
+    };
+  }
   return {
     instructions: buildOutboundInstructions(call),
     voice: peakVoiceName(),
     greeting: buildOutboundGreeting(call),
     tools: outboundTools,
+  };
+}
+
+function newOutboundCall(fields: {
+  to: string;
+  from: string;
+  businessName: string;
+  task: string;
+  alternatesWindow: string;
+  callbackName: string;
+  mode: "book" | "quote";
+  identityId?: string;
+  identityBusiness?: string;
+  identityContacts?: string;
+  lineType?: string;
+  lineWarning?: string;
+  callbackNumber?: string;
+  mentionMainLine?: boolean;
+  callbackSpoken?: string;
+  approvalId?: string;
+  approvedBy?: string;
+  leaveVoicemail?: boolean;
+}): OutboundCall {
+  return {
+    token: crypto.randomBytes(32).toString("hex"),
+    to: fields.to,
+    from: fields.from,
+    businessName: fields.businessName,
+    task: fields.task,
+    alternatesWindow: fields.alternatesWindow,
+    callbackName: fields.callbackName,
+    callSid: "",
+    outcome: "",
+    details: "",
+    detection: "",
+    recordingUrl: "",
+    recordingStarted: false,
+    emailed: false,
+    emailStarted: false,
+    terminal: false,
+    humanConnected: false,
+    machine: false,
+    hangupSent: false,
+    callerText: "",
+    hangupTimer: null,
+    mode: fields.mode,
+    identityId: fields.identityId || "",
+    identityBusiness: fields.identityBusiness || "",
+    identityContacts: fields.identityContacts || "",
+    quote: blankQuote(),
+    lineType: fields.lineType || "",
+    lineWarning: fields.lineWarning || "",
+    callbackNumber: fields.callbackNumber || "",
+    mentionMainLine: fields.mentionMainLine === true,
+    callbackSpoken: fields.callbackSpoken || "",
+    approvalId: fields.approvalId || "",
+    approvedBy: fields.approvedBy || "",
+    theirWords: "not provided",
+    promised: "not provided",
+    leaveVoicemail: fields.leaveVoicemail === true,
+  };
+}
+
+function gateJson(req: Request, res: Response): boolean {
+  if (!outboundEnabled()) {
+    res.status(404).json({ error: "not_found" });
+    return false;
+  }
+  const header = String(req.get(OUTBOUND_SECRET_HEADER) || "");
+  if (!authorizeOutbound(header, String(process.env.PEAK_OUTBOUND_SECRET || ""))) {
+    res.status(401).json({ error: "unauthorized" });
+    return false;
+  }
+  const contentType = String(req.headers["content-type"] || "");
+  if (!contentType.includes("application/json")) {
+    res.status(400).json({ error: "invalid_json" });
+    return false;
+  }
+  return true;
+}
+
+function lookupCreds(): { account: string; token: string } {
+  return {
+    account: String(process.env.TWILIO_ACCOUNT_SID || "").trim(),
+    token: String(process.env.TWILIO_AUTH_TOKEN || "").trim(),
   };
 }
 
@@ -424,7 +575,7 @@ function forgetCall(call: OutboundCall): void {
   if (call.hangupTimer) clearTimeout(call.hangupTimer);
 }
 
-function setOutcome(call: OutboundCall, outcome: OutboundOutcome, details?: string, detection?: string): boolean {
+function setOutcome(call: OutboundCall, outcome: StoredOutcome, details?: string, detection?: string): boolean {
   if (call.outcome) return false;
   call.outcome = outcome;
   if (details) call.details = redactPersonalData(details).slice(0, 500);
@@ -435,9 +586,10 @@ function setOutcome(call: OutboundCall, outcome: OutboundOutcome, details?: stri
 export function applyOutboundReport(
   callSid: string,
   raw: { outcome?: unknown; details?: unknown },
-): { ok: boolean; outcome: OutboundOutcome | ""; error?: string } {
+): { ok: boolean; outcome: StoredOutcome | ""; error?: string } {
   const call = bySid.get(callSid);
   if (!call) return { ok: false, outcome: "", error: "unknown_call" };
+  if (call.mode !== "book") return { ok: false, outcome: call.outcome, error: "wrong_mode" };
   const outcome = normalizeOutcome(raw.outcome);
   if (!outcome || outcome === "no answer") return { ok: false, outcome: call.outcome, error: "invalid_outcome" };
   const details = typeof raw.details === "string" ? redactPersonalData(raw.details) : "";
@@ -446,10 +598,30 @@ export function applyOutboundReport(
   return { ok: true, outcome: call.outcome };
 }
 
+export function applyQuoteReport(
+  callSid: string,
+  raw: unknown,
+): { ok: boolean; outcome: StoredOutcome | ""; error?: string } {
+  const call = bySid.get(callSid);
+  if (!call) return { ok: false, outcome: "", error: "unknown_call" };
+  if (call.mode !== "quote") return { ok: false, outcome: call.outcome, error: "wrong_mode" };
+  if (call.outcome) return { ok: true, outcome: call.outcome };
+  const outcome = normalizeQuoteOutcome(raw);
+  if (!outcome) return { ok: false, outcome: "", error: "invalid_outcome" };
+  call.quote = captureQuote(raw, redactPersonalData);
+  const notes = captureQuoteNotes(raw, redactPersonalData);
+  call.theirWords = notes.theirWords;
+  call.promised = notes.promised;
+  if (outcome === "voicemail" || outcome === "ivr_only") call.machine = true;
+  const detection = outcome === "ivr_only" ? "ivr" : outcome === "voicemail" ? call.detection || "voicemail" : "";
+  setOutcome(call, outcome, "", detection);
+  return { ok: true, outcome: call.outcome };
+}
+
 export async function handleOutboundCallerLine(
   callSid: string,
   text: string,
-): Promise<{ hangup: boolean; outcome: OutboundOutcome | "" }> {
+): Promise<{ hangup: boolean; outcome: StoredOutcome | "" }> {
   const call = bySid.get(callSid);
   if (!call) return { hangup: false, outcome: "" };
   const line = String(text || "").trim().slice(0, 500);
@@ -458,13 +630,42 @@ export async function handleOutboundCallerLine(
   const heard = looksLikeMachineOrIvr(line) || looksLikeMachineOrIvr(call.callerText);
   if (!heard) return { hangup: false, outcome: "" };
   const ivr = looksLikeIvr(line) || looksLikeIvr(call.callerText);
+  const voicemail = looksLikeVoicemail(line) || looksLikeVoicemail(call.callerText);
   call.machine = true;
+  if (call.mode === "quote" && ivr && !voicemail) {
+    setOutcome(call, "ivr_only", "", "ivr");
+    await hangupOutboundCall(call);
+    return { hangup: true, outcome: "ivr_only" };
+  }
   setOutcome(call, "voicemail", "", ivr ? "ivr" : "voicemail greeting");
   await hangupOutboundCall(call);
   return { hangup: true, outcome: "voicemail" };
 }
 
 export function buildOutboundEmail(call: OutboundCall): string {
+  if (call.mode === "quote") {
+    return buildQuoteEmail({
+      inbox: OUTBOUND_INBOX,
+      outcome: call.outcome || "no answer",
+      identityBusiness: call.identityBusiness,
+      identityContacts: call.identityContacts,
+      businessName: call.businessName,
+      task: call.task,
+      to: call.to,
+      lineType: call.lineType,
+      lineWarning: call.lineWarning,
+      callbackNumber: call.callbackNumber,
+      mentionMainLine: call.mentionMainLine,
+      approvedBy: call.approvedBy,
+      approvalId: call.approvalId,
+      quote: call.quote,
+      theirWords: call.theirWords,
+      promised: call.promised,
+      detection: call.detection,
+      recordingUrl: call.recordingUrl,
+      callSid: call.callSid,
+    });
+  }
   return [
     "Peak Signal outbound call",
     `Inbox: ${OUTBOUND_INBOX}`,
@@ -485,12 +686,13 @@ async function sendOutcomeEmail(call: OutboundCall): Promise<void> {
   if (!call.callSid || call.emailed || emailedSids.has(call.callSid)) return;
   call.emailed = true;
   const outcome = call.outcome || "no answer";
+  const quote = call.mode === "quote";
   // Same Peak form as inbound voice. That form notifies hello.peaksignal@gmail.com.
   const payload: Record<string, string> = {
-    _subject: `Peak outbound — ${call.businessName} — ${outcome}`,
+    _subject: quote ? `Peak outbound quote — ${call.businessName} — ${outcome}` : `Peak outbound — ${call.businessName} — ${outcome}`,
     message: buildOutboundEmail(call),
     email: OUTBOUND_INBOX,
-    name: `${call.callbackName}'s assistant`,
+    name: quote ? `${call.identityBusiness} AI assistant` : `${call.callbackName}'s assistant`,
     phone: call.to,
     interest: "outbound-voice",
   };
@@ -538,7 +740,7 @@ function classifyEmpty(call: OutboundCall, callStatus: string): void {
   }
   const status = callStatus.toLowerCase();
   if (status === "completed" && call.humanConnected) {
-    setOutcome(call, "declined", "(no confirmation)");
+    setOutcome(call, "declined", call.mode === "quote" ? "(no quote)" : "(no confirmation)");
     return;
   }
   setOutcome(call, "no answer");
@@ -656,7 +858,12 @@ function formField(req: Request, name: string): string {
   return value == null ? "" : String(value);
 }
 
-async function dialTwilio(call: OutboundCall, account: string, token: string): Promise<{ ok: true; sid: string } | { ok: false; status: number }> {
+async function dialTwilio(
+  call: OutboundCall,
+  account: string,
+  token: string,
+  timeLimitSec: string,
+): Promise<{ ok: true; sid: string } | { ok: false; status: number }> {
   const host = publicHost();
   const tokenQ = encodeURIComponent(call.token);
   const body = new URLSearchParams({
@@ -668,7 +875,7 @@ async function dialTwilio(call: OutboundCall, account: string, token: string): P
     MachineDetectionTimeout: "30",
     StatusCallback: `https://${host}/api/voice/outbound/status?token=${tokenQ}`,
     StatusCallbackMethod: "POST",
-    TimeLimit: OUTBOUND_TIME_LIMIT_SEC,
+    TimeLimit: timeLimitSec,
   });
   body.append("StatusCallbackEvent", "initiated");
   body.append("StatusCallbackEvent", "ringing");
@@ -696,23 +903,24 @@ async function dialTwilio(call: OutboundCall, account: string, token: string): P
 }
 
 async function createOutboundCall(req: Request, res: Response): Promise<void> {
-  if (!outboundEnabled()) {
-    res.status(404).json({ error: "not_found" });
+  if (!gateJson(req, res)) return;
+  const mode = requestMode(req.body);
+  if (mode === "invalid") {
+    res.status(400).json({ error: "invalid_mode" });
     return;
   }
-  const header = String(req.get(OUTBOUND_SECRET_HEADER) || "");
-  if (!authorizeOutbound(header, String(process.env.PEAK_OUTBOUND_SECRET || ""))) {
-    res.status(401).json({ error: "unauthorized" });
-    return;
-  }
-  const contentType = String(req.headers["content-type"] || "");
-  if (!contentType.includes("application/json")) {
-    res.status(400).json({ error: "invalid_json" });
+  if (mode === "quote") {
+    await createQuoteCall(req, res);
     return;
   }
   const parsed = parseOutboundRequest(req.body);
   if (!parsed.ok) {
     res.status(400).json({ error: parsed.error });
+    return;
+  }
+  const blocked = dncDecision(parsed.value.toNumber);
+  if (!blocked.ok) {
+    res.status(403).json({ error: blocked.error });
     return;
   }
   const config = twilioConfig();
@@ -731,32 +939,18 @@ async function createOutboundCall(req: Request, res: Response): Promise<void> {
     res.status(429).json({ error: "rate_limit", limit: slot.limit });
     return;
   }
-  const call: OutboundCall = {
-    token: crypto.randomBytes(32).toString("hex"),
+  const call = newOutboundCall({
     to: parsed.value.toNumber,
     from: config.from,
     businessName: parsed.value.businessName,
     task: parsed.value.task,
     alternatesWindow: parsed.value.alternatesWindow,
     callbackName: parsed.value.callbackName,
-    callSid: "",
-    outcome: "",
-    details: "",
-    detection: "",
-    recordingUrl: "",
-    recordingStarted: false,
-    emailed: false,
-    emailStarted: false,
-    terminal: false,
-    humanConnected: false,
-    machine: false,
-    hangupSent: false,
-    callerText: "",
-    hangupTimer: null,
-  };
+    mode: "book",
+  });
   byToken.set(call.token, call);
   try {
-    const dialed = await dialTwilio(call, config.account, config.token);
+    const dialed = await dialTwilio(call, config.account, config.token, OUTBOUND_TIME_LIMIT_SEC);
     if (!dialed.ok) {
       releaseSlot(slot.id);
       forgetCall(call);
@@ -773,6 +967,187 @@ async function createOutboundCall(req: Request, res: Response): Promise<void> {
     console.error("outbound dial error", err instanceof Error ? err.message : "error");
     if (!res.headersSent) res.status(502).json({ error: "call_failed" });
   }
+}
+
+async function createQuoteCall(req: Request, res: Response): Promise<void> {
+  const parsed = parseQuoteRequest(req.body, containsPersonalData);
+  if (!parsed.ok) {
+    res.status(400).json({ error: parsed.error });
+    return;
+  }
+  const identity = resolveIdentity(parsed.value.identityId);
+  if (!identity.ok) {
+    res.status(400).json({ error: identity.error });
+    return;
+  }
+  const blocked = dncDecision(parsed.value.toNumber);
+  if (!blocked.ok) {
+    res.status(403).json({ error: blocked.error });
+    return;
+  }
+  const allowed = quoteAllowlistDecision(parsed.value.toNumber);
+  if (!allowed.ok) {
+    res.status(403).json({ error: allowed.error });
+    return;
+  }
+  const config = twilioConfig();
+  if (!config) {
+    res.status(503).json({ error: "not_configured" });
+    return;
+  }
+  if (parsed.value.toNumber === config.from) {
+    res.status(400).json({ error: "same_number" });
+    return;
+  }
+  const now = nowFn();
+  const peeked = peekApproval(
+    parsed.value.approvalToken,
+    {
+      toNumber: parsed.value.toNumber,
+      businessName: parsed.value.businessName,
+      task: parsed.value.task,
+      identity: identity.identity,
+      capSec: quoteTimeLimitSec(),
+      leaveVoicemail: leaveVoicemailEnabled(),
+    },
+    now,
+    secretsMatch,
+  );
+  if (!peeked.ok) {
+    logApprovalEvent(
+      "rejected",
+      { id: peeked.id, to: parsed.value.toNumber, by: peeked.approvedBy, lineType: peeked.lineType, reason: peeked.error },
+      now,
+    );
+    res.status(400).json({ error: peeked.error });
+    return;
+  }
+  if (peeked.risky && !parsed.value.acceptLineWarning) {
+    logApprovalEvent(
+      "rejected",
+      { id: peeked.id, to: parsed.value.toNumber, by: peeked.approvedBy, lineType: peeked.lineType, reason: "line_warning_required" },
+      now,
+    );
+    res.status(409).json({ error: "line_warning_required", line_type: peeked.lineType, warning: peeked.warning });
+    return;
+  }
+  const limits = outboundLimits();
+  const slot = tryReserveOutboundSlot(now, limits.perMinute, limits.perDay);
+  if (!slot.ok) {
+    res.setHeader("Retry-After", String(slot.retryAfterSec));
+    res.status(429).json({ error: "rate_limit", limit: slot.limit });
+    return;
+  }
+  const used = consumeApproval(peeked.id, now);
+  if (!used) {
+    releaseSlot(slot.id);
+    logApprovalEvent(
+      "rejected",
+      { id: peeked.id, to: parsed.value.toNumber, by: peeked.approvedBy, lineType: peeked.lineType, reason: "approval_used" },
+      now,
+    );
+    res.status(400).json({ error: "approval_used" });
+    return;
+  }
+  const policy = callbackPolicy();
+  const call = newOutboundCall({
+    to: parsed.value.toNumber,
+    from: config.from,
+    businessName: parsed.value.businessName,
+    task: parsed.value.task,
+    alternatesWindow: "",
+    callbackName: "",
+    mode: "quote",
+    identityId: identity.identity.id,
+    identityBusiness: identity.identity.business,
+    identityContacts: identity.identity.contacts,
+    lineType: used.lineType,
+    lineWarning: used.warning,
+    callbackNumber: policy.number,
+    mentionMainLine: policy.mentionMainLine,
+    callbackSpoken: policy.spoken,
+    approvalId: used.id,
+    approvedBy: used.approvedBy,
+    leaveVoicemail: leaveVoicemailEnabled(),
+  });
+  byToken.set(call.token, call);
+  try {
+    const dialed = await dialTwilio(call, config.account, config.token, String(quoteTimeLimitSec()));
+    if (!dialed.ok) {
+      releaseSlot(slot.id);
+      forgetCall(call);
+      console.error("outbound dial failed", dialed.status);
+      res.status(502).json({ error: "call_failed" });
+      return;
+    }
+    bindSid(call, dialed.sid);
+    res.setHeader("Cache-Control", "no-store");
+    res.status(200).json({
+      ok: true,
+      call_sid: dialed.sid,
+      to_number: call.to,
+      mode: "quote",
+      line_type: call.lineType,
+      warning: call.lineWarning,
+    });
+  } catch (err) {
+    releaseSlot(slot.id);
+    forgetCall(call);
+    console.error("outbound dial error", err instanceof Error ? err.message : "error");
+    if (!res.headersSent) res.status(502).json({ error: "call_failed" });
+  }
+}
+
+async function createApproval(req: Request, res: Response): Promise<void> {
+  if (!gateJson(req, res)) return;
+  const parsed = parseApprovalRequest(req.body, containsPersonalData);
+  if (!parsed.ok) {
+    res.status(400).json({ error: parsed.error });
+    return;
+  }
+  if (!parsed.value.confirmPlan) {
+    const creds = lookupCreds();
+    const preview = await previewApproval({
+      value: parsed.value,
+      nowMs: nowFn(),
+      account: creds.account,
+      authToken: creds.token,
+    });
+    if (!preview.ok) {
+      const status = preview.error === "do_not_call" || preview.error === "not_allowlisted" ? 403 : 400;
+      res.status(status).json({ error: preview.error });
+      return;
+    }
+    res.setHeader("Cache-Control", "no-store");
+    res.status(200).json({
+      ok: true,
+      plan_id: preview.planId,
+      plan: preview.plan,
+      expires_at: preview.expiresAt,
+      to_number: preview.toNumber,
+      line_type: preview.lineType,
+      warning: preview.warning,
+      risky: preview.risky,
+    });
+    return;
+  }
+  const issued = confirmApproval({ value: parsed.value, nowMs: nowFn() });
+  if (!issued.ok) {
+    res.status(400).json({ error: issued.error });
+    return;
+  }
+  res.setHeader("Cache-Control", "no-store");
+  res.status(200).json({
+    ok: true,
+    approval_token: issued.token,
+    approval_id: issued.id,
+    expires_at: issued.expiresAt,
+    to_number: issued.toNumber,
+    line_type: issued.lineType,
+    warning: issued.warning,
+    risky: issued.risky,
+    plan: issued.plan,
+  });
 }
 
 function readJson(req: Request, res: Response, next: NextFunction): void {
@@ -805,6 +1180,14 @@ peakOutboundRouter.use(express.urlencoded({ extended: false }));
 peakOutboundRouter.post("/", enabledJson, (req: Request, res: Response) => {
   void createOutboundCall(req, res).catch((err) => {
     console.error("outbound create failed", err instanceof Error ? err.message : "error");
+    if (!res.headersSent) res.status(500).json({ error: "error" });
+  });
+});
+
+/** One-time quote approval. Same secret and the same off switch as the dial. */
+peakOutboundRouter.post("/approvals", enabledJson, (req: Request, res: Response) => {
+  void createApproval(req, res).catch((err) => {
+    console.error("outbound approval failed", err instanceof Error ? err.message : "error");
     if (!res.headersSent) res.status(500).json({ error: "error" });
   });
 });
@@ -902,6 +1285,9 @@ export function attachPeakOutboundStream(app: Express): void {
     let stopped = false;
     let agentSpeaking = false;
     let muteUntil = 0;
+    const quoteMode = call.mode === "quote";
+    let quoteTurn: QuoteTurnState = initialQuoteTurn();
+    let silenceTimer: ReturnType<typeof setTimeout> | null = null;
     const session = outboundSessionFor(callId);
     if (!session) {
       ws.close();
@@ -911,8 +1297,45 @@ export function attachPeakOutboundStream(app: Express): void {
       headers: { Authorization: `Bearer ${key}` },
     });
 
+    const clearSilence = () => {
+      if (silenceTimer) clearTimeout(silenceTimer);
+      silenceTimer = null;
+    };
+
+    const applyQuoteEffects = (effects: QuoteTurnEffect[]) => {
+      for (const effect of effects) {
+        if (effect.type === "speak") {
+          xaiWs.send(JSON.stringify({
+            type: "conversation.item.create",
+            item: {
+              type: "force_message",
+              role: "assistant",
+              interruptible: true,
+              content: [{ type: "output_text", text: effect.text }],
+            },
+          }));
+        } else if (effect.type === "interrupt" && streamSid) {
+          ws.send(JSON.stringify({ event: "clear", streamSid }));
+        }
+      }
+    };
+
+    const syncQuoteSilence = (armedAt: number | null) => {
+      clearSilence();
+      if (!quoteMode || armedAt == null || stopped) return;
+      const delay = Math.max(0, armedAt + QUOTE_SILENCE_MS - Date.now());
+      silenceTimer = setTimeout(() => {
+        silenceTimer = null;
+        if (stopped || xaiWs.readyState !== WebSocket.OPEN) return;
+        const reduced = reduceQuoteTurn(quoteTurn, { type: "tick", nowMs: Date.now() }, session.greeting);
+        quoteTurn = reduced.state;
+        applyQuoteEffects(reduced.effects);
+      }, delay);
+    };
+
     const stopForMachine = () => {
       stopped = true;
+      clearSilence();
       try { xaiWs.close(); } catch { /* ignore */ }
       try { ws.close(); } catch { /* ignore */ }
     };
@@ -932,9 +1355,10 @@ export function attachPeakOutboundStream(app: Express): void {
         void startOutboundRecording(call);
       } else if (msg.event === "media" && (msg.media?.track === "inbound" || !msg.media?.track)) {
         if (!sessionReady || xaiWs.readyState !== WebSocket.OPEN) return;
-        if (agentSpeaking || Date.now() < muteUntil) return;
+        if (!quoteMode && (agentSpeaking || Date.now() < muteUntil)) return;
         xaiWs.send(JSON.stringify({ type: "input_audio_buffer.append", audio: msg.media?.payload || "" }));
       } else if (msg.event === "stop") {
+        clearSilence();
         try { xaiWs.close(); } catch { /* ignore */ }
       }
     });
@@ -974,23 +1398,51 @@ export function attachPeakOutboundStream(app: Express): void {
         ws.send(JSON.stringify({ event: "media", streamSid, media: { payload: message.delta } }));
       } else if (message.type === "session.updated") {
         sessionReady = true;
-        xaiWs.send(JSON.stringify({
-          type: "conversation.item.create",
-          item: {
-            type: "force_message",
-            role: "assistant",
-            interruptible: false,
-            content: [{ type: "output_text", text: session.greeting }],
-          },
-        }));
+        if (quoteMode) {
+          const reduced = reduceQuoteTurn(quoteTurn, { type: "session_ready", nowMs: Date.now() }, session.greeting);
+          quoteTurn = reduced.state;
+          applyQuoteEffects(reduced.effects);
+          syncQuoteSilence(quoteTurn.silenceArmedAt);
+        } else {
+          xaiWs.send(JSON.stringify({
+            type: "conversation.item.create",
+            item: {
+              type: "force_message",
+              role: "assistant",
+              interruptible: false,
+              content: [{ type: "output_text", text: session.greeting }],
+            },
+          }));
+        }
       } else if (message.type === "input_audio_buffer.speech_started" && streamSid) {
-        if (agentSpeaking || Date.now() < muteUntil) return;
-        ws.send(JSON.stringify({ event: "clear", streamSid }));
+        if (quoteMode) {
+          const reduced = reduceQuoteTurn(quoteTurn, { type: "speech_started", nowMs: Date.now() }, session.greeting);
+          quoteTurn = reduced.state;
+          applyQuoteEffects(reduced.effects);
+          syncQuoteSilence(quoteTurn.silenceArmedAt);
+        } else if (agentSpeaking || Date.now() < muteUntil) {
+          return;
+        } else {
+          ws.send(JSON.stringify({ event: "clear", streamSid }));
+        }
+      } else if (message.type === "input_audio_buffer.speech_stopped" && quoteMode) {
+        const reduced = reduceQuoteTurn(quoteTurn, { type: "speech_stopped", nowMs: Date.now() }, session.greeting);
+        quoteTurn = reduced.state;
+        applyQuoteEffects(reduced.effects);
+        syncQuoteSilence(quoteTurn.silenceArmedAt);
       } else if (message.type === "conversation.item.input_audio_transcription.completed" && message.transcript) {
         const text = String(message.transcript).trim();
         if (!text) return;
         void handleOutboundCallerLine(call.callSid || callId, text).then((heard) => {
-          if (heard.hangup) stopForMachine();
+          if (heard.hangup) {
+            stopForMachine();
+            return;
+          }
+          if (!quoteMode || stopped) return;
+          const reduced = reduceQuoteTurn(quoteTurn, { type: "caller_speech", text, nowMs: Date.now() }, session.greeting);
+          quoteTurn = reduced.state;
+          applyQuoteEffects(reduced.effects);
+          syncQuoteSilence(quoteTurn.silenceArmedAt);
         });
       } else if (message.type === "response.done") {
         agentSpeaking = false;
@@ -998,11 +1450,27 @@ export function attachPeakOutboundStream(app: Express): void {
       } else if (message.type === "response.output_item.done" && message.item?.type === "function_call") {
         const name = message.item?.name || "";
         const toolCallId = message.item?.call_id || "";
-        let args: { outcome?: unknown; details?: unknown } = {};
+        let args: Record<string, unknown> = {};
         try {
-          args = JSON.parse(message.item?.arguments || "{}") as { outcome?: unknown; details?: unknown };
+          const parsed = JSON.parse(message.item?.arguments || "{}") as unknown;
+          args = parsed && typeof parsed === "object" && !Array.isArray(parsed) ? (parsed as Record<string, unknown>) : {};
         } catch {
           args = {};
+        }
+        if (name === "report_quote") {
+          const result = applyQuoteReport(call.callSid || callId, args);
+          xaiWs.send(JSON.stringify({
+            type: "conversation.item.create",
+            item: { type: "function_call_output", call_id: toolCallId, output: JSON.stringify({ ok: result.ok, outcome: result.outcome }) },
+          }));
+          const stopNow = result.outcome === "ivr_only" || (result.outcome === "voicemail" && !call.leaveVoicemail);
+          if (stopNow) {
+            void hangupOutboundCall(call).then(() => stopForMachine());
+            return;
+          }
+          xaiWs.send(JSON.stringify({ type: "response.create" }));
+          if (result.ok) scheduleHangup(call);
+          return;
         }
         if (name !== "report_outcome") {
           xaiWs.send(JSON.stringify({
@@ -1033,12 +1501,15 @@ export function attachPeakOutboundStream(app: Express): void {
     });
 
     ws.on("close", () => {
+      clearSilence();
       try { xaiWs.close(); } catch { /* ignore */ }
     });
     xaiWs.on("close", () => {
+      clearSilence();
       try { ws.close(); } catch { /* ignore */ }
     });
     xaiWs.on("error", () => {
+      clearSilence();
       try { ws.close(); } catch { /* ignore */ }
     });
   });
@@ -1061,4 +1532,5 @@ export function resetOutboundForTest(): void {
   dialHits.length = 0;
   emailedSids.clear();
   hitSeq = 0;
+  resetApprovalsForTest();
 }
