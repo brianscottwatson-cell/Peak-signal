@@ -3,7 +3,7 @@
  * SEO consistency for indexed static pages and landers.
  *
  * Pages:
- *   static-site/index.html, about.html, contact.html, privacy.html, terms.html
+ *   static-site/index.html, about.html, ai-deployments.html, contact.html, privacy.html, terms.html
  *   seo/landers/*.html
  *
  * Fails when:
@@ -31,7 +31,7 @@ const root = process.argv[2]
   ? resolve(process.argv[2])
   : join(dirname(fileURLToPath(import.meta.url)), "..");
 
-const STATIC_PAGES = ["index.html", "about.html", "contact.html", "privacy.html", "terms.html"];
+const STATIC_PAGES = ["index.html", "about.html", "ai-deployments.html", "contact.html", "privacy.html", "terms.html"];
 
 function main() {
   const allow = loadTitleAllowlist(root);

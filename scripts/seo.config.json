@@ -8,6 +8,9 @@
     // "<h1> | Peak Signal" would repeat the brand. This title names the town.
     "static-site/about.html": "About Peak Signal • Evergreen, Colorado",
 
+    // Solution page title names the offer and the role, then the brand.
+    "static-site/ai-deployments.html": "AI Deployments | Forward Deployed Engineer for Your Business | Peak Signal",
+
     // Published title uses a bullet, not a pipe.
     "static-site/contact.html": "Book a call • Peak Signal",
 

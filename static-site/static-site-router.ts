@@ -95,6 +95,14 @@ staticSiteRouter.get("/about", (_req: Request, res: Response) => {
 
 staticSiteRouter.get("/about.html", redirectClean("/about"));
 
+staticSiteRouter.get("/ai-deployments", (_req: Request, res: Response) => {
+  const html = load("ai-deployments.html");
+  if (!html) return res.status(404).type("text").send("ai-deployments missing");
+  res.type("html").send(html);
+});
+
+staticSiteRouter.get("/ai-deployments.html", redirectClean("/ai-deployments"));
+
 // Binary. Replit build.mjs must also copy src/static-site/images/cht-before-after.webp
 // to dist/static-site/images/cht-before-after.webp (the HTML copy glob does not).
 staticSiteRouter.get("/images/cht-before-after.webp", (_req: Request, res: Response) => {
