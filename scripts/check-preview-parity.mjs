@@ -37,6 +37,7 @@ const htmlPages = new Set([
   "/privacy",
   "/terms",
   "/about",
+  "/ai-deployments",
   "/ai-websites-evergreen-co",
   "/ai-automation-evergreen-colorado",
   "/ai-agents-small-business-evergreen",

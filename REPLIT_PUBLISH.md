@@ -4,7 +4,7 @@
 
 Copy the router files into the Replit app when you publish. The HTML files are not enough on their own: `static-site/static-site-router.ts` and `seo/seo-landers-router.ts` are what turn the duplicate `.html` URLs into 301s.
 
-- `GET /about` reads `about.html` and returns 200. `GET /about.html` 301s to `/about` and keeps the query string. The same split applies to `/`, `/contact`, `/privacy`, `/terms`, and the three SEO landers.
+- `GET /about` reads `about.html` and returns 200. `GET /about.html` 301s to `/about` and keeps the query string. The same split applies to `/`, `/ai-deployments`, `/contact`, `/privacy`, `/terms`, and the three SEO landers.
 - `GET /images/cht-before-after.webp` reads `images/cht-before-after.webp` and sends `image/webp`
 
 The router looks in `dist/static-site/` (among other candidates). An HTML-only copy leaves the image 404 on Autoscale.
@@ -32,6 +32,7 @@ The block below is the copy this repo's router expects, around the existing copi
 +  for (const name of [
 +    "index.html",
 +    "about.html",
++    "ai-deployments.html",
 +    "contact.html",
 +    "privacy.html",
 +    "terms.html",
@@ -51,7 +52,8 @@ If that build script copies with a glob such as `src/static-site/*.html` instead
 
 ```
 curl -sS -o /dev/null -w "%{http_code}\n" https://getpeaksignal.com/about
+curl -sS -o /dev/null -w "%{http_code}\n" https://getpeaksignal.com/ai-deployments
 curl -sS -o /dev/null -w "%{http_code}\n" https://getpeaksignal.com/images/cht-before-after.webp
 ```
 
-Both should print `200`.
+Each should print `200`. `ai-deployments.html` has to be in that filename list. A `*.html` glob would pick it up, but the explicit list will not. The router file `static-site/static-site-router.ts` also has to be the copy that serves `GET /ai-deployments` and 301s `GET /ai-deployments.html`. `seo/sitemap.xml` has to be the copy that lists the new URL. Homepage `index.html` is already on the list; publish the copy that links the new page.
