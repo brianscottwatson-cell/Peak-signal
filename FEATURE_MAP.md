@@ -74,6 +74,7 @@ Nav links are the anchors in the header `<nav>` (or the lander header nav). CTAs
   - Peak Signal → /
   - The System → /#system
   - Offers → /#offers
+  - AI Deployments → /ai-deployments
   - How it Works → /#how
   - Contact → /contact
   - Book a call → https://calendly.com/hello-peaksignal/30min
@@ -99,6 +100,7 @@ Nav links are the anchors in the header `<nav>` (or the lander header nav). CTAs
   - Peak Signal → /
   - The System → /#system
   - Offers → /#offers
+  - AI Deployments → /ai-deployments
   - How it Works → /#how
   - About → /about
   - Contact → /contact
@@ -127,7 +129,7 @@ Nav links are the anchors in the header `<nav>` (or the lander header nav). CTAs
   - Proof
   - Who does the work
   - FAQ
-  - Book a 30-minute call
+  - Start with a free scoping call
 - CTAs:
   - Book a call → https://calendly.com/hello-peaksignal/30min
   - Book a 30-minute call → https://calendly.com/hello-peaksignal/30min
@@ -180,6 +182,7 @@ Nav links are the anchors in the header `<nav>` (or the lander header nav). CTAs
   - Peak Signal → /
   - The System → /#system
   - Offers → /#offers
+  - AI Deployments → /ai-deployments
   - How it Works → /#how
   - Contact → /contact
   - Book a call → https://calendly.com/hello-peaksignal/30min
@@ -212,6 +215,7 @@ Nav links are the anchors in the header `<nav>` (or the lander header nav). CTAs
   - Peak Signal → /
   - The System → /#system
   - Offers → /#offers
+  - AI Deployments → /ai-deployments
   - How it Works → /#how
   - Contact → /contact
   - Book a call → https://calendly.com/hello-peaksignal/30min
