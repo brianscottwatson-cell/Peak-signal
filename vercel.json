@@ -4,6 +4,7 @@
   "redirects": [
     { "source": "/index.html", "destination": "/", "statusCode": 301 },
     { "source": "/about.html", "destination": "/about", "statusCode": 301 },
+    { "source": "/ai-deployments.html", "destination": "/ai-deployments", "statusCode": 301 },
     { "source": "/contact.html", "destination": "/contact", "statusCode": 301 },
     { "source": "/privacy.html", "destination": "/privacy", "statusCode": 301 },
     { "source": "/terms.html", "destination": "/terms", "statusCode": 301 },
@@ -23,6 +24,7 @@
     { "source": "/privacy", "destination": "/static-site/privacy.html" },
     { "source": "/terms", "destination": "/static-site/terms.html" },
     { "source": "/about", "destination": "/static-site/about.html" },
+    { "source": "/ai-deployments", "destination": "/static-site/ai-deployments.html" },
     { "source": "/robots.txt", "destination": "/static-site/robots.txt" },
     { "source": "/google166e848c42566a74.html", "destination": "/static-site/google166e848c42566a74.html" },
     { "source": "/images/cht-before-after.webp", "destination": "/static-site/images/cht-before-after.webp" },

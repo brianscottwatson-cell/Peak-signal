@@ -31,6 +31,7 @@ const routes = {
   "/privacy": "static-site/privacy.html",
   "/terms": "static-site/terms.html",
   "/about": "static-site/about.html",
+  "/ai-deployments": "static-site/ai-deployments.html",
   "/robots.txt": "static-site/robots.txt",
   "/google166e848c42566a74.html": "static-site/google166e848c42566a74.html",
   "/images/cht-before-after.webp": "static-site/images/cht-before-after.webp",
@@ -44,6 +45,7 @@ const routes = {
 const htmlRedirects = {
   "/index.html": "/",
   "/about.html": "/about",
+  "/ai-deployments.html": "/ai-deployments",
   "/contact.html": "/contact",
   "/privacy.html": "/privacy",
   "/terms.html": "/terms",
@@ -58,6 +60,7 @@ const publicPages = [
   "/privacy",
   "/terms",
   "/about",
+  "/ai-deployments",
   "/ai-websites-evergreen-co",
   "/ai-automation-evergreen-colorado",
   "/ai-agents-small-business-evergreen",

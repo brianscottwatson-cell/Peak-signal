@@ -26,6 +26,7 @@ Nav links are the anchors in the header `<nav>` (or the lander header nav). CTAs
   - Book a call → https://calendly.com/hello-peaksignal/30min
 - In-page links:
   - coloradohottubllc.com → https://coloradohottubllc.com/
+  - AI Deployments → /ai-deployments
   - privacy policy → /privacy
 - Forms: none
 - JSON-LD @types: ProfessionalService, Person, FAQPage
@@ -33,6 +34,7 @@ Nav links are the anchors in the header `<nav>` (or the lander header nav). CTAs
   - Peak Signal → /
   - The System → #system
   - Offers → #offers
+  - AI Deployments → /ai-deployments
   - How it Works → #how
   - About → /about
   - Contact → /contact
@@ -41,6 +43,7 @@ Nav links are the anchors in the header `<nav>` (or the lander header nav). CTAs
   - Evergreen → /ai-websites-evergreen-co
   - 970-660-5088 → tel:+19706605088
   - hello.peaksignal@gmail.com → mailto:hello.peaksignal@gmail.com
+  - AI Deployments → /ai-deployments
   - About → /about
   - Contact → /contact
   - Privacy → /privacy
@@ -104,6 +107,49 @@ Nav links are the anchors in the header `<nav>` (or the lander header nav). CTAs
   - Evergreen → /ai-websites-evergreen-co
   - 970-660-5088 → tel:+19706605088
   - hello.peaksignal@gmail.com → mailto:hello.peaksignal@gmail.com
+  - About → /about
+  - Contact → /contact
+  - Privacy → /privacy
+  - Terms → /terms
+
+## /ai-deployments
+
+- Route: /ai-deployments
+- Source file: static-site/ai-deployments.html
+- Purpose: AI implementation engagement. A free scoping call, a paid deep-dive assessment, then an embedded forward deployed engineer who sets up an AI operating system for a US company.
+- H1: AI Deployments
+- Key sections:
+  - What it is
+  - What the AI operating system is
+  - How an engagement runs
+  - What your team keeps
+  - Who it's for
+  - Proof
+  - Who does the work
+  - FAQ
+  - Book a 30-minute call
+- CTAs:
+  - Book a call → https://calendly.com/hello-peaksignal/30min
+  - Book a 30-minute call → https://calendly.com/hello-peaksignal/30min
+  - Request an assessment → /contact
+- In-page links:
+  - See the case study → /#case-study
+  - privacy policy → /privacy
+- Forms: none
+- JSON-LD @types: Service, FAQPage
+- Nav links:
+  - Peak Signal → /
+  - The System → /#system
+  - Offers → /#offers
+  - AI Deployments → /ai-deployments
+  - How it Works → /#how
+  - About → /about
+  - Contact → /contact
+  - Book a call → https://calendly.com/hello-peaksignal/30min
+- Footer links:
+  - 970-660-5088 → tel:+19706605088
+  - hello.peaksignal@gmail.com → mailto:hello.peaksignal@gmail.com
+  - AI Deployments → /ai-deployments
   - About → /about
   - Contact → /contact
   - Privacy → /privacy
@@ -233,6 +279,7 @@ Nav links are the anchors in the header `<nav>` (or the lander header nav). CTAs
   - Capture Evergreen → /ai-websites-evergreen-co
   - AI automation Evergreen → /ai-automation-evergreen-colorado
   - AI agents Evergreen → /ai-agents-small-business-evergreen
+  - AI Deployments → /ai-deployments
 - Forms: none
 - JSON-LD @types: ProfessionalService, Person
 - Nav links:
