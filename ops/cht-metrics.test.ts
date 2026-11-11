@@ -10,6 +10,7 @@ import express from "express";
 
 process.env.OPS_PASSWORD = "ops-test-password";
 delete process.env.CHT_METRICS_PATH;
+delete process.env.CHT_SKIMMER_PATH;
 
 function assert(cond: unknown, msg: string) {
   if (!cond) throw new Error(msg);
@@ -231,6 +232,136 @@ assert(broken.status === 500 && broken.body.error === "metrics unavailable", JSO
 delete process.env.CHT_METRICS_PATH;
 const restored = await getMetrics(`/ops/api/clients/${slug}/metrics`, cookie);
 assert(restored.body.rows[3].metrics.sc_impressions.value === 1802, "unset override returns the committed snapshot");
+
+const skimmerAnon = await getMetrics(`/ops/api/clients/${slug}/skimmer`);
+assert(skimmerAnon.status === 401, `skimmer anon ${skimmerAnon.status}`);
+
+const skimmerOther = await getMetrics("/ops/api/clients/peak-signal/skimmer", cookie);
+assert(skimmerOther.status === 200 && skimmerOther.body.connected === false, "other slug must not receive skimmer counts");
+assert(skimmerOther.body.rows.length === 0 && skimmerOther.body.snapshot === null, "other slug snapshot is empty");
+
+const skimmerPost = await fetch(`${base}/ops/api/clients/${slug}/skimmer`, {
+  method: "POST",
+  headers: { Cookie: cookie, "Content-Type": "application/json" },
+  body: "{}",
+});
+assert(skimmerPost.status === 404, `skimmer write route must not exist, got ${skimmerPost.status}`);
+
+const skim = await getMetrics(`/ops/api/clients/${slug}/skimmer`, cookie);
+assert(skim.status === 200 && skim.body.connected === true, JSON.stringify(skim.body).slice(0, 180));
+assert(skim.body.source === "Skimmer, read 2026-11-11", skim.body.source);
+assert(skim.body.captured_on === "2026-11-11", skim.body.captured_on);
+assert(skim.body.invoice_figures === "count", "invoice figures are counts");
+assert(!JSON.stringify(skim.body).includes("$"), "skimmer response must not include dollar amounts");
+const srows = skim.body.rows;
+assert(srows.map((r: any) => r.month).join() === "2026-08,2026-09,2026-10,2026-11", srows.map((r: any) => r.month).join());
+
+function parts(row: any): number {
+  return ["quotes_approved", "quotes_rejected", "quotes_sent_pending"]
+    .map((key) => cell(row, key).value)
+    .reduce((sum: number, n: number) => sum + n, 0);
+}
+
+const sAug = srows[0];
+assert(cell(sAug, "quotes_created").display === "6" && cell(sAug, "quotes_created").change === null, "august quotes have no prior month");
+assert(cell(sAug, "quotes_approved").display === "2", "august approved");
+assert(cell(sAug, "quotes_rejected").display === "3", "august rejected");
+assert(cell(sAug, "quotes_sent_pending").display === "1", "august sent-pending");
+assert(parts(sAug) === 6, "august quote parts sum to created");
+assert(cell(sAug, "finished_work_orders").display === "17" && cell(sAug, "finished_work_orders").change === null, "august finished");
+assert(cell(sAug, "invoices_issued").display === "48" && cell(sAug, "invoices_issued").change === null, "august invoices");
+
+const sSep = srows[1];
+assert(cell(sSep, "quotes_created").change === "+21 (+350%)", cell(sSep, "quotes_created").change);
+assert(cell(sSep, "quotes_approved").change === "+12 (+600%)", cell(sSep, "quotes_approved").change);
+assert(cell(sSep, "quotes_rejected").change === "+6 (+200%)", cell(sSep, "quotes_rejected").change);
+assert(cell(sSep, "quotes_sent_pending").change === "+3 (+300%)", cell(sSep, "quotes_sent_pending").change);
+assert(parts(sSep) === 27, "september quote parts sum to created");
+assert(cell(sSep, "finished_work_orders").change === "-5 (-29.4%)", cell(sSep, "finished_work_orders").change);
+assert(cell(sSep, "invoices_issued").change === "+8 (+16.7%)", cell(sSep, "invoices_issued").change);
+
+const sOct = srows[2];
+assert(cell(sOct, "quotes_created").change === "-15 (-55.6%)", cell(sOct, "quotes_created").change);
+assert(cell(sOct, "quotes_approved").change === "-5 (-35.7%)", cell(sOct, "quotes_approved").change);
+assert(cell(sOct, "quotes_rejected").display === "0" && cell(sOct, "quotes_rejected").change === "-9 (-100%)", cell(sOct, "quotes_rejected").change);
+assert(cell(sOct, "quotes_sent_pending").change === "-1 (-25%)", cell(sOct, "quotes_sent_pending").change);
+assert(parts(sOct) === 12, "october quote parts sum to created");
+assert(cell(sOct, "finished_work_orders").display === "25" && cell(sOct, "finished_work_orders").change === "+13 (+108.3%)", cell(sOct, "finished_work_orders").change);
+assert(cell(sOct, "invoices_issued").display === "58" && cell(sOct, "invoices_issued").change === "+2 (+3.6%)", cell(sOct, "invoices_issued").change);
+assert(sOct.partial === false && sOct.change_note === "", "october is a full month");
+
+const sNov = srows[3];
+assert(sNov.partial === true && sNov.partial_note === "Nov 1-11", sNov.partial_note);
+assert(sNov.change_note === "not compared", "november is not compared to october");
+assert(parts(sNov) === 6, "november quote parts sum to created");
+assert(cell(sNov, "quotes_created").display === "6" && cell(sNov, "quotes_created").change === null, "november quotes");
+assert(cell(sNov, "finished_work_orders").display === "9" && cell(sNov, "finished_work_orders").change === null, "november finished");
+assert(cell(sNov, "invoices_issued").display === "44" && cell(sNov, "invoices_issued").change === null, "november invoices");
+for (const key of ["quotes_created", "quotes_approved", "quotes_rejected", "quotes_sent_pending", "finished_work_orders", "invoices_issued"]) {
+  assert(cell(sNov, key).change === null, `partial ${key} must not be compared`);
+}
+
+const snap = skim.body.snapshot;
+assert(snap.open_work_orders.display === "5", "open work orders");
+assert(snap.active_customers.display === "131", "active customers");
+assert(snap.customers_on_routes.display === "36", "customers on routes");
+assert(snap.outstanding_invoices.display === "9" && snap.outstanding_invoices.change === null, "outstanding invoices are a count, not a change");
+
+const skimmerFixture = join(dir, "skimmer.json");
+writeFileSync(
+  skimmerFixture,
+  JSON.stringify({
+    source: "Skimmer, read 2026-11-11",
+    captured_on: "2026-11-11",
+    months: [
+      {
+        month: "2026-01",
+        partial: false,
+        quotes_created: null,
+        quotes_approved: 0,
+        quotes_rejected: null,
+        quotes_sent_pending: 1,
+        finished_work_orders: null,
+        invoices_issued: 0,
+      },
+      {
+        month: "2026-02",
+        partial: false,
+        quotes_created: 4,
+        quotes_approved: 0,
+        quotes_rejected: 2,
+        quotes_sent_pending: null,
+        finished_work_orders: 3,
+        invoices_issued: 5,
+      },
+    ],
+    snapshot: {
+      open_work_orders: null,
+      active_customers: 1,
+      customers_on_routes: null,
+      outstanding_invoices: 0,
+    },
+  }),
+);
+process.env.CHT_SKIMMER_PATH = skimmerFixture;
+const skimCustom = await getMetrics(`/ops/api/clients/${slug}/skimmer`, cookie);
+assert(skimCustom.status === 200, `skimmer fixture ${skimCustom.status}`);
+assert(cell(skimCustom.body.rows[0], "quotes_created").display === "not captured", "null quote count");
+assert(cell(skimCustom.body.rows[1], "quotes_created").change === null, "null previous hides quote change");
+assert(cell(skimCustom.body.rows[1], "quotes_sent_pending").display === "not captured", "null current sent-pending");
+assert(cell(skimCustom.body.rows[1], "invoices_issued").change === "+5", `zero invoice base shows absolute only, got ${cell(skimCustom.body.rows[1], "invoices_issued").change}`);
+assert(!String(cell(skimCustom.body.rows[1], "invoices_issued").change).includes("%"), "zero invoice base has no percent");
+assert(skimCustom.body.snapshot.open_work_orders.display === "not captured", "null open work orders");
+assert(skimCustom.body.snapshot.outstanding_invoices.display === "0", "zero outstanding invoices is a captured count");
+
+process.env.CHT_SKIMMER_PATH = join(dir, "skimmer-missing.json");
+const skimMissing = await getMetrics(`/ops/api/clients/${slug}/skimmer`, cookie);
+assert(skimMissing.status === 500 && skimMissing.body.error === "skimmer unavailable", JSON.stringify(skimMissing.body));
+assert(!JSON.stringify(skimMissing.body).includes(dir), "skimmer error must not echo the file path");
+
+delete process.env.CHT_SKIMMER_PATH;
+const skimRestored = await getMetrics(`/ops/api/clients/${slug}/skimmer`, cookie);
+assert(skimRestored.body.rows[2].metrics.invoices_issued.value === 58, "unset override returns the committed skimmer snapshot");
 
 server.close();
 console.log("cht-metrics tests ok");

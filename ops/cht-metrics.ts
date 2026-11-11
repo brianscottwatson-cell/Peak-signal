@@ -47,6 +47,25 @@ export type PresentedRow = {
   metrics: Record<MetricKey, PresentedMetric>;
 };
 
+export type CountRow<K extends string> = {
+  month: string;
+  partial: boolean;
+  partial_note: string;
+  source: string;
+  captured_on: string;
+  metrics: Record<K, number | null>;
+};
+
+export type PresentedCountRow<K extends string> = {
+  month: string;
+  partial: boolean;
+  partial_note: string;
+  source: string;
+  captured_on: string;
+  change_note: string;
+  metrics: Record<K, PresentedMetric>;
+};
+
 const MONTH = /^\d{4}-(0[1-9]|1[0-2])$/;
 const DAY = /^\d{4}-(0[1-9]|1[0-2])-(0[1-9]|[12]\d|3[01])$/;
 
@@ -120,7 +139,7 @@ export function formatMetricChange(current: number, previous: number): string {
   return `${absolute} (${pctText}%)`;
 }
 
-export function presentMetricRows(rows: MetricRow[]): PresentedRow[] {
+export function presentCountRows<K extends string>(rows: CountRow<K>[], keys: readonly K[]): PresentedCountRow<K>[] {
   const ordered = [...rows].sort((a, b) => a.month.localeCompare(b.month));
   return ordered.map((row, index) => {
     const prev = index > 0 ? ordered[index - 1] : undefined;
@@ -129,8 +148,8 @@ export function presentMetricRows(rows: MetricRow[]): PresentedRow[] {
     if (prev && blocked) {
       changeNote = row.partial ? "not compared" : "not compared — previous month is partial";
     }
-    const metrics = {} as Record<MetricKey, PresentedMetric>;
-    for (const key of METRIC_KEYS) {
+    const metrics = {} as Record<K, PresentedMetric>;
+    for (const key of keys) {
       const value = row.metrics[key];
       const previous = prev ? prev.metrics[key] : null;
       const change =
@@ -149,6 +168,10 @@ export function presentMetricRows(rows: MetricRow[]): PresentedRow[] {
       metrics,
     };
   });
+}
+
+export function presentMetricRows(rows: MetricRow[]): PresentedRow[] {
+  return presentCountRows(rows, METRIC_KEYS);
 }
 
 export function loadMetricRows(): MetricRow[] {

@@ -4,6 +4,7 @@
  * Reads client folders from brianscottwatson-cell/brain via GITHUB_TOKEN.
  * CHT call log reads voice/cht JSON store (data/cht-calls.json).
  * CHT Google metrics import ops/cht-metrics.json (bundled; read-only).
+ * CHT Skimmer counts import ops/cht-skimmer.json (bundled; read-only counts).
  * No Skimmer dollars. No secrets in responses. Owners are read-only.
  */
 import { Router, type Request, type Response, type NextFunction } from "express";
@@ -12,6 +13,7 @@ import { join } from "node:path";
 import crypto from "node:crypto";
 import { installBrotliMitigation, rejectBrotliContentEncoding, SAFE_ACCEPT_ENCODING } from "../voice/brotli-guard";
 import { loadMetricRows, presentMetricRows } from "./cht-metrics";
+import { loadSkimmer } from "./cht-skimmer";
 
 installBrotliMitigation(typeof __filename === "string" ? __filename : undefined);
 
@@ -30,7 +32,7 @@ const KNOWN: Record<string, Partial<ClientCard>> = {
   "colorado-hot-tub-llc": {
     name: "Colorado Hot Tub",
     status: "live",
-    blurb: "Owner harness: inbound call log and a monthly Google snapshot. No Skimmer dollars on this page.",
+    blurb: "Owner harness: inbound call log, a monthly Google snapshot, and Skimmer counts. No revenue on this page.",
   },
   "peak-signal": {
     name: "Peak Signal",
@@ -341,6 +343,35 @@ opsRouter.get("/api/clients/:slug/metrics", requireAuth, (req, res) => {
   }
 });
 
+opsRouter.get("/api/clients/:slug/skimmer", requireAuth, (req, res) => {
+  const slug = String(req.params.slug || "");
+  if (!slug || SKIP.has(slug) || /[^a-z0-9-]/.test(slug)) {
+    res.status(400).json({ ok: false, error: "bad slug" });
+    return;
+  }
+  if (slug !== CHT_SLUG) {
+    res.json({ ok: true, slug, connected: false, rows: [], snapshot: null });
+    return;
+  }
+  try {
+    const snap = loadSkimmer();
+    res.json({
+      ok: true,
+      slug,
+      connected: true,
+      source: snap.source,
+      captured_on: snap.captured_on,
+      invoice_figures: snap.invoice_figures,
+      rows: snap.rows,
+      snapshot: snap.snapshot,
+    });
+  } catch (e: unknown) {
+    const message = e instanceof Error ? e.message : String(e);
+    console.error("[ops] cht-skimmer read failed", message);
+    res.status(500).json({ ok: false, error: "skimmer unavailable" });
+  }
+});
+
 opsRouter.get("/api/clients/:slug", requireAuth, async (req, res) => {
   const slug = String(req.params.slug || "");
   if (!slug || SKIP.has(slug) || /[^a-z0-9-]/.test(slug)) {
@@ -368,7 +399,7 @@ opsRouter.get("/api/clients/:slug", requireAuth, async (req, res) => {
             { name: "Drive Client OS", state: "on", detail: "colorado-hot-tub-llc well. Peak publishes." },
             { name: "Site", state: "on", detail: "coloradohottubllc.com on Replit." },
             { name: "After-hours voice", state: "on", detail: "+1 720 780 0753 · cht-voice · call log below." },
-            { name: "Skimmer", state: "warn", detail: "Quotes live here. Browser session, not a plugin. No order feed on this page." },
+            { name: "Skimmer", state: "on", detail: "Counts on this page. Not a live connector. No revenue." },
             { name: "GBP", state: "on", detail: "Monthly snapshot on this page. Not a live connector." },
             { name: "Order feed", state: "off", detail: "KPI defined. No connector yet." },
           ]
