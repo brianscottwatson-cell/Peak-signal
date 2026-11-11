@@ -3,6 +3,7 @@
  * Mount at /ops (HTML) and /ops/api (JSON). Password via OPS_PASSWORD env.
  * Reads client folders from brianscottwatson-cell/brain via GITHUB_TOKEN.
  * CHT call log reads voice/cht JSON store (data/cht-calls.json).
+ * CHT Google metrics import ops/cht-metrics.json (bundled; read-only).
  * No Skimmer dollars. No secrets in responses. Owners are read-only.
  */
 import { Router, type Request, type Response, type NextFunction } from "express";
@@ -10,6 +11,7 @@ import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import crypto from "node:crypto";
 import { installBrotliMitigation, rejectBrotliContentEncoding, SAFE_ACCEPT_ENCODING } from "../voice/brotli-guard";
+import { loadMetricRows, presentMetricRows } from "./cht-metrics";
 
 installBrotliMitigation(typeof __filename === "string" ? __filename : undefined);
 
@@ -28,7 +30,7 @@ const KNOWN: Record<string, Partial<ClientCard>> = {
   "colorado-hot-tub-llc": {
     name: "Colorado Hot Tub",
     status: "live",
-    blurb: "Owner harness: inbound call log. No Skimmer dollars on this page.",
+    blurb: "Owner harness: inbound call log and a monthly Google snapshot. No Skimmer dollars on this page.",
   },
   "peak-signal": {
     name: "Peak Signal",
@@ -315,6 +317,30 @@ opsRouter.get("/api/clients/:slug/calls", requireAuth, (req, res) => {
   });
 });
 
+opsRouter.get("/api/clients/:slug/metrics", requireAuth, (req, res) => {
+  const slug = String(req.params.slug || "");
+  if (!slug || SKIP.has(slug) || /[^a-z0-9-]/.test(slug)) {
+    res.status(400).json({ ok: false, error: "bad slug" });
+    return;
+  }
+  if (slug !== CHT_SLUG) {
+    res.json({ ok: true, slug, connected: false, rows: [] });
+    return;
+  }
+  try {
+    res.json({
+      ok: true,
+      slug,
+      connected: true,
+      rows: presentMetricRows(loadMetricRows()),
+    });
+  } catch (e: unknown) {
+    const message = e instanceof Error ? e.message : String(e);
+    console.error("[ops] cht-metrics read failed", message);
+    res.status(500).json({ ok: false, error: "metrics unavailable" });
+  }
+});
+
 opsRouter.get("/api/clients/:slug", requireAuth, async (req, res) => {
   const slug = String(req.params.slug || "");
   if (!slug || SKIP.has(slug) || /[^a-z0-9-]/.test(slug)) {
@@ -343,7 +369,7 @@ opsRouter.get("/api/clients/:slug", requireAuth, async (req, res) => {
             { name: "Site", state: "on", detail: "coloradohottubllc.com on Replit." },
             { name: "After-hours voice", state: "on", detail: "+1 720 780 0753 · cht-voice · call log below." },
             { name: "Skimmer", state: "warn", detail: "Quotes live here. Browser session, not a plugin. No order feed on this page." },
-            { name: "GBP", state: "warn", detail: "Brian is a listing manager. Not a dashboard feed." },
+            { name: "GBP", state: "on", detail: "Monthly snapshot on this page. Not a live connector." },
             { name: "Order feed", state: "off", detail: "KPI defined. No connector yet." },
           ]
         : [

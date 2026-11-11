@@ -6,9 +6,10 @@ Password-gated dashboard at `/ops` on the Peak Signal Replit Autoscale app.
 - `OPS_PASSWORD` — required to unlock (also accepts `HARNESS_PASSWORD`)
 - `GITHUB_TOKEN` — read brain `clients/` (same secret as voice hangup)
 - `CHT_CALLS_PATH` — optional override for the CHT call JSON (default `<cwd>/data/cht-calls.json`)
+- `CHT_METRICS_PATH` — optional override for the Google metrics JSON. Leave unset in production so the bundled snapshot is used.
 
 ## Mount (api-server)
-1. Copy `ops-router.ts`, `ops.html`, `cht.html` into `artifacts/api-server/src/ops/`. Copy `voice/brotli-guard.ts` to `artifacts/api-server/src/voice/brotli-guard.ts` (`ops-router` imports `../voice/brotli-guard`).
+1. Copy `ops-router.ts`, `cht-metrics.ts`, `cht-metrics.json`, `json-modules.d.ts`, `ops.html`, and `cht.html` into `artifacts/api-server/src/ops/`. Copy `voice/brotli-guard.ts` to `artifacts/api-server/src/voice/brotli-guard.ts` (`ops-router` imports `../voice/brotli-guard`).
 2. Copy `voice/cht/cht-call-store.ts` (and `cht-phone.ts`) with cht-voice into `artifacts/api-server/src/cht/` (writer). Ops reads the JSON file directly.
 3. In routes: `import { opsRouter } from "./ops/ops-router"; app.use("/ops", opsRouter);`
 4. Ensure `express.json()` is on before the router
@@ -23,6 +24,16 @@ Password-gated dashboard at `/ops` on the Peak Signal Replit Autoscale app.
 - `GET /ops/api/clients` — brain folders
 - `GET /ops/api/clients/:slug` — notes/tasks/plugins from markdown
 - `GET /ops/api/clients/:slug/calls` — CHT inbound call log (auth required, read-only)
+- `GET /ops/api/clients/:slug/metrics` — CHT Google metrics snapshot (auth required, read-only). No write route.
+
+## Google metrics
+Committed rows live in `ops/cht-metrics.json` (one object per month; append a line to add a month). `ops/cht-metrics.ts` imports that file.
+
+Autoscale `artifacts/api-server/build.mjs` bundles `src/index.ts` with esbuild into `dist/index.mjs`, then copies only `ops.html` and `cht.html` into `dist/ops/`. It does not copy JSON. The import is what puts the rows in the bundle, so they load after `cd artifacts/api-server && pnpm run build` without a new `copyFileSync` line. Copy `cht-metrics.json` next to `ops-router.ts` under `src/ops/` before that build. `json-modules.d.ts` is what lets api-server `tsc` accept the JSON import (`resolveJsonModule` is off there).
+
+A runtime read of `data/cht-metrics.json` would miss in production: that path is not in the image. `data/cht-calls.json` is different — cht-voice writes it on the instance disk at runtime.
+
+Null metrics render as `not captured`. Month-over-month change is the absolute difference and the percent versus the previous month. Nothing is shown when either value is null, or when either month is `partial`. A move from 0 shows the absolute difference only. A partial month shows a Partial month label and `partial_note` (November 2026: `through Nov 10`).
 
 ## CHT call log
 cht-voice writes real Twilio calls only (`CA…` CallSid) to `data/cht-calls.json`.

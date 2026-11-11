@@ -1,0 +1,8 @@
+[
+  {"month":"2026-06","partial":false,"gbp_calls":null,"gbp_website_clicks":null,"gbp_directions":null,"gbp_interactions":103,"sc_clicks":null,"sc_impressions":null,"source":"GBP Performance read 2026-11-11","captured_on":"2026-11-11"},
+  {"month":"2026-07","partial":false,"gbp_calls":null,"gbp_website_clicks":null,"gbp_directions":null,"gbp_interactions":62,"sc_clicks":null,"sc_impressions":null,"source":"GBP Performance read 2026-11-11","captured_on":"2026-11-11"},
+  {"month":"2026-08","partial":false,"gbp_calls":22,"gbp_website_clicks":41,"gbp_directions":58,"gbp_interactions":121,"sc_clicks":null,"sc_impressions":null,"source":"GBP performance read 2026-10-26; Search Console export 2026-10-21","captured_on":"2026-10-26"},
+  {"month":"2026-09","partial":false,"gbp_calls":21,"gbp_website_clicks":47,"gbp_directions":41,"gbp_interactions":109,"sc_clicks":65,"sc_impressions":1802,"source":"GBP performance read 2026-10-26; Search Console export 2026-10-21","captured_on":"2026-10-26"},
+  {"month":"2026-10","partial":false,"gbp_calls":14,"gbp_website_clicks":49,"gbp_directions":40,"gbp_interactions":103,"sc_clicks":65,"sc_impressions":2680,"source":"GBP Performance read 2026-11-11; Search Console read 2026-11-11. Google displays impressions rounded as 2.68K.","captured_on":"2026-11-11"},
+  {"month":"2026-11","partial":true,"partial_note":"through Nov 10","gbp_calls":6,"gbp_website_clicks":13,"gbp_directions":12,"gbp_interactions":31,"sc_clicks":24,"sc_impressions":804,"source":"GBP Performance read 2026-11-11; Search Console Nov 1-11, data through about Nov 10.","captured_on":"2026-11-11"}
+]
