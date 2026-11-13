@@ -41,6 +41,10 @@
     table.calls a { color:var(--accent); }
     .empty { color:var(--muted); font-size:12.5px; margin:0; }
     .later { opacity:.85; }
+    .delta { display:block; margin-top:2px; font-size:11px; color:var(--muted); white-space:nowrap; }
+    .month-note { color:var(--muted); font-size:11px; margin-top:2px; }
+    .pill.partial { background:rgba(251,191,36,.12); color:var(--warn); display:inline-block; margin-top:4px; }
+    .subhead { margin-top:16px; }
   </style>
 </head>
 <body>
@@ -74,12 +78,80 @@
         </div>
         <p class="empty" id="calls-empty">No inbound calls stored yet.</p>
       </section>
+      <section class="card" id="metrics-card" hidden>
+        <p class="kicker">Google metrics</p>
+        <p class="hint">Monthly Google Business Profile and Search Console snapshot. Read-only. A missing capture says not captured. Change is versus the previous month, and is hidden when either side was not captured or either month is partial.</p>
+        <div class="table-wrap">
+          <table class="calls" id="metrics-table" hidden>
+            <thead>
+              <tr>
+                <th>Month</th>
+                <th>Calls</th>
+                <th>Web clicks</th>
+                <th>Directions</th>
+                <th>Interactions</th>
+                <th>Search clicks</th>
+                <th>Impressions</th>
+              </tr>
+            </thead>
+            <tbody id="metrics"></tbody>
+          </table>
+        </div>
+        <p class="empty" id="metrics-empty" hidden>No monthly metrics stored yet.</p>
+        <ul class="kb" id="metrics-notes"></ul>
+      </section>
+      <section class="card" id="skimmer-card" hidden>
+        <p class="kicker">Skimmer counts</p>
+        <p class="hint">Read-only counts from Skimmer. Invoice figures are counts. A missing capture says not captured. Change is versus the previous month, and is hidden when either side was not captured or either month is partial.</p>
+        <p class="kicker subhead">Quotes / bids</p>
+        <div class="table-wrap">
+          <table class="calls" id="quotes-table" hidden>
+            <thead>
+              <tr>
+                <th>Month</th>
+                <th>Created</th>
+                <th>Approved</th>
+                <th>Rejected</th>
+                <th>Sent-pending</th>
+              </tr>
+            </thead>
+            <tbody id="quotes"></tbody>
+          </table>
+        </div>
+        <p class="kicker subhead">Service jobs</p>
+        <div class="table-wrap">
+          <table class="calls" id="jobs-table" hidden>
+            <thead>
+              <tr>
+                <th>Month</th>
+                <th>Finished work orders</th>
+              </tr>
+            </thead>
+            <tbody id="jobs"></tbody>
+          </table>
+        </div>
+        <p class="kicker subhead">Invoices</p>
+        <p class="hint">Counts only.</p>
+        <div class="table-wrap">
+          <table class="calls" id="invoices-table" hidden>
+            <thead>
+              <tr>
+                <th>Month</th>
+                <th>Invoices issued (count)</th>
+              </tr>
+            </thead>
+            <tbody id="invoices"></tbody>
+          </table>
+        </div>
+        <p class="kicker subhead" id="skimmer-asof">As of this read</p>
+        <div class="tiles" id="skimmer-snapshot"></div>
+        <p class="empty" id="skimmer-empty" hidden>No Skimmer counts stored yet.</p>
+        <ul class="kb" id="skimmer-notes"></ul>
+      </section>
       <section class="card later" id="later-card" hidden>
-        <p class="kicker">Later panels</p>
-        <p class="hint">No Skimmer dollars. No send-as-shop. Placeholders only until a feed is wired.</p>
+        <p class="kicker">Revenue snapshot</p>
+        <p class="hint">Revenue is not on this page.</p>
         <div class="tiles">
-          <div class="tile"><h3><span class="dot off"></span>Quotes / bids</h3><p>Not connected.</p></div>
-          <div class="tile"><h3><span class="dot off"></span>Service jobs</h3><p>Not connected.</p></div>
           <div class="tile"><h3><span class="dot off"></span>Revenue snapshot</h3><p>Not connected.</p></div>
         </div>
       </section>
@@ -90,7 +162,7 @@
       </section>
       <section class="card">
         <p class="kicker">Connected</p>
-        <p class="hint">Green is wired. Yellow is browser-only. Gray has no feed. No Skimmer dollars.</p>
+        <p class="hint">Green is wired. Yellow is browser-only. Gray has no feed. No revenue on this page.</p>
         <div class="tiles" id="plugins"></div>
       </section>
       <section class="card">
@@ -164,6 +236,108 @@
         body.appendChild(tr);
       }
     }
+    const METRIC_KEYS = ["gbp_calls", "gbp_website_clicks", "gbp_directions", "gbp_interactions", "sc_clicks", "sc_impressions"];
+    function renderMetrics(rows) {
+      const card = document.getElementById("metrics-card");
+      const table = document.getElementById("metrics-table");
+      const empty = document.getElementById("metrics-empty");
+      const body = document.getElementById("metrics");
+      const notes = document.getElementById("metrics-notes");
+      card.hidden = false;
+      body.innerHTML = "";
+      notes.innerHTML = "";
+      if (!rows || !rows.length) {
+        table.hidden = true;
+        empty.hidden = false;
+        return;
+      }
+      table.hidden = false;
+      empty.hidden = true;
+      for (const row of rows) {
+        const tr = document.createElement("tr");
+        let month = "<div>" + esc(row.month) + "</div>";
+        if (row.partial) month += '<div class="pill partial">Partial month</div>';
+        if (row.partial_note) month += '<div class="month-note">' + esc(row.partial_note) + "</div>";
+        if (row.change_note) month += '<div class="month-note">' + esc(row.change_note) + "</div>";
+        let cells = "<td>" + month + "</td>";
+        for (const key of METRIC_KEYS) {
+          const metric = row.metrics && row.metrics[key] ? row.metrics[key] : null;
+          const display = metric && metric.display ? metric.display : "not captured";
+          let inner = esc(display);
+          if (metric && metric.change) inner += '<span class="delta">' + esc(metric.change) + "</span>";
+          cells += '<td class="' + (display === "not captured" ? "muted" : "") + '">' + inner + "</td>";
+        }
+        tr.innerHTML = cells;
+        body.appendChild(tr);
+        const li = document.createElement("li");
+        li.textContent = row.month + " — captured " + (row.captured_on || "") + " — " + (row.source || "");
+        notes.appendChild(li);
+      }
+    }
+    function fillCountBody(body, rows, keys) {
+      body.innerHTML = "";
+      for (const row of rows) {
+        const tr = document.createElement("tr");
+        let month = "<div>" + esc(row.month) + "</div>";
+        if (row.partial) month += '<div class="pill partial">Partial month</div>';
+        if (row.partial_note) month += '<div class="month-note">' + esc(row.partial_note) + "</div>";
+        if (row.change_note) month += '<div class="month-note">' + esc(row.change_note) + "</div>";
+        let cells = "<td>" + month + "</td>";
+        for (const key of keys) {
+          const metric = row.metrics && row.metrics[key] ? row.metrics[key] : null;
+          const display = metric && metric.display ? metric.display : "not captured";
+          let inner = esc(display);
+          if (metric && metric.change) inner += '<span class="delta">' + esc(metric.change) + "</span>";
+          cells += '<td class="' + (display === "not captured" ? "muted" : "") + '">' + inner + "</td>";
+        }
+        tr.innerHTML = cells;
+        body.appendChild(tr);
+      }
+    }
+    function renderSkimmer(payload) {
+      const card = document.getElementById("skimmer-card");
+      const empty = document.getElementById("skimmer-empty");
+      const notes = document.getElementById("skimmer-notes");
+      const snapEl = document.getElementById("skimmer-snapshot");
+      card.hidden = false;
+      notes.innerHTML = "";
+      snapEl.innerHTML = "";
+      const rows = payload && payload.rows ? payload.rows : [];
+      const tables = [
+        ["quotes-table", "quotes", ["quotes_created", "quotes_approved", "quotes_rejected", "quotes_sent_pending"]],
+        ["jobs-table", "jobs", ["finished_work_orders"]],
+        ["invoices-table", "invoices", ["invoices_issued"]],
+      ];
+      if (!rows.length) {
+        for (const [tableId] of tables) document.getElementById(tableId).hidden = true;
+        empty.hidden = false;
+        return;
+      }
+      empty.hidden = true;
+      for (const [tableId, bodyId, keys] of tables) {
+        document.getElementById(tableId).hidden = false;
+        fillCountBody(document.getElementById(bodyId), rows, keys);
+      }
+      document.getElementById("skimmer-asof").textContent = "As of " + (payload.captured_on || "this read");
+      const tiles = [
+        ["open_work_orders", "Open work orders"],
+        ["active_customers", "Active customers"],
+        ["customers_on_routes", "Customers on routes (recurring)"],
+        ["outstanding_invoices", "Outstanding invoices (count)"],
+      ];
+      const snapshot = payload.snapshot || {};
+      for (const [key, label] of tiles) {
+        const metric = snapshot[key];
+        const display = metric && metric.display ? metric.display : "not captured";
+        const tile = document.createElement("div");
+        tile.className = "tile";
+        tile.innerHTML = "<h3><span class=\"dot on\"></span>" + esc(label) + "</h3><p>" + esc(display) + "</p>";
+        snapEl.appendChild(tile);
+      }
+      const li = document.createElement("li");
+      li.textContent = "Captured " + (payload.captured_on || "") + " — " + (payload.source || "");
+      notes.appendChild(li);
+    }
     function list(el, items, empty) {
       el.innerHTML = "";
       if (!items || !items.length) {
@@ -183,7 +357,7 @@
       if (isCht) {
         document.title = "Colorado Hot Tub — Peak Signal Ops";
         document.getElementById("title").textContent = "Colorado Hot Tub";
-        document.getElementById("sub").textContent = "Owner call log. Read-only. No Skimmer dollars.";
+        document.getElementById("sub").textContent = "Owner dashboard. Read-only. No revenue on this page.";
         try {
           const log = await api("/clients/" + encodeURIComponent(slug) + "/calls?limit=10");
           if (!log) return;
@@ -192,6 +366,24 @@
           document.getElementById("calls-card").hidden = false;
           document.getElementById("later-card").hidden = false;
           document.getElementById("calls-empty").textContent = "Call log unavailable.";
+        }
+        try {
+          const metrics = await api("/clients/" + encodeURIComponent(slug) + "/metrics");
+          if (!metrics) return;
+          renderMetrics(metrics.rows || []);
+        } catch (me) {
+          document.getElementById("metrics-card").hidden = false;
+          document.getElementById("metrics-empty").hidden = false;
+          document.getElementById("metrics-empty").textContent = "Metrics unavailable.";
+        }
+        try {
+          const skimmer = await api("/clients/" + encodeURIComponent(slug) + "/skimmer");
+          if (!skimmer) return;
+          renderSkimmer(skimmer);
+        } catch (se) {
+          document.getElementById("skimmer-card").hidden = false;
+          document.getElementById("skimmer-empty").hidden = false;
+          document.getElementById("skimmer-empty").textContent = "Skimmer counts unavailable.";
         }
         document.getElementById("body").hidden = false;
       }
