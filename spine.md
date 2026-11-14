@@ -1,5 +1,5 @@
 # Peak Signal Spine (board)
-Last updated: 2026-11-13 17:08 MT by Chief of Staff. Stale if > 7 days (drift checker flags).
+Last updated: 2026-11-13 18:00 MT by Referee soft-ping. Stale if > 7 days (drift checker flags).
 History: spine-log.md. Store rules: Brian_OS/SOURCES_OF_TRUTH.md.
 
 ## Current State
@@ -44,6 +44,7 @@ Shared-file edits in flight. Cap 5.
 | (none) | — | — | — |
 
 ## Log
+- 2026-11-13 ~6:00 PM MT: Referee soft-ping — prior CoS log (17:08) noted; Current State and Board unchanged.
 - 2026-11-13 ~5:08 PM MT: Test run complete — spine coherent, no drift detected.
 - 2026-11-13 ~4:17 PM MT: Referee soft-ping — prior CoS log (16:05) noted; Current State and Board unchanged.
 - 2026-11-13 ~4:05 PM MT: Test run complete — spine coherent, no drift detected.
