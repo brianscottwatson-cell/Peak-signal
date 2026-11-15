@@ -52,6 +52,10 @@ const CONTENT_RULES = {
     { term: "No invented", message: "writer-note phrase" },
     { term: "No fake", message: "writer-note phrase" },
     { term: "Realistic flows only", message: "writer-note phrase" },
+    { term: "invented package prices", message: "writer-note phrase" },
+    { term: "fake case-study", message: "writer-note phrase" },
+    { term: "ai education", message: "writer-note phrase" },
+    { term: "never answer the phone", message: "writer-note phrase" },
   ],
   retiredOffers: [
     { term: "Capture", message: "'Capture' is a retired product name" },

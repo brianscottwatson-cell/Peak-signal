@@ -111,6 +111,10 @@ test("each new public ban fails on its own seeded phrase", () => {
     ["writer-note-invented", "<p>No invented totals.</p>", "writer-note phrase"],
     ["writer-note-fake", "<p>No fake example.</p>", "writer-note phrase"],
     ["writer-note-realistic", "<p>Realistic flows only.</p>", "writer-note phrase"],
+    ["writer-note-prices", "<p>Invented package prices showed up.</p>", "writer-note phrase"],
+    ["writer-note-case", "<p>Fake case-study numbers.</p>", "writer-note phrase"],
+    ["writer-note-education", "<p>AI Education session.</p>", "writer-note phrase"],
+    ["writer-note-phone", "<p>They never answer the phone.</p>", "writer-note phrase"],
     ["vendor-name", "<p>Pax8</p>", "banned vendor name"],
   ];
   for (const [label, body, message] of seeds) {
@@ -119,7 +123,10 @@ test("each new public ban fails on its own seeded phrase", () => {
       const guard = run("check-guardrails.mjs", root);
       assert.notEqual(guard.status, 0, label);
       assert.match(guard.output, new RegExp(`static-site/index\\.html:\\d+ \\[banned-term\\] ${message}`));
-      assert.doesNotMatch(guard.output, /Pax8|No invented|No fake|Realistic flows only/i);
+      assert.doesNotMatch(
+        guard.output,
+        /Pax8|No invented|No fake|Realistic flows only|invented package prices|fake case-study|ai education|never answer the phone/i,
+      );
     } finally {
       cleanup(root);
     }
@@ -147,7 +154,9 @@ test("the same phrases in an ops page are outside the public check", () => {
   const root = writeFixture({
     files: {
       "static-site/index.html": page(),
-      "ops/ops.html": page({ body: "<p>No invented. No fake. Realistic flows only. Pax8.</p>" }),
+      "ops/ops.html": page({
+        body: "<p>No invented. No fake. Realistic flows only. Pax8. Invented package prices. Fake case-study. AI education. Never answer the phone.</p>",
+      }),
     },
   });
   try {
