@@ -31,6 +31,7 @@ const root = process.argv[2]
  *
  * bannedTerms: case-insensitive whole phrases, in visible text and in head
  * metadata (title, meta, Open Graph, Twitter) and JSON-LD.
+ * Vendor-name and writer-note hits use a generic message.
  * retiredOffers: capitalized standalone words, also matched in form option
  * labels and values. Lowercase verbs ("answers", "keeps") do not match.
  * Inside FAQPage JSON-LD, schema.org "@type": "Answer" and the
@@ -47,6 +48,10 @@ const CONTENT_RULES = {
     { term: "Signal Site", message: "'Signal Site' is a retired product name" },
     { term: "Voice Signal", message: "'Voice Signal' is a retired product name" },
     { term: "Loop Signal", message: "'Loop Signal' is a retired product name" },
+    { term: "Pax8", message: "banned vendor name" },
+    { term: "No invented", message: "writer-note phrase" },
+    { term: "No fake", message: "writer-note phrase" },
+    { term: "Realistic flows only", message: "writer-note phrase" },
   ],
   retiredOffers: [
     { term: "Capture", message: "'Capture' is a retired product name" },

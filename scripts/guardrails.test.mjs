@@ -106,6 +106,58 @@ test("a clean fixture page passes both checks", () => {
   }
 });
 
+test("each new public ban fails on its own seeded phrase", () => {
+  const seeds = [
+    ["writer-note-invented", "<p>No invented totals.</p>", "writer-note phrase"],
+    ["writer-note-fake", "<p>No fake example.</p>", "writer-note phrase"],
+    ["writer-note-realistic", "<p>Realistic flows only.</p>", "writer-note phrase"],
+    ["vendor-name", "<p>Pax8</p>", "banned vendor name"],
+  ];
+  for (const [label, body, message] of seeds) {
+    const root = writeFixture({ files: { "static-site/index.html": page({ body }) } });
+    try {
+      const guard = run("check-guardrails.mjs", root);
+      assert.notEqual(guard.status, 0, label);
+      assert.match(guard.output, new RegExp(`static-site/index\\.html:\\d+ \\[banned-term\\] ${message}`));
+      assert.doesNotMatch(guard.output, /Pax8|No invented|No fake|Realistic flows only/i);
+    } finally {
+      cleanup(root);
+    }
+  }
+});
+
+test("Golden stays allowed on a public page", () => {
+  const html = page({
+    title: "Golden",
+    h1: "Golden",
+    description: "Serving Golden.",
+    body: "<p>Golden, Evergreen, and the foothills.</p>",
+  });
+  const root = writeFixture({ files: { "static-site/index.html": html } });
+  try {
+    const guard = run("check-guardrails.mjs", root);
+    assert.equal(guard.status, 0, guard.output);
+    assert.doesNotMatch(guard.output, /\[banned-term\]/);
+  } finally {
+    cleanup(root);
+  }
+});
+
+test("the same phrases in an ops page are outside the public check", () => {
+  const root = writeFixture({
+    files: {
+      "static-site/index.html": page(),
+      "ops/ops.html": page({ body: "<p>No invented. No fake. Realistic flows only. Pax8.</p>" }),
+    },
+  });
+  try {
+    const guard = run("check-guardrails.mjs", root);
+    assert.equal(guard.status, 0, guard.output);
+  } finally {
+    cleanup(root);
+  }
+});
+
 test("a banned term fails with banned-term", () => {
   const html = page({ body: "<p>Please no Capture here.</p><p>signal site</p>" });
   const root = writeFixture({ files: { "static-site/index.html": html } });
