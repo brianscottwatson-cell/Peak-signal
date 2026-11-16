@@ -56,13 +56,22 @@ The block below is the copy this repo's router expects, around the existing copi
 +    "terms.html",
 +    "robots.txt",
 +    "google166e848c42566a74.html",
++    "tailwind.css",
 +  ]) {
      copyFileSync(join(srcStatic, name), join(distStatic, name));
    }
 +  cpSync(join(srcStatic, "images"), join(distStatic, "images"), { recursive: true });
 ```
 
-`cpSync` copies the whole `images/` directory, including `cht-before-after.webp` and `images/telecom/*.png`, into `dist/static-site/images/`. `telecom.html` has to be in the filename list. The logo files are not HTML, so a `*.html` glob does not copy them. If the build copies images one file at a time instead of `cpSync`, add every `static-site/images/telecom/*.png`. Do not add `loc8.png`.
+`cpSync` copies the whole `images/` directory, including `cht-before-after.webp` and `images/telecom/*.png` plus `images/telecom/*.webp`, into `dist/static-site/images/`. `telecom.html` and `tailwind.css` have to be in the filename list. The logo files and the stylesheet are not HTML, so a `*.html` glob does not copy them. If the build copies images one file at a time instead of `cpSync`, add every `static-site/images/telecom/*.png` and every `static-site/images/telecom/*.webp`. Do not add `loc8.png`.
+
+Add this name to the copy list in `artifacts/api-server/build.mjs`, beside `index.html`:
+
+```
+"tailwind.css",
+```
+
+`GET /tailwind.css` reads that file and sends `text/css`. `GET /images/telecom/<file>.webp` sends `image/webp`, and the `.png` of the same name stays as the fallback. Rebuild the api-server after the copy list includes `tailwind.css`.
 
 If that build script copies with a glob such as `src/static-site/*.html` instead of a filename list, keep the glob (it already picks up `about.html`) and add only the `cpSync` line. `*.html` does not copy `images/`.
 

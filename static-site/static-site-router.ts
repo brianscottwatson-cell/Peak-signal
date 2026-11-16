@@ -45,6 +45,12 @@ function redirectClean(cleanPath: string) {
   };
 }
 
+staticSiteRouter.get("/tailwind.css", (_req: Request, res: Response) => {
+  const body = load("tailwind.css");
+  if (!body) return res.status(404).type("text").send("css missing");
+  res.type("text/css").send(body);
+});
+
 staticSiteRouter.get("/robots.txt", (_req: Request, res: Response) => {
   const body = load("robots.txt");
   if (!body) return res.status(404).type("text").send("robots missing");
@@ -120,15 +126,15 @@ staticSiteRouter.get("/telecom", (_req: Request, res: Response) => {
 
 staticSiteRouter.get("/telecom.html", redirectClean("/telecom"));
 
-// Binary logos. Replit build.mjs must also copy src/static-site/images/telecom/*.png
-// to dist/static-site/images/telecom/ (the HTML filename list does not).
+// Logos. Replit build.mjs must copy static-site/images/telecom/*.webp and the
+// PNG fallbacks into dist/static-site/images/telecom/ (the HTML list does not).
 staticSiteRouter.get("/images/telecom/:file", (req: Request, res: Response) => {
   const raw = req.params.file;
   const file = Array.isArray(raw) ? raw[0] : raw;
-  if (!file || !/^[a-z0-9-]+\.png$/.test(file)) return res.status(404).type("text").send("image missing");
+  if (!file || !/^[a-z0-9-]+\.(png|webp)$/.test(file)) return res.status(404).type("text").send("image missing");
   const body = loadBuffer(`images/telecom/${file}`);
   if (!body) return res.status(404).type("text").send("image missing");
-  res.type("image/png").send(body);
+  res.type(file.endsWith(".webp") ? "image/webp" : "image/png").send(body);
 });
 
 // Binary. Replit build.mjs must also copy src/static-site/images/cht-before-after.webp

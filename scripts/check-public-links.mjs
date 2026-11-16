@@ -35,6 +35,7 @@ const routes = {
   "/telecom": "static-site/telecom.html",
   "/robots.txt": "static-site/robots.txt",
   "/google166e848c42566a74.html": "static-site/google166e848c42566a74.html",
+  "/tailwind.css": "static-site/tailwind.css",
   "/images/cht-before-after.webp": "static-site/images/cht-before-after.webp",
   "/sitemap.xml": "seo/sitemap.xml",
   "/ai-websites-evergreen-co": "seo/landers/ai-websites-evergreen-co.html",
@@ -96,6 +97,7 @@ function contentType(file) {
   if (file.endsWith(".xml")) return "application/xml; charset=utf-8";
   if (file.endsWith(".txt")) return "text/plain; charset=utf-8";
   if (file.endsWith(".webp")) return "image/webp";
+  if (file.endsWith(".css")) return "text/css; charset=utf-8";
   return "text/html; charset=utf-8";
 }
 

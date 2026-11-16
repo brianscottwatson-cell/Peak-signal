@@ -43,6 +43,10 @@ jobs:
         if: success() || failure()
         run: node scripts/check-seo.mjs
 
+      - name: Tailwind file
+        if: success() || failure()
+        run: node scripts/check-tailwind.mjs
+
       - name: Public links
         if: success() || failure()
         run: node scripts/check-public-links.mjs
