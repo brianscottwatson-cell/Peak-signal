@@ -5,8 +5,10 @@
 !static-site/robots.txt
 !static-site/images/
 !static-site/images/cht-before-after.webp
+!static-site/tailwind.css
 !static-site/images/telecom/
 !static-site/images/telecom/*.png
+!static-site/images/telecom/*.webp
 !seo/
 !seo/landers/
 !seo/landers/*.html

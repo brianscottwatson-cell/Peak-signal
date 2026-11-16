@@ -29,6 +29,7 @@
     { "source": "/telecom", "destination": "/static-site/telecom.html" },
     { "source": "/robots.txt", "destination": "/static-site/robots.txt" },
     { "source": "/google166e848c42566a74.html", "destination": "/static-site/google166e848c42566a74.html" },
+    { "source": "/tailwind.css", "destination": "/static-site/tailwind.css" },
     { "source": "/images/cht-before-after.webp", "destination": "/static-site/images/cht-before-after.webp" },
     { "source": "/images/telecom/:file", "destination": "/static-site/images/telecom/:file" },
     { "source": "/sitemap.xml", "destination": "/seo/sitemap.xml" },

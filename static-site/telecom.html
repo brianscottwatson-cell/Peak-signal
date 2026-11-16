@@ -15,7 +15,7 @@
   <meta name="twitter:card" content="summary">
   <meta name="twitter:title" content="Telecom & Connectivity | Peak Signal">
   <meta name="twitter:description" content="Business phone, UCaaS, and connectivity. Open a vendor for a short description and key offerings, then request a quote. Brian at Peak Signal reviews it.">
-  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="/tailwind.css">
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Space+Grotesk:wght@500;600&display=swap');
     body { font-family: 'Inter', system-ui, sans-serif; }
@@ -71,6 +71,7 @@
     }
     .primary-card .logo-well { width: 148px; height: 72px; border-radius: 16px; padding: 12px 14px; }
     .logo-img { display: block; max-width: 100%; max-height: 100%; width: auto; height: auto; object-fit: contain; }
+    .logo-well picture { display: flex; align-items: center; justify-content: center; width: 100%; height: 100%; margin: 0; }
     .logo-initials {
       font-family: "Space Grotesk", Inter, sans-serif;
       font-weight: 600;
@@ -212,7 +213,7 @@
         <div class="primary-grid">
 <details class="vendor-card primary-card" data-categories="Communications">
   <summary>
-    <span class="logo-well"><img class="logo-img" src="/images/telecom/ringcentral.png" alt="" width="148" height="72"></span>
+    <span class="logo-well"><picture><source type="image/webp" srcset="/images/telecom/ringcentral.webp"><img class="logo-img" src="/images/telecom/ringcentral.png" alt="RingCentral" width="148" height="72" loading="lazy" decoding="async"></picture></span>
     <span class="summary-text">
       <span class="card-tags"><span class="tag">Communications</span></span>
       <span class="card-title">RingCentral</span>
@@ -237,7 +238,7 @@
 </details>
 <details class="vendor-card primary-card" data-categories="Communications">
   <summary>
-    <span class="logo-well"><img class="logo-img" src="/images/telecom/zoom.png" alt="" width="148" height="72"></span>
+    <span class="logo-well"><picture><source type="image/webp" srcset="/images/telecom/zoom.webp"><img class="logo-img" src="/images/telecom/zoom.png" alt="Zoom" width="148" height="72" loading="lazy" decoding="async"></picture></span>
     <span class="summary-text">
       <span class="card-tags"><span class="tag">Communications</span></span>
       <span class="card-title">Zoom</span>
@@ -266,7 +267,7 @@
 </details>
 <details class="vendor-card primary-card" data-categories="Network">
   <summary>
-    <span class="logo-well"><img class="logo-img" src="/images/telecom/comcast.png" alt="" width="148" height="72"></span>
+    <span class="logo-well"><picture><source type="image/webp" srcset="/images/telecom/comcast.webp"><img class="logo-img" src="/images/telecom/comcast.png" alt="Comcast" width="148" height="72" loading="lazy" decoding="async"></picture></span>
     <span class="summary-text">
       <span class="card-tags"><span class="tag">Network</span></span>
       <span class="card-title">Comcast</span>
@@ -291,7 +292,7 @@
 </details>
 <details class="vendor-card primary-card" data-categories="Network">
   <summary>
-    <span class="logo-well"><img class="logo-img" src="/images/telecom/att.png" alt="" width="148" height="72"></span>
+    <span class="logo-well"><picture><source type="image/webp" srcset="/images/telecom/att.webp"><img class="logo-img" src="/images/telecom/att.png" alt="AT&amp;T" width="148" height="72" loading="lazy" decoding="async"></picture></span>
     <span class="summary-text">
       <span class="card-tags"><span class="tag">Network</span></span>
       <span class="card-title">AT&amp;T</span>
@@ -312,7 +313,7 @@
 </details>
 <details class="vendor-card primary-card" data-categories="Network">
   <summary>
-    <span class="logo-well"><img class="logo-img" src="/images/telecom/spectrum.png" alt="" width="148" height="72"></span>
+    <span class="logo-well"><picture><source type="image/webp" srcset="/images/telecom/spectrum.webp"><img class="logo-img" src="/images/telecom/spectrum.png" alt="Spectrum" width="148" height="72" loading="lazy" decoding="async"></picture></span>
     <span class="summary-text">
       <span class="card-tags"><span class="tag">Network</span></span>
       <span class="card-title">Spectrum</span>
@@ -326,7 +327,7 @@
 </details>
 <details class="vendor-card primary-card" data-categories="Network">
   <summary>
-    <span class="logo-well"><img class="logo-img" src="/images/telecom/cox.png" alt="" width="148" height="72"></span>
+    <span class="logo-well"><picture><source type="image/webp" srcset="/images/telecom/cox.webp"><img class="logo-img" src="/images/telecom/cox.png" alt="Cox" width="148" height="72" loading="lazy" decoding="async"></picture></span>
     <span class="summary-text">
       <span class="card-tags"><span class="tag">Network</span></span>
       <span class="card-title">Cox</span>
@@ -349,7 +350,7 @@
 </details>
 <details class="vendor-card primary-card" data-categories="Network">
   <summary>
-    <span class="logo-well"><img class="logo-img" src="/images/telecom/starlink.png" alt="" width="148" height="72"></span>
+    <span class="logo-well"><picture><source type="image/webp" srcset="/images/telecom/starlink.webp"><img class="logo-img" src="/images/telecom/starlink.png" alt="Starlink" width="148" height="72" loading="lazy" decoding="async"></picture></span>
     <span class="summary-text">
       <span class="card-tags"><span class="tag">Network</span></span>
       <span class="card-title">Starlink</span>
@@ -363,7 +364,7 @@
 </details>
 <details class="vendor-card primary-card" data-categories="Wireless">
   <summary>
-    <span class="logo-well"><img class="logo-img" src="/images/telecom/t-mobile.png" alt="" width="148" height="72"></span>
+    <span class="logo-well"><picture><source type="image/webp" srcset="/images/telecom/t-mobile.webp"><img class="logo-img" src="/images/telecom/t-mobile.png" alt="T-Mobile for Business" width="148" height="72" loading="lazy" decoding="async"></picture></span>
     <span class="summary-text">
       <span class="card-tags"><span class="tag">Wireless</span></span>
       <span class="card-title">T-Mobile for Business</span>
@@ -402,7 +403,7 @@
         <div class="more-grid">
 <details class="vendor-card more-card" data-categories="Communications">
   <summary>
-    <span class="logo-well"><img class="logo-img" src="/images/telecom/8x8.png" alt="" width="148" height="72"></span>
+    <span class="logo-well"><picture><source type="image/webp" srcset="/images/telecom/8x8.webp"><img class="logo-img" src="/images/telecom/8x8.png" alt="8x8" width="148" height="72" loading="lazy" decoding="async"></picture></span>
     <span class="summary-text">
       <span class="card-tags"><span class="tag">Communications</span></span>
       <span class="card-title">8x8</span>
@@ -424,7 +425,7 @@
 </details>
 <details class="vendor-card more-card" data-categories="Communications">
   <summary>
-    <span class="logo-well"><img class="logo-img" src="/images/telecom/dialpad.png" alt="" width="148" height="72"></span>
+    <span class="logo-well"><picture><source type="image/webp" srcset="/images/telecom/dialpad.webp"><img class="logo-img" src="/images/telecom/dialpad.png" alt="Dialpad" width="148" height="72" loading="lazy" decoding="async"></picture></span>
     <span class="summary-text">
       <span class="card-tags"><span class="tag">Communications</span></span>
       <span class="card-title">Dialpad</span>
@@ -445,7 +446,7 @@
 </details>
 <details class="vendor-card more-card" data-categories="Communications">
   <summary>
-    <span class="logo-well"><img class="logo-img" src="/images/telecom/five9.png" alt="" width="148" height="72"></span>
+    <span class="logo-well"><picture><source type="image/webp" srcset="/images/telecom/five9.webp"><img class="logo-img" src="/images/telecom/five9.png" alt="Five9" width="148" height="72" loading="lazy" decoding="async"></picture></span>
     <span class="summary-text">
       <span class="card-tags"><span class="tag">Communications</span></span>
       <span class="card-title">Five9</span>
@@ -470,7 +471,7 @@
 </details>
 <details class="vendor-card more-card" data-categories="Communications">
   <summary>
-    <span class="logo-well"><img class="logo-img" src="/images/telecom/goto.png" alt="" width="148" height="72"></span>
+    <span class="logo-well"><picture><source type="image/webp" srcset="/images/telecom/goto.webp"><img class="logo-img" src="/images/telecom/goto.png" alt="GoTo" width="148" height="72" loading="lazy" decoding="async"></picture></span>
     <span class="summary-text">
       <span class="card-tags"><span class="tag">Communications</span></span>
       <span class="card-title">GoTo</span>
@@ -493,7 +494,7 @@
 </details>
 <details class="vendor-card more-card" data-categories="Communications">
   <summary>
-    <span class="logo-well"><img class="logo-img" src="/images/telecom/net2phone.png" alt="" width="148" height="72"></span>
+    <span class="logo-well"><picture><source type="image/webp" srcset="/images/telecom/net2phone.webp"><img class="logo-img" src="/images/telecom/net2phone.png" alt="Net2Phone" width="148" height="72" loading="lazy" decoding="async"></picture></span>
     <span class="summary-text">
       <span class="card-tags"><span class="tag">Communications</span></span>
       <span class="card-title">Net2Phone</span>
@@ -520,7 +521,7 @@
 </details>
 <details class="vendor-card more-card" data-categories="Communications">
   <summary>
-    <span class="logo-well"><img class="logo-img" src="/images/telecom/nextiva.png" alt="" width="148" height="72"></span>
+    <span class="logo-well"><picture><source type="image/webp" srcset="/images/telecom/nextiva.webp"><img class="logo-img" src="/images/telecom/nextiva.png" alt="Nextiva" width="148" height="72" loading="lazy" decoding="async"></picture></span>
     <span class="summary-text">
       <span class="card-tags"><span class="tag">Communications</span></span>
       <span class="card-title">Nextiva</span>
@@ -543,7 +544,7 @@
 </details>
 <details class="vendor-card more-card" data-categories="Communications">
   <summary>
-    <span class="logo-well"><img class="logo-img" src="/images/telecom/ooma.png" alt="" width="148" height="72"></span>
+    <span class="logo-well"><picture><source type="image/webp" srcset="/images/telecom/ooma.webp"><img class="logo-img" src="/images/telecom/ooma.png" alt="Ooma" width="148" height="72" loading="lazy" decoding="async"></picture></span>
     <span class="summary-text">
       <span class="card-tags"><span class="tag">Communications</span></span>
       <span class="card-title">Ooma</span>
@@ -565,7 +566,7 @@
 </details>
 <details class="vendor-card more-card" data-categories="Communications">
   <summary>
-    <span class="logo-well"><img class="logo-img" src="/images/telecom/spectrum-voip.png" alt="" width="148" height="72"></span>
+    <span class="logo-well"><picture><source type="image/webp" srcset="/images/telecom/spectrum-voip.webp"><img class="logo-img" src="/images/telecom/spectrum-voip.png" alt="SpectrumVoIP" width="148" height="72" loading="lazy" decoding="async"></picture></span>
     <span class="summary-text">
       <span class="card-tags"><span class="tag">Communications</span></span>
       <span class="card-title">SpectrumVoIP</span>
@@ -579,7 +580,7 @@
 </details>
 <details class="vendor-card more-card" data-categories="Communications">
   <summary>
-    <span class="logo-well"><img class="logo-img" src="/images/telecom/talkdesk.png" alt="" width="148" height="72"></span>
+    <span class="logo-well"><picture><source type="image/webp" srcset="/images/telecom/talkdesk.webp"><img class="logo-img" src="/images/telecom/talkdesk.png" alt="Talkdesk" width="148" height="72" loading="lazy" decoding="async"></picture></span>
     <span class="summary-text">
       <span class="card-tags"><span class="tag">Communications</span></span>
       <span class="card-title">Talkdesk</span>
@@ -593,7 +594,7 @@
 </details>
 <details class="vendor-card more-card" data-categories="VARs|Network|Communications|SD-WAN">
   <summary>
-    <span class="logo-well"><img class="logo-img" src="/images/telecom/tpx.png" alt="" width="148" height="72"></span>
+    <span class="logo-well"><picture><source type="image/webp" srcset="/images/telecom/tpx.webp"><img class="logo-img" src="/images/telecom/tpx.png" alt="TPx" width="148" height="72" loading="lazy" decoding="async"></picture></span>
     <span class="summary-text">
       <span class="card-tags"><span class="tag">VARs, Network, Communications, SD-WAN</span></span>
       <span class="card-title">TPx</span>
@@ -616,7 +617,7 @@
 </details>
 <details class="vendor-card more-card" data-categories="Communications">
   <summary>
-    <span class="logo-well"><img class="logo-img" src="/images/telecom/vonage.png" alt="" width="148" height="72"></span>
+    <span class="logo-well"><picture><source type="image/webp" srcset="/images/telecom/vonage.webp"><img class="logo-img" src="/images/telecom/vonage.png" alt="Vonage Business" width="148" height="72" loading="lazy" decoding="async"></picture></span>
     <span class="summary-text">
       <span class="card-tags"><span class="tag">Communications</span></span>
       <span class="card-title">Vonage Business</span>
@@ -641,7 +642,7 @@
 </details>
 <details class="vendor-card more-card" data-categories="Network">
   <summary>
-    <span class="logo-well"><img class="logo-img" src="/images/telecom/acc-business.png" alt="" width="148" height="72"></span>
+    <span class="logo-well"><picture><source type="image/webp" srcset="/images/telecom/acc-business.webp"><img class="logo-img" src="/images/telecom/acc-business.png" alt="ACC Business" width="148" height="72" loading="lazy" decoding="async"></picture></span>
     <span class="summary-text">
       <span class="card-tags"><span class="tag">Network</span></span>
       <span class="card-title">ACC Business</span>
@@ -662,7 +663,7 @@
 </details>
 <details class="vendor-card more-card" data-categories="SD-WAN|Network">
   <summary>
-    <span class="logo-well"><img class="logo-img" src="/images/telecom/bigleaf-networks.png" alt="" width="148" height="72"></span>
+    <span class="logo-well"><picture><source type="image/webp" srcset="/images/telecom/bigleaf-networks.webp"><img class="logo-img" src="/images/telecom/bigleaf-networks.png" alt="Bigleaf Networks" width="148" height="72" loading="lazy" decoding="async"></picture></span>
     <span class="summary-text">
       <span class="card-tags"><span class="tag">SD-WAN, Network</span></span>
       <span class="card-title">Bigleaf Networks</span>
@@ -682,7 +683,7 @@
 </details>
 <details class="vendor-card more-card" data-categories="Network">
   <summary>
-    <span class="logo-well"><img class="logo-img" src="/images/telecom/breezeline.png" alt="" width="148" height="72"></span>
+    <span class="logo-well"><picture><source type="image/webp" srcset="/images/telecom/breezeline.webp"><img class="logo-img" src="/images/telecom/breezeline.png" alt="Breezeline" width="148" height="72" loading="lazy" decoding="async"></picture></span>
     <span class="summary-text">
       <span class="card-tags"><span class="tag">Network</span></span>
       <span class="card-title">Breezeline</span>
@@ -706,7 +707,7 @@
 </details>
 <details class="vendor-card more-card" data-categories="Network">
   <summary>
-    <span class="logo-well"><img class="logo-img" src="/images/telecom/brightspeed.png" alt="" width="148" height="72"></span>
+    <span class="logo-well"><picture><source type="image/webp" srcset="/images/telecom/brightspeed.webp"><img class="logo-img" src="/images/telecom/brightspeed.png" alt="Brightspeed" width="148" height="72" loading="lazy" decoding="async"></picture></span>
     <span class="summary-text">
       <span class="card-tags"><span class="tag">Network</span></span>
       <span class="card-title">Brightspeed</span>
@@ -727,7 +728,7 @@
 </details>
 <details class="vendor-card more-card" data-categories="Network">
   <summary>
-    <span class="logo-well"><img class="logo-img" src="/images/telecom/dobson-fiber.png" alt="" width="148" height="72"></span>
+    <span class="logo-well"><picture><source type="image/webp" srcset="/images/telecom/dobson-fiber.webp"><img class="logo-img" src="/images/telecom/dobson-fiber.png" alt="Dobson Fiber" width="148" height="72" loading="lazy" decoding="async"></picture></span>
     <span class="summary-text">
       <span class="card-tags"><span class="tag">Network</span></span>
       <span class="card-title">Dobson Fiber</span>
@@ -749,7 +750,7 @@
 </details>
 <details class="vendor-card more-card" data-categories="Network">
   <summary>
-    <span class="logo-well"><img class="logo-img" src="/images/telecom/epic-io.png" alt="" width="148" height="72"></span>
+    <span class="logo-well"><picture><source type="image/webp" srcset="/images/telecom/epic-io.webp"><img class="logo-img" src="/images/telecom/epic-io.png" alt="EPIC iO" width="148" height="72" loading="lazy" decoding="async"></picture></span>
     <span class="summary-text">
       <span class="card-tags"><span class="tag">Network</span></span>
       <span class="card-title">EPIC iO</span>
@@ -763,7 +764,7 @@
 </details>
 <details class="vendor-card more-card" data-categories="Network">
   <summary>
-    <span class="logo-well"><img class="logo-img" src="/images/telecom/fiberlight.png" alt="" width="148" height="72"></span>
+    <span class="logo-well"><picture><source type="image/webp" srcset="/images/telecom/fiberlight.webp"><img class="logo-img" src="/images/telecom/fiberlight.png" alt="FiberLight" width="148" height="72" loading="lazy" decoding="async"></picture></span>
     <span class="summary-text">
       <span class="card-tags"><span class="tag">Network</span></span>
       <span class="card-title">FiberLight</span>
@@ -777,7 +778,7 @@
 </details>
 <details class="vendor-card more-card" data-categories="Network">
   <summary>
-    <span class="logo-well"><img class="logo-img" src="/images/telecom/for2fi.png" alt="" width="148" height="72"></span>
+    <span class="logo-well"><picture><source type="image/webp" srcset="/images/telecom/for2fi.webp"><img class="logo-img" src="/images/telecom/for2fi.png" alt="For2Fi" width="148" height="72" loading="lazy" decoding="async"></picture></span>
     <span class="summary-text">
       <span class="card-tags"><span class="tag">Network</span></span>
       <span class="card-title">For2Fi</span>
@@ -791,7 +792,7 @@
 </details>
 <details class="vendor-card more-card" data-categories="Network">
   <summary>
-    <span class="logo-well"><img class="logo-img" src="/images/telecom/lightpath-fiber.png" alt="" width="148" height="72"></span>
+    <span class="logo-well"><picture><source type="image/webp" srcset="/images/telecom/lightpath-fiber.webp"><img class="logo-img" src="/images/telecom/lightpath-fiber.png" alt="Lightpath Fiber" width="148" height="72" loading="lazy" decoding="async"></picture></span>
     <span class="summary-text">
       <span class="card-tags"><span class="tag">Network</span></span>
       <span class="card-title">Lightpath Fiber</span>
@@ -805,7 +806,7 @@
 </details>
 <details class="vendor-card more-card" data-categories="Network">
   <summary>
-    <span class="logo-well"><img class="logo-img" src="/images/telecom/lumen.png" alt="" width="148" height="72"></span>
+    <span class="logo-well"><picture><source type="image/webp" srcset="/images/telecom/lumen.webp"><img class="logo-img" src="/images/telecom/lumen.png" alt="Lumen" width="148" height="72" loading="lazy" decoding="async"></picture></span>
     <span class="summary-text">
       <span class="card-tags"><span class="tag">Network</span></span>
       <span class="card-title">Lumen</span>
@@ -829,7 +830,7 @@
 </details>
 <details class="vendor-card more-card" data-categories="Network">
   <summary>
-    <span class="logo-well"><img class="logo-img" src="/images/telecom/optimum.png" alt="" width="148" height="72"></span>
+    <span class="logo-well"><picture><source type="image/webp" srcset="/images/telecom/optimum.webp"><img class="logo-img" src="/images/telecom/optimum.png" alt="Optimum" width="148" height="72" loading="lazy" decoding="async"></picture></span>
     <span class="summary-text">
       <span class="card-tags"><span class="tag">Network</span></span>
       <span class="card-title">Optimum</span>
@@ -852,7 +853,7 @@
 </details>
 <details class="vendor-card more-card" data-categories="Network">
   <summary>
-    <span class="logo-well"><img class="logo-img" src="/images/telecom/rise-internet.png" alt="" width="148" height="72"></span>
+    <span class="logo-well"><picture><source type="image/webp" srcset="/images/telecom/rise-internet.webp"><img class="logo-img" src="/images/telecom/rise-internet.png" alt="Rise Internet" width="148" height="72" loading="lazy" decoding="async"></picture></span>
     <span class="summary-text">
       <span class="card-tags"><span class="tag">Network</span></span>
       <span class="card-title">Rise Internet</span>
@@ -873,7 +874,7 @@
 </details>
 <details class="vendor-card more-card" data-categories="Network">
   <summary>
-    <span class="logo-well"><img class="logo-img" src="/images/telecom/rogers.png" alt="" width="148" height="72"></span>
+    <span class="logo-well"><picture><source type="image/webp" srcset="/images/telecom/rogers.webp"><img class="logo-img" src="/images/telecom/rogers.png" alt="Rogers" width="148" height="72" loading="lazy" decoding="async"></picture></span>
     <span class="summary-text">
       <span class="card-tags"><span class="tag">Network</span></span>
       <span class="card-title">Rogers</span>
@@ -887,7 +888,7 @@
 </details>
 <details class="vendor-card more-card" data-categories="Network">
   <summary>
-    <span class="logo-well"><img class="logo-img" src="/images/telecom/verizon.png" alt="" width="148" height="72"></span>
+    <span class="logo-well"><picture><source type="image/webp" srcset="/images/telecom/verizon.webp"><img class="logo-img" src="/images/telecom/verizon.png" alt="Verizon" width="148" height="72" loading="lazy" decoding="async"></picture></span>
     <span class="summary-text">
       <span class="card-tags"><span class="tag">Network</span></span>
       <span class="card-title">Verizon</span>
@@ -901,7 +902,7 @@
 </details>
 <details class="vendor-card more-card" data-categories="Network">
   <summary>
-    <span class="logo-well"><img class="logo-img" src="/images/telecom/viasat.png" alt="" width="148" height="72"></span>
+    <span class="logo-well"><picture><source type="image/webp" srcset="/images/telecom/viasat.webp"><img class="logo-img" src="/images/telecom/viasat.png" alt="Viasat" width="148" height="72" loading="lazy" decoding="async"></picture></span>
     <span class="summary-text">
       <span class="card-tags"><span class="tag">Network</span></span>
       <span class="card-title">Viasat</span>
@@ -915,7 +916,7 @@
 </details>
 <details class="vendor-card more-card" data-categories="Network">
   <summary>
-    <span class="logo-well"><img class="logo-img" src="/images/telecom/wow-business.png" alt="" width="148" height="72"></span>
+    <span class="logo-well"><picture><source type="image/webp" srcset="/images/telecom/wow-business.webp"><img class="logo-img" src="/images/telecom/wow-business.png" alt="WOW! Business" width="148" height="72" loading="lazy" decoding="async"></picture></span>
     <span class="summary-text">
       <span class="card-tags"><span class="tag">Network</span></span>
       <span class="card-title">WOW! Business</span>
@@ -929,7 +930,7 @@
 </details>
 <details class="vendor-card more-card" data-categories="Network">
   <summary>
-    <span class="logo-well"><img class="logo-img" src="/images/telecom/zayo.png" alt="" width="148" height="72"></span>
+    <span class="logo-well"><picture><source type="image/webp" srcset="/images/telecom/zayo.webp"><img class="logo-img" src="/images/telecom/zayo.png" alt="Zayo" width="148" height="72" loading="lazy" decoding="async"></picture></span>
     <span class="summary-text">
       <span class="card-tags"><span class="tag">Network</span></span>
       <span class="card-title">Zayo</span>
@@ -943,7 +944,7 @@
 </details>
 <details class="vendor-card more-card" data-categories="Network">
   <summary>
-    <span class="logo-well"><img class="logo-img" src="/images/telecom/ziply-fiber.png" alt="" width="148" height="72"></span>
+    <span class="logo-well"><picture><source type="image/webp" srcset="/images/telecom/ziply-fiber.webp"><img class="logo-img" src="/images/telecom/ziply-fiber.png" alt="Ziply Fiber" width="148" height="72" loading="lazy" decoding="async"></picture></span>
     <span class="summary-text">
       <span class="card-tags"><span class="tag">Network</span></span>
       <span class="card-title">Ziply Fiber</span>
@@ -968,7 +969,7 @@
 </details>
 <details class="vendor-card more-card" data-categories="SD-WAN">
   <summary>
-    <span class="logo-well"><img class="logo-img" src="/images/telecom/velocloud.png" alt="" width="148" height="72"></span>
+    <span class="logo-well"><picture><source type="image/webp" srcset="/images/telecom/velocloud.webp"><img class="logo-img" src="/images/telecom/velocloud.png" alt="VeloCloud" width="148" height="72" loading="lazy" decoding="async"></picture></span>
     <span class="summary-text">
       <span class="card-tags"><span class="tag">SD-WAN</span></span>
       <span class="card-title">VeloCloud</span>
@@ -982,7 +983,7 @@
 </details>
 <details class="vendor-card more-card" data-categories="VARs">
   <summary>
-    <span class="logo-well"><img class="logo-img" src="/images/telecom/airespring.png" alt="" width="148" height="72"></span>
+    <span class="logo-well"><picture><source type="image/webp" srcset="/images/telecom/airespring.webp"><img class="logo-img" src="/images/telecom/airespring.png" alt="AireSpring" width="148" height="72" loading="lazy" decoding="async"></picture></span>
     <span class="summary-text">
       <span class="card-tags"><span class="tag">VARs</span></span>
       <span class="card-title">AireSpring</span>
@@ -1006,7 +1007,7 @@
 </details>
 <details class="vendor-card more-card" data-categories="VARs">
   <summary>
-    <span class="logo-well"><img class="logo-img" src="/images/telecom/mettel.png" alt="" width="148" height="72"></span>
+    <span class="logo-well"><picture><source type="image/webp" srcset="/images/telecom/mettel.webp"><img class="logo-img" src="/images/telecom/mettel.png" alt="MetTel" width="148" height="72" loading="lazy" decoding="async"></picture></span>
     <span class="summary-text">
       <span class="card-tags"><span class="tag">VARs</span></span>
       <span class="card-title">MetTel</span>
@@ -1043,7 +1044,7 @@
 </details>
 <details class="vendor-card more-card" data-categories="VARs">
   <summary>
-    <span class="logo-well"><img class="logo-img" src="/images/telecom/spectrotel.png" alt="" width="148" height="72"></span>
+    <span class="logo-well"><picture><source type="image/webp" srcset="/images/telecom/spectrotel.webp"><img class="logo-img" src="/images/telecom/spectrotel.png" alt="Spectrotel" width="148" height="72" loading="lazy" decoding="async"></picture></span>
     <span class="summary-text">
       <span class="card-tags"><span class="tag">VARs</span></span>
       <span class="card-title">Spectrotel</span>
