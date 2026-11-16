@@ -88,6 +88,6 @@ test("/telecom JSON-LD parses and describes the quote action", () => {
   assert.equal(block.hasOfferCatalog["@type"], "OfferCatalog");
   assert.equal(block.hasOfferCatalog.itemListElement.length, 4);
   assert.equal(block.potentialAction.target["@type"], "EntryPoint");
-  assert.equal(block.potentialAction.target.urlTemplate, "https://getpeaksignal.com/telecom/quote");
+  assert.equal(block.potentialAction.target.urlTemplate, "https://getpeaksignal.com/telecom");
   assert.equal(JSON.stringify(block).includes("$"), false);
 });
