@@ -59,6 +59,8 @@ type CallState = {
   emailed: boolean;
   /** In-flight Formspree post. Not a success latch — cleared if the post fails. */
   emailSending: boolean;
+  /** Summary post already started. Stays set after a non-2xx so this status callback does not send again. */
+  summaryAttempted: boolean;
   turns: { role: "agent" | "caller"; text: string; itemId?: string }[];
   revenueMonth: number | null;
   siteLookup: { url: string; sells: string; area: string; health: string };
@@ -87,6 +89,7 @@ function state(sid: string): CallState {
       confirmed: false,
       emailed: false,
       emailSending: false,
+      summaryAttempted: false,
       turns: [],
       revenueMonth: null,
       siteLookup: { url: "", sells: "", area: "", health: "" },
@@ -688,6 +691,7 @@ async function emailBrian(st: CallState, fromNumber: string): Promise<boolean> {
     return false;
   }
   st.emailSending = true;
+  st.summaryAttempted = true;
   const from = fromNumber || st.from || "";
   const leadEmail = isEmail(st.email) ? st.email.trim() : "";
   const leadName = (st.name || "").trim();
@@ -951,9 +955,10 @@ voiceAraRouter.post("/status", async (req: Request, res: Response) => {
   if (status === "completed") {
     const from = st.from || String(req.body?.From || "");
     await fileAssessment(st, from, sid);
-    // Known caller id, every mode, and only when nothing was sent yet.
+    // Known caller id, every mode, and only when the hangup summary has not already been tried.
+    // A non-2xx still counts as an attempt. A later completed callback can retry.
     // Forward mode keeps the one-line mail. Legacy and agent use the summary.
-    if (!st.emailed) {
+    if (!st.emailed && !st.summaryAttempted) {
       if (peakVoiceMode() === "forward_then_agent") {
         if (!st.forwardOutcome) st.forwardOutcome = "hungup";
         await sendForwardLine(st, from);

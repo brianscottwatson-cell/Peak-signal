@@ -144,5 +144,15 @@ assert(during === forwardForms + 3, `in-flight posts ${during - forwardForms}`);
 const oncePosts = formPosts.length - (forwardForms + 2);
 assert(oncePosts === 1, `overlapping hangups posted ${oncePosts}`);
 
+process.env.PEAK_VOICE_MODE = "forward_then_agent";
+process.env.PEAK_FORWARD_TO = "+15555550100";
+formStatus = 500;
+const failedHangup = formPosts.length;
+recordCallerUtterance("CAsumfail", "We need a site for the shop.");
+await hangup("CAsumfail");
+assert(formPosts.length === failedHangup + 1, `failed hangup posted ${formPosts.length - failedHangup}`);
+await hangup("CAsumfail");
+assert(formPosts.length === failedHangup + 2, "failed hangup was latched as sent");
+
 await new Promise<void>((resolve, reject) => server.close((err) => (err ? reject(err) : resolve())));
 console.log("peak-formspree.test.ts ok");
