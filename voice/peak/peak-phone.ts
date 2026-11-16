@@ -14,3 +14,12 @@ export function isUsE164(raw: string): boolean {
   if (area.endsWith("11") || exchange.endsWith("11")) return false;
   return true;
 }
+
+/** Accepts +1 E.164, 10 digits, or 11 digits starting with 1. Anything else is empty. */
+export function normalizeUsE164(raw: string): string {
+  const trimmed = String(raw || "").trim();
+  if (isUsE164(trimmed)) return trimmed;
+  const digits = trimmed.replace(/\D/g, "");
+  const candidate = digits.length === 10 ? `+1${digits}` : digits.length === 11 && digits.startsWith("1") ? `+${digits}` : "";
+  return candidate && isUsE164(candidate) ? candidate : "";
+}

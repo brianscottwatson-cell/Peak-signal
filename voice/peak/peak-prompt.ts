@@ -80,3 +80,28 @@ export function peakVoiceName(env: NodeJS.ProcessEnv = process.env): string {
   const v = String(env.PEAK_VOICE || "").trim();
   return v || PEAK_VOICE_DEFAULT;
 }
+
+/** The only value that lets the receptionist text the booking link. */
+export function peakSmsEnabled(env: NodeJS.ProcessEnv = process.env): boolean {
+  return String(env.PEAK_SMS_ENABLED || "").trim() === "1";
+}
+
+const SMS_OFF_BOOKING = `Offer to email the link, or read it aloud. If they would rather get a text, say Brian at Peak Signal will text the link to their callback number. Do not say a text already went out. This line does not send text messages. The hangup email is the send path.
+
+Call send_booking_link when they choose:
+- channel email — you must have a real email address first. The link is included in the summary email, and they are copied.
+- channel speak — then read the link slowly, one piece at a time.
+- channel text — pass their callback number. The summary email records the request for Brian at Peak Signal. You did not send a text.`;
+
+const SMS_ON_BOOKING = `Offer to email the link, read it aloud, or text it. A text goes only to the number they called from, or to a different number after they confirm that number on this call. Do not say a text went out until send_booking_link returns sms true. One text on this call.
+
+Call send_booking_link when they choose:
+- channel email — you must have a real email address first. The link is included in the summary email, and they are copied.
+- channel speak — then read the link slowly, one piece at a time.
+- channel text — omit phone to text the number they called from. Pass phone, and set confirmed true, only after they confirm a different number. If sms is false, the text did not go out. Offer to email the link or read it aloud.`;
+
+/** Flag off keeps the approved wording. Flag on is the same persona with the text offer. */
+export function peakInstructions(env: NodeJS.ProcessEnv = process.env): string {
+  if (!peakSmsEnabled(env)) return PEAK_INSTRUCTIONS;
+  return PEAK_INSTRUCTIONS.replace(SMS_OFF_BOOKING, SMS_ON_BOOKING);
+}
