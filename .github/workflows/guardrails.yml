@@ -27,6 +27,10 @@ jobs:
       - name: Unit tests
         run: node --test scripts/guardrails.test.mjs scripts/seo.test.mjs
 
+      - name: WWW redirect
+        if: success() || failure()
+        run: node --test scripts/www-apex-redirect.test.mjs
+
       - name: Feature map
         if: success() || failure()
         run: node scripts/check-feature-map.mjs

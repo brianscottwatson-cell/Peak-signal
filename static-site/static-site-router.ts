@@ -7,6 +7,7 @@ import { Router, type Request, type Response } from "express";
 import { readFileSync, existsSync } from "node:fs";
 import { join } from "node:path";
 import { installBrotliMitigation, rejectBrotliContentEncoding } from "../voice/brotli-guard";
+import { wwwApexRedirect } from "./www-apex-redirect";
 
 installBrotliMitigation(typeof __filename === "string" ? __filename : undefined);
 
@@ -35,6 +36,7 @@ function loadBuffer(name: string): Buffer | null {
 
 export const staticSiteRouter = Router();
 staticSiteRouter.use(rejectBrotliContentEncoding);
+staticSiteRouter.use(wwwApexRedirect);
 
 function redirectClean(cleanPath: string) {
   return (req: Request, res: Response) => {
