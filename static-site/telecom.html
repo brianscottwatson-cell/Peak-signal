@@ -1,0 +1,1117 @@
+<!DOCTYPE html>
+<html lang="en" class="bg-zinc-950">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Telecom & Connectivity | Peak Signal</title>
+  <meta name="description" content="Business phone, UCaaS, and connectivity. Open a vendor for a short description and key offerings, then request a quote. Brian at Peak Signal reviews it.">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="https://getpeaksignal.com/telecom">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Telecom & Connectivity | Peak Signal">
+  <meta property="og:description" content="Business phone, UCaaS, and connectivity. Open a vendor for a short description and key offerings, then request a quote. Brian at Peak Signal reviews it.">
+  <meta property="og:url" content="https://getpeaksignal.com/telecom">
+  <meta property="og:site_name" content="Peak Signal">
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="Telecom & Connectivity | Peak Signal">
+  <meta name="twitter:description" content="Business phone, UCaaS, and connectivity. Open a vendor for a short description and key offerings, then request a quote. Brian at Peak Signal reviews it.">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Space+Grotesk:wght@500;600&display=swap');
+    body { font-family: 'Inter', system-ui, sans-serif; }
+    .font-display { font-family: 'Space Grotesk', 'Inter', sans-serif; font-weight: 600; }
+    a:focus-visible, button:focus-visible, summary:focus-visible { outline: 2px solid #3B82F6; outline-offset: 3px; }
+    .catalog-kicker {
+      font-size: 0.75rem;
+      font-weight: 500;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: #a1a1aa;
+      margin: 0 0 8px;
+    }
+    .catalog-intro { color: #3B82F6; max-width: 65ch; }
+    .catalog-intro + .catalog-intro { color: #a1a1aa; }
+    .primary-grid, .more-grid { display: grid; gap: 24px; align-items: start; }
+    .primary-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .more-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    @media (max-width: 1100px) { .more-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+    @media (max-width: 800px) {
+      .primary-grid, .more-grid { grid-template-columns: minmax(0, 1fr); }
+    }
+    .vendor-card {
+      background: #18181b;
+      border: 1px solid #27272a;
+      border-radius: 24px;
+      overflow: hidden;
+      min-width: 0;
+    }
+    .vendor-card[hidden] { display: none !important; }
+    .vendor-card summary {
+      list-style: none;
+      cursor: pointer;
+      display: grid;
+      grid-template-columns: auto minmax(0, 1fr) auto;
+      gap: 16px;
+      align-items: center;
+      padding: 24px;
+    }
+    .primary-card summary { padding: 28px 32px; }
+    .vendor-card summary::-webkit-details-marker { display: none; }
+    .logo-well {
+      width: 120px;
+      height: 56px;
+      background: #fff;
+      border-radius: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      padding: 10px 12px;
+      box-sizing: border-box;
+    }
+    .primary-card .logo-well { width: 148px; height: 72px; border-radius: 16px; padding: 12px 14px; }
+    .logo-img { display: block; max-width: 100%; max-height: 100%; width: auto; height: auto; object-fit: contain; }
+    .logo-initials {
+      font-family: "Space Grotesk", Inter, sans-serif;
+      font-weight: 600;
+      letter-spacing: 0.06em;
+      color: #3B82F6;
+    }
+    .summary-text { min-width: 0; display: flex; flex-direction: column; gap: 8px; }
+    .tag {
+      font-size: 0.7rem;
+      font-weight: 600;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: #3B82F6;
+    }
+    .card-title {
+      font-family: "Space Grotesk", Inter, sans-serif;
+      font-weight: 600;
+      font-size: 1.25rem;
+      letter-spacing: -0.03em;
+      line-height: 1.2;
+      color: #fff;
+      overflow-wrap: anywhere;
+    }
+    .primary-card .card-title { font-size: 1.5rem; }
+    .chevron {
+      width: 10px; height: 10px;
+      border-right: 2px solid #a1a1aa;
+      border-bottom: 2px solid #a1a1aa;
+      transform: rotate(45deg);
+      margin-top: -4px;
+    }
+    .vendor-card[open] .chevron { transform: rotate(225deg); margin-top: 4px; }
+    .card-body { padding: 0 24px 24px; min-width: 0; }
+    .primary-card .card-body { padding: 0 32px 28px; }
+    .card-desc { color: #a1a1aa; font-size: 0.95rem; line-height: 1.65; margin: 0 0 16px; overflow-wrap: anywhere; }
+    .offer-label {
+      font-size: 0.75rem; font-weight: 600; letter-spacing: 0.08em;
+      text-transform: uppercase; color: #71717a; margin: 0 0 8px;
+    }
+    .offer-list { margin: 0 0 16px; padding: 0 0 0 1.1rem; color: #e4e4e7; font-size: 0.9rem; line-height: 1.55; }
+    .offer-list li { margin: 0 0 6px; overflow-wrap: anywhere; }
+    .card-action { margin: 0; }
+    .card-action a, .quote-btn {
+      display: inline-flex; align-items: center; justify-content: center;
+      min-height: 44px; padding: 10px 18px;
+      background: #fff; color: #09090b; border-radius: 12px;
+      font-size: 0.875rem; font-weight: 500;
+    }
+    .card-action a:hover, .quote-btn:hover { background: #f4f4f5; }
+    .filters { display: flex; flex-wrap: wrap; gap: 8px; margin: 0 0 24px; }
+    .chip {
+      background: transparent; color: #a1a1aa;
+      border: 1px solid #27272a; border-radius: 999px;
+      padding: 8px 14px; font-size: 0.8rem; font-weight: 500; min-height: 40px;
+    }
+    .chip.is-on, .chip:hover { background: #fff; color: #09090b; border-color: #fff; }
+    @media (max-width: 640px) {
+      .logo-well { width: 88px; height: 44px; padding: 6px 8px; }
+      .primary-card .logo-well { width: 104px; height: 52px; }
+      .vendor-card summary, .primary-card summary, .card-body, .primary-card .card-body { padding-left: 16px; padding-right: 16px; }
+      .card-title, .primary-card .card-title { font-size: 1.05rem; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .chevron { transition: none; }
+    }
+  </style>
+  <script type="application/ld+json">
+  {
+  "@context": "https://schema.org",
+  "@type": "Service",
+  "name": "Telecom & Connectivity",
+  "serviceType": "Business phone, UCaaS, and connectivity",
+  "url": "https://getpeaksignal.com/telecom",
+  "description": "Business phone, UCaaS, and connectivity. Open a vendor for a short description and key offerings, then request a quote. Brian at Peak Signal reviews it.",
+  "provider": {
+    "@type": "Organization",
+    "name": "Peak Signal",
+    "url": "https://getpeaksignal.com/",
+    "telephone": "+1-970-660-5088",
+    "email": "hello.peaksignal@gmail.com"
+  }
+}
+  </script>
+</head>
+<body class="bg-zinc-950 text-zinc-200">
+  <nav class="border-b border-zinc-800 bg-zinc-950/80 backdrop-blur-lg sticky top-0 z-50">
+    <div class="max-w-screen-xl mx-auto px-4 sm:px-6 py-4 sm:py-5 flex flex-wrap items-center gap-x-4 gap-y-3">
+      <a href="/" class="flex items-center gap-x-2 shrink-0" aria-label="Peak Signal home">
+        <svg aria-hidden="true" width="28" height="28" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M3 17L8.5 8.5L12 13L15.5 8.5L21 17" stroke="#3B82F6" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M3 17H21" stroke="#3B82F6" stroke-width="2" stroke-linecap="round"/>
+        </svg>
+        <span class="font-display text-xl sm:text-2xl font-semibold tracking-tighter">Peak Signal</span>
+      </a>
+
+      <div class="hidden md:flex flex-wrap items-center gap-x-6 gap-y-2 lg:gap-x-8 text-sm">
+        <a href="/#system" class="hover:text-white transition-colors">The System</a>
+        <a href="/#offers" class="hover:text-white transition-colors">Offers</a>
+        <a href="/ai-deployments" class="hover:text-white transition-colors">AI Deployments</a>
+        <a href="/telecom" class="text-white font-medium" aria-current="page">Telecom</a>
+        <a href="/#how" class="hover:text-white transition-colors">How it Works</a>
+        <a href="/about" class="hover:text-white transition-colors">About</a>
+        <a href="/contact" class="hover:text-white transition-colors">Contact</a>
+      </div>
+
+      <div class="flex items-center gap-2 sm:gap-3 w-full sm:w-auto sm:ml-auto">
+        <a href="https://calendly.com/hello-peaksignal/30min" target="_blank" rel="noopener" class="flex-1 sm:flex-none text-center px-3 sm:px-5 py-2.5 text-sm font-medium bg-white text-zinc-950 hover:bg-zinc-100 transition-colors rounded-xl whitespace-nowrap">
+          Book a call
+        </a>
+      </div>
+    </div>
+  </nav>
+
+  <main>
+    <section class="max-w-screen-xl mx-auto px-4 sm:px-6 pt-16 sm:pt-20 pb-16">
+      <div class="grid gap-10 lg:grid-cols-[minmax(0,1.4fr)_minmax(0,0.8fr)] lg:items-end">
+        <div class="min-w-0">
+          <p class="text-sm font-medium tracking-[3px] text-[#3B82F6] mb-4">TELECOM</p>
+          <h1 class="font-display text-4xl sm:text-5xl font-semibold tracking-tighter leading-none mb-6">Telecom &amp; Connectivity</h1>
+          <p class="text-lg sm:text-xl text-zinc-300 leading-relaxed max-w-xl">Business phone, UCaaS, and connectivity — sourced for you, then kept running. Meetings are by appointment only. The phone answers 24/7.</p>
+          <div class="mt-8 flex flex-col sm:flex-row flex-wrap gap-3">
+            <a href="/contact" class="quote-btn w-full sm:w-auto px-8 py-4 text-lg rounded-2xl">Request a quote</a>
+            <a href="tel:+19706605088" class="inline-flex w-full sm:w-auto items-center justify-center px-8 py-4 border border-zinc-700 text-zinc-100 font-medium rounded-2xl hover:border-zinc-400 transition-colors text-lg">Call 970-660-5088</a>
+          </div>
+        </div>
+        <aside class="bg-zinc-900 border border-zinc-800 rounded-3xl px-6 py-6 sm:px-8 min-w-0">
+          <h2 class="font-display text-2xl font-semibold tracking-tighter mb-3">How this catalog works</h2>
+          <p class="text-zinc-400 leading-relaxed mb-3">Request a quote. Brian at Peak Signal reviews it.</p>
+          <p class="text-zinc-400 leading-relaxed">Licenses and services are sourced through partners and billed separately from Peak’s studio work.</p>
+        </aside>
+      </div>
+    </section>
+
+    <section id="catalog" class="border-t border-zinc-800 py-16">
+      <div class="max-w-screen-xl mx-auto px-4 sm:px-6">
+        <p class="catalog-kicker">Business phone, UCaaS, and connectivity</p>
+        <h2 class="font-display text-3xl sm:text-4xl font-semibold tracking-tighter mb-4">Telecom catalog</h2>
+        <p class="catalog-intro text-base leading-relaxed mb-8">Eight primary vendors for business phone, UCaaS, and connectivity. Open a tile for a short description and key offerings, then request a quote.</p>
+        <div class="primary-grid">
+<details class="vendor-card primary-card" data-categories="Communications">
+  <summary>
+    <span class="logo-well"><img class="logo-img" src="/images/telecom/ringcentral.png" alt="" width="148" height="72"></span>
+    <span class="summary-text">
+      <span class="card-tags"><span class="tag">Communications</span></span>
+      <span class="card-title">RingCentral</span>
+    </span>
+    <span class="chevron" aria-hidden="true"></span>
+  </summary>
+  <div class="card-body">
+    <p class="card-desc">Cloud Message Video Phone (MVP), customer engagement and contact center. Replaces legacy on-prem PBX and video conferencing, and integrates with third-party business apps.</p>
+    <p class="offer-label">Key offerings</p>
+<ul class="offer-list">
+<li>RingCentral MVP (Message, Video, Phone): Cloud-based unified communications solution combining voice, video, messaging, and collaboration.</li>
+<li>RingCentral Video: HD video meetings and webinars with advanced collaboration tools.</li>
+<li>RingCentral Contact Center: AI-powered omnichannel contact center with intelligent routing and analytics.</li>
+<li>RingCentral Events: Virtual and hybrid event platform for large-scale meetings and events.</li>
+<li>RingCentral Webinar: Professional webinar hosting with engagement tools and analytics.</li>
+<li>RingCentral Rooms: Conference room solutions with video collaboration and content sharing.</li>
+<li>RingCentral App: Mobile and desktop applications for seamless communication across devices.</li>
+<li>AI-Enhanced Productivity: AI-powered meeting insights, call summaries, and automated transcription.</li>
+</ul>
+    <p class="card-action"><a href="/contact">Request a quote</a></p>
+  </div>
+</details>
+<details class="vendor-card primary-card" data-categories="Communications">
+  <summary>
+    <span class="logo-well"><img class="logo-img" src="/images/telecom/zoom.png" alt="" width="148" height="72"></span>
+    <span class="summary-text">
+      <span class="card-tags"><span class="tag">Communications</span></span>
+      <span class="card-title">Zoom</span>
+    </span>
+    <span class="chevron" aria-hidden="true"></span>
+  </summary>
+  <div class="card-body">
+    <p class="card-desc">A video-first unified communications platform with video meetings, voice (phone), webinars, and chat across desktop, phone, mobile, and conference rooms.</p>
+    <p class="offer-label">Key offerings</p>
+<ul class="offer-list">
+<li>Video Conferencing (Zoom Meetings)</li>
+<li>Webinar Services</li>
+<li>Team Chat and Messaging</li>
+<li>Cloud Phone System</li>
+<li>Whiteboarding</li>
+<li>Zoom Events (Virtual/Hybrid Events)</li>
+<li>Zoom Sessions</li>
+<li>AI/ML Companion</li>
+<li>Zoom Workplace</li>
+<li>Compliance Manager Plus</li>
+<li>Meeting Survivability</li>
+<li>Zoom Mesh</li>
+</ul>
+    <p class="card-action"><a href="/contact">Request a quote</a></p>
+  </div>
+</details>
+<details class="vendor-card primary-card" data-categories="Network">
+  <summary>
+    <span class="logo-well"><img class="logo-img" src="/images/telecom/comcast.png" alt="" width="148" height="72"></span>
+    <span class="summary-text">
+      <span class="card-tags"><span class="tag">Network</span></span>
+      <span class="card-title">Comcast</span>
+    </span>
+    <span class="chevron" aria-hidden="true"></span>
+  </summary>
+  <div class="card-body">
+    <p class="card-desc">Comcast Business offers connectivity, secure networking solutions, and unified communications for medium and large organizations.</p>
+    <p class="offer-label">Key offerings</p>
+<ul class="offer-list">
+<li>Business Internet: High-speed internet with flexible speeds and reliability guarantees.</li>
+<li>Ethernet Dedicated Internet: Dedicated fiber-based internet with guaranteed speeds.</li>
+<li>Business Voice: VoIP phone solutions with advanced calling features.</li>
+<li>Unified Communications: Integrated voice, video, and messaging solutions.</li>
+<li>SecurityEdge: Comprehensive cybersecurity protection for business networks.</li>
+<li>WiFi Pro: Managed WiFi solutions with enterprise-grade security.</li>
+<li>Business TV: Cable TV and streaming solutions for business environments.</li>
+<li>Backup Internet: Redundant internet connectivity for business continuity.</li>
+</ul>
+    <p class="card-action"><a href="/contact">Request a quote</a></p>
+  </div>
+</details>
+<details class="vendor-card primary-card" data-categories="Network">
+  <summary>
+    <span class="logo-well"><img class="logo-img" src="/images/telecom/att.png" alt="" width="148" height="72"></span>
+    <span class="summary-text">
+      <span class="card-tags"><span class="tag">Network</span></span>
+      <span class="card-title">AT&amp;T</span>
+    </span>
+    <span class="chevron" aria-hidden="true"></span>
+  </summary>
+  <div class="card-body">
+    <p class="card-desc">AT&amp;T provides connectivity, secure networking solutions, and unified communications for medium and large organizations.</p>
+    <p class="offer-label">Key offerings</p>
+<ul class="offer-list">
+<li>Connectivity solutions</li>
+<li>Secure networking</li>
+<li>Unified communications</li>
+<li>Enterprise services</li>
+</ul>
+    <p class="card-action"><a href="/contact">Request a quote</a></p>
+  </div>
+</details>
+<details class="vendor-card primary-card" data-categories="Network">
+  <summary>
+    <span class="logo-well"><img class="logo-img" src="/images/telecom/spectrum.png" alt="" width="148" height="72"></span>
+    <span class="summary-text">
+      <span class="card-tags"><span class="tag">Network</span></span>
+      <span class="card-title">Spectrum</span>
+    </span>
+    <span class="chevron" aria-hidden="true"></span>
+  </summary>
+  <div class="card-body">
+    <p class="card-desc">Spectrum provides reliable high-speed internet, premium cable TV, sports, 5G mobile, and home phone.</p>
+    <p class="card-action"><a href="/contact">Request a quote</a></p>
+  </div>
+</details>
+<details class="vendor-card primary-card" data-categories="Network">
+  <summary>
+    <span class="logo-well"><img class="logo-img" src="/images/telecom/cox.png" alt="" width="148" height="72"></span>
+    <span class="summary-text">
+      <span class="card-tags"><span class="tag">Network</span></span>
+      <span class="card-title">Cox</span>
+    </span>
+    <span class="chevron" aria-hidden="true"></span>
+  </summary>
+  <div class="card-body">
+    <p class="card-desc">Cox provides connectivity and cybersecurity solutions for governmental and educational organizations.</p>
+    <p class="offer-label">Key offerings</p>
+<ul class="offer-list">
+<li>Business Internet: High-speed fiber and cable internet solutions for businesses</li>
+<li>Ethernet Services: Dedicated ethernet connectivity for enterprise applications</li>
+<li>Voice Solutions: Business phone systems and unified communications</li>
+<li>Cybersecurity Services: Comprehensive security solutions to protect business networks</li>
+<li>Managed WiFi: Professional wireless networking solutions</li>
+<li>Cloud Services: Scalable cloud infrastructure and backup solutions</li>
+</ul>
+    <p class="card-action"><a href="/contact">Request a quote</a></p>
+  </div>
+</details>
+<details class="vendor-card primary-card" data-categories="Network">
+  <summary>
+    <span class="logo-well"><img class="logo-img" src="/images/telecom/starlink.png" alt="" width="148" height="72"></span>
+    <span class="summary-text">
+      <span class="card-tags"><span class="tag">Network</span></span>
+      <span class="card-title">Starlink</span>
+    </span>
+    <span class="chevron" aria-hidden="true"></span>
+  </summary>
+  <div class="card-body">
+    <p class="card-desc">Starlink provides high-speed satellite internet for business.</p>
+    <p class="card-action"><a href="/contact">Request a quote</a></p>
+  </div>
+</details>
+<details class="vendor-card primary-card" data-categories="Wireless">
+  <summary>
+    <span class="logo-well"><img class="logo-img" src="/images/telecom/t-mobile.png" alt="" width="148" height="72"></span>
+    <span class="summary-text">
+      <span class="card-tags"><span class="tag">Wireless</span></span>
+      <span class="card-title">T-Mobile for Business</span>
+    </span>
+    <span class="chevron" aria-hidden="true"></span>
+  </summary>
+  <div class="card-body">
+    <p class="card-desc">T-Mobile for Business offers nationwide 5G wireless and business internet, business phone plans, and bundled connectivity, device management, and security. Coverage includes a nationwide 5G network and, on select plans, satellite-to-mobile service.</p>
+    <p class="offer-label">Key offerings</p>
+<ul class="offer-list">
+<li>5G Business Internet, available nationwide (speeds vary on the cellular network)</li>
+<li>Business phone plans, including CoreMobile, ProMobile, and SuperMobile</li>
+<li>Business All-In, bundling connectivity, device management, security, and protection</li>
+<li>T-Satellite on select plans</li>
+<li>Advanced network solutions for coverage and critical operations</li>
+</ul>
+    <p class="card-action"><a href="/contact">Request a quote</a></p>
+  </div>
+</details>
+        </div>
+      </div>
+    </section>
+
+    <section id="more" class="border-t border-zinc-800 py-16">
+      <div class="max-w-screen-xl mx-auto px-4 sm:px-6">
+        <p class="text-sm font-medium text-zinc-400 mb-2">Full list</p>
+        <h2 class="font-display text-3xl sm:text-4xl font-semibold tracking-tighter mb-4">More vendors</h2>
+        <p class="catalog-intro text-base leading-relaxed mb-6">34 more vendors, grouped by category. Filter to browse.</p>
+        <div class="filters" role="toolbar" aria-label="Filter vendors by category">
+          <button type="button" class="chip is-on" data-filter="all" aria-pressed="true">All</button>
+          <button type="button" class="chip" data-filter="Communications" aria-pressed="false">Communications</button>
+          <button type="button" class="chip" data-filter="Network" aria-pressed="false">Network</button>
+          <button type="button" class="chip" data-filter="SD-WAN" aria-pressed="false">SD-WAN</button>
+          <button type="button" class="chip" data-filter="VARs" aria-pressed="false">VARs</button>
+        </div>
+        <div class="more-grid">
+<details class="vendor-card more-card" data-categories="Communications">
+  <summary>
+    <span class="logo-well"><img class="logo-img" src="/images/telecom/8x8.png" alt="" width="148" height="72"></span>
+    <span class="summary-text">
+      <span class="card-tags"><span class="tag">Communications</span></span>
+      <span class="card-title">8x8</span>
+    </span>
+    <span class="chevron" aria-hidden="true"></span>
+  </summary>
+  <div class="card-body">
+    <p class="card-desc">One platform for voice, video, collaboration, and contact center.</p>
+    <p class="offer-label">Key offerings</p>
+<ul class="offer-list">
+<li>Contact Center: 8x8® Contact Center™ enhances agent performance with AI to simplify operations and improve customer satisfaction.</li>
+<li>Unified Communications: 8x8 Work® connects teams and customers globally using an AI-enabled communications suite.</li>
+<li>Communications APIs: 8x8 no-code CPaaS enables connections with customers on preferred channels from a single platform.</li>
+<li>CX Beyond the Contact Center: 8x8 Engage™ supports all customer-facing teams to stay connected and assist customers easily.</li>
+<li>8x8 for Microsoft Teams: Amplifies Microsoft Teams with 8x8 communication capabilities and contact center integrations.</li>
+</ul>
+    <p class="card-action"><a href="/contact">Request a quote</a></p>
+  </div>
+</details>
+<details class="vendor-card more-card" data-categories="Communications">
+  <summary>
+    <span class="logo-well"><img class="logo-img" src="/images/telecom/dialpad.png" alt="" width="148" height="72"></span>
+    <span class="summary-text">
+      <span class="card-tags"><span class="tag">Communications</span></span>
+      <span class="card-title">Dialpad</span>
+    </span>
+    <span class="chevron" aria-hidden="true"></span>
+  </summary>
+  <div class="card-body">
+    <p class="card-desc">Built on trust, reliability, and world-class communication tools, Dialpad brings calling, messaging, meetings, and support together in one AI-powered platform. Dialpad's AI-native contact center and communications platform is built for human and AI agent collaboration, enabling CX transformation at scale.</p>
+    <p class="offer-label">Key offerings</p>
+<ul class="offer-list">
+<li>Dialpad AI Agents: Deploy autonomous voice and digital agents that take action, trigger automated workflows and easily scale support organizations.</li>
+<li>Dialpad Support: Transform the contact center with AI that expedites agent onboarding, simplifies coaching, and boosts CSAT.</li>
+<li>Dialpad Sell: Close deals faster with AI-driven outreach, automated playbooks, and real-time in-call sales coaching.</li>
+<li>Dialpad Connect: Streamline conversations with an AI-native platform that automates note-taking and delivers real-time insights.</li>
+</ul>
+    <p class="card-action"><a href="/contact">Request a quote</a></p>
+  </div>
+</details>
+<details class="vendor-card more-card" data-categories="Communications">
+  <summary>
+    <span class="logo-well"><img class="logo-img" src="/images/telecom/five9.png" alt="" width="148" height="72"></span>
+    <span class="summary-text">
+      <span class="card-tags"><span class="tag">Communications</span></span>
+      <span class="card-title">Five9</span>
+    </span>
+    <span class="chevron" aria-hidden="true"></span>
+  </summary>
+  <div class="card-body">
+    <p class="card-desc">Five9 offers cloud-native contact center software enabling digital customer service, sales, and marketing engagement.</p>
+    <p class="offer-label">Key offerings</p>
+<ul class="offer-list">
+<li>Intelligent Cloud Contact Center: AI-powered omnichannel contact center with predictive analytics.</li>
+<li>Customer Service Suite: Comprehensive tools for customer support and issue resolution.</li>
+<li>Sales Acceleration: Tools and automation for sales teams to increase conversion rates.</li>
+<li>Marketing Automation: Integrated marketing tools for lead generation and nurturing.</li>
+<li>Workforce Optimization: Advanced analytics and reporting for agent performance optimization.</li>
+<li>Omnichannel Routing: Intelligent routing across voice, email, chat, and social channels.</li>
+<li>Real-time Analytics: Live dashboards and reporting for contact center performance.</li>
+<li>CRM Integrations: Native integrations with leading CRM platforms.</li>
+</ul>
+    <p class="card-action"><a href="/contact">Request a quote</a></p>
+  </div>
+</details>
+<details class="vendor-card more-card" data-categories="Communications">
+  <summary>
+    <span class="logo-well"><img class="logo-img" src="/images/telecom/goto.png" alt="" width="148" height="72"></span>
+    <span class="summary-text">
+      <span class="card-tags"><span class="tag">Communications</span></span>
+      <span class="card-title">GoTo</span>
+    </span>
+    <span class="chevron" aria-hidden="true"></span>
+  </summary>
+  <div class="card-body">
+    <p class="card-desc">GoTo offers business collaboration tools including video conferencing, screen sharing, and webinars.</p>
+    <p class="offer-label">Key offerings</p>
+<ul class="offer-list">
+<li>GoToMeeting: Professional video conferencing and online meeting solutions</li>
+<li>GoToWebinar: Comprehensive webinar hosting and management platform</li>
+<li>GoToConnect: Unified communications with phone, video, and messaging</li>
+<li>GoToTraining: Interactive online training and learning management</li>
+<li>Screen Sharing: Real-time desktop sharing and remote collaboration</li>
+<li>Mobile Apps: Full-featured mobile applications for on-the-go collaboration</li>
+</ul>
+    <p class="card-action"><a href="/contact">Request a quote</a></p>
+  </div>
+</details>
+<details class="vendor-card more-card" data-categories="Communications">
+  <summary>
+    <span class="logo-well"><img class="logo-img" src="/images/telecom/net2phone.png" alt="" width="148" height="72"></span>
+    <span class="summary-text">
+      <span class="card-tags"><span class="tag">Communications</span></span>
+      <span class="card-title">Net2Phone</span>
+    </span>
+    <span class="chevron" aria-hidden="true"></span>
+  </summary>
+  <div class="card-body">
+    <p class="card-desc">Net2phone provides cloud communications solutions uniting voice, video, chat, AI and email for businesses. Net2phone offers comprehensive unified communications with advanced features. Ideal for AI, Hospitality, call center/CCaaS, Teams &amp; POTS replacement.</p>
+    <p class="offer-label">Key offerings</p>
+<ul class="offer-list">
+<li>Business Phone Systems: Cloud-based VoIP solutions for businesses</li>
+<li>Unified Communications: Integrated voice, video, chat, and email platform</li>
+<li>Mobile Applications: Full-featured mobile apps for remote work</li>
+<li>Video Conferencing: Professional video meeting solutions</li>
+<li>Call Center Solutions: Inbound and outbound call center platforms</li>
+<li>Integration Tools: CRM and business application integrations</li>
+<li>Teams: Enabling Teams to Communicate and Collaborate securely in real-time</li>
+<li>Hospitality: Cloud Based Integrated Go Forward and Ahead Position</li>
+<li>POTS Replacement: Full Analog Services Replacement Capability</li>
+<li>AI: Advanced Company and User Solutions offering Standalone and Compatible Products</li>
+</ul>
+    <p class="card-action"><a href="/contact">Request a quote</a></p>
+  </div>
+</details>
+<details class="vendor-card more-card" data-categories="Communications">
+  <summary>
+    <span class="logo-well"><img class="logo-img" src="/images/telecom/nextiva.png" alt="" width="148" height="72"></span>
+    <span class="summary-text">
+      <span class="card-tags"><span class="tag">Communications</span></span>
+      <span class="card-title">Nextiva</span>
+    </span>
+    <span class="chevron" aria-hidden="true"></span>
+  </summary>
+  <div class="card-body">
+    <p class="card-desc">A unified business communications, productivity, and customer relationship platform.</p>
+    <p class="offer-label">Key offerings</p>
+<ul class="offer-list">
+<li>Business Phone System: Cloud-based VoIP with advanced call management</li>
+<li>Contact Center: Omnichannel customer service and support platform</li>
+<li>Unified Communications: Integrated voice, video, chat, and messaging</li>
+<li>CRM Integration: Native integrations with popular CRM platforms</li>
+<li>Analytics &amp; Reporting: Advanced call analytics and performance reporting</li>
+<li>Mobile Apps: Full-featured mobile applications for remote teams</li>
+</ul>
+    <p class="card-action"><a href="/contact">Request a quote</a></p>
+  </div>
+</details>
+<details class="vendor-card more-card" data-categories="Communications">
+  <summary>
+    <span class="logo-well"><img class="logo-img" src="/images/telecom/ooma.png" alt="" width="148" height="72"></span>
+    <span class="summary-text">
+      <span class="card-tags"><span class="tag">Communications</span></span>
+      <span class="card-title">Ooma</span>
+    </span>
+    <span class="chevron" aria-hidden="true"></span>
+  </summary>
+  <div class="card-body">
+    <p class="card-desc">At Ooma, we create powerful communications solutions for businesses and consumers, all delivered through our advanced, cloud-based software service platform.</p>
+    <p class="offer-label">Key offerings</p>
+<ul class="offer-list">
+<li>Business Phone: With features like a Virtual Receptionist, CRM Integrations and videoconferencing, Ooma Office enables you to enhance your customer service and collaborate with your team more efficiently.</li>
+<li>Ooma AI: Handles calls so you can spend less time managing interruptions and more time connecting with your customers.</li>
+<li>POTS Line Replacement: Ooma AirDial® is your turnkey solution to digitally upgrade your POTS lines.</li>
+<li>Enterprise Communications: Empower employees to be more productive with the tools to communicate and collaborate seamlessly, the way they want.</li>
+<li>Ooma Connect: Reliable 5G business internet and phone service, designed to work together.</li>
+</ul>
+    <p class="card-action"><a href="/contact">Request a quote</a></p>
+  </div>
+</details>
+<details class="vendor-card more-card" data-categories="Communications">
+  <summary>
+    <span class="logo-well"><img class="logo-img" src="/images/telecom/spectrum-voip.png" alt="" width="148" height="72"></span>
+    <span class="summary-text">
+      <span class="card-tags"><span class="tag">Communications</span></span>
+      <span class="card-title">SpectrumVoIP</span>
+    </span>
+    <span class="chevron" aria-hidden="true"></span>
+  </summary>
+  <div class="card-body">
+    <p class="card-desc">SpectrumVoIP provides cloud-hosted VoIP, fast internet, AI-driven surveillance, and managed network security.</p>
+    <p class="card-action"><a href="/contact">Request a quote</a></p>
+  </div>
+</details>
+<details class="vendor-card more-card" data-categories="Communications">
+  <summary>
+    <span class="logo-well"><img class="logo-img" src="/images/telecom/talkdesk.png" alt="" width="148" height="72"></span>
+    <span class="summary-text">
+      <span class="card-tags"><span class="tag">Communications</span></span>
+      <span class="card-title">Talkdesk</span>
+    </span>
+    <span class="chevron" aria-hidden="true"></span>
+  </summary>
+  <div class="card-body">
+    <p class="card-desc">Talkdesk provides a global cloud contact center leader for modern AI-powered customer service.</p>
+    <p class="card-action"><a href="/contact">Request a quote</a></p>
+  </div>
+</details>
+<details class="vendor-card more-card" data-categories="VARs|Network|Communications|SD-WAN">
+  <summary>
+    <span class="logo-well"><img class="logo-img" src="/images/telecom/tpx.png" alt="" width="148" height="72"></span>
+    <span class="summary-text">
+      <span class="card-tags"><span class="tag">VARs, Network, Communications, SD-WAN</span></span>
+      <span class="card-title">TPx</span>
+    </span>
+    <span class="chevron" aria-hidden="true"></span>
+  </summary>
+  <div class="card-body">
+    <p class="card-desc">TPx is your sidekick for smart IT—helping organizations connect, secure, and grow with confidence. Leveraging decades of experience, TPx delivers managed services for cybersecurity, networks, and cloud communications that reduce risk and maximize the value of IT investments.</p>
+    <p class="offer-label">Key offerings</p>
+<ul class="offer-list">
+<li>Business Internet: High-speed internet with flexible speeds and reliability guarantees.</li>
+<li>Ethernet Dedicated Internet: Dedicated fiber-based internet with guaranteed speeds.</li>
+<li>Managed SD-WAN: Assured application performance, business policy automation and end-to-end management.</li>
+<li>Managed SASE: Secure access made simple for the modern workforce.</li>
+<li>Unified Communications: Integrated voice, video, and messaging solutions, including Webex, Teams, &amp; SIP trunking/SmartVoice</li>
+<li>Contact Center: Omnichannel contact center with intelligent routing and analytics.</li>
+</ul>
+    <p class="card-action"><a href="/contact">Request a quote</a></p>
+  </div>
+</details>
+<details class="vendor-card more-card" data-categories="Communications">
+  <summary>
+    <span class="logo-well"><img class="logo-img" src="/images/telecom/vonage.png" alt="" width="148" height="72"></span>
+    <span class="summary-text">
+      <span class="card-tags"><span class="tag">Communications</span></span>
+      <span class="card-title">Vonage Business</span>
+    </span>
+    <span class="chevron" aria-hidden="true"></span>
+  </summary>
+  <div class="card-body">
+    <p class="card-desc">Vonage provides flexible and scalable voice, messaging, video, and data capabilities across Unified Communications, Contact Centers, and Communications APIs.</p>
+    <p class="offer-label">Key offerings</p>
+<ul class="offer-list">
+<li>Communications APIs: Comprehensive voice, video, messaging, and verification APIs for developers.</li>
+<li>Unified Communications: Cloud-based phone system with advanced collaboration features.</li>
+<li>Contact Center: Omnichannel contact center solutions with AI-powered analytics.</li>
+<li>Video API: High-quality video calling and conferencing integration.</li>
+<li>SMS API: Global SMS messaging with delivery tracking and two-way messaging.</li>
+<li>Voice API: Programmable voice calling with advanced routing and recording.</li>
+<li>Verify API: Phone number verification and two-factor authentication.</li>
+<li>AI Platform: AI-powered conversation analytics and insights.</li>
+</ul>
+    <p class="card-action"><a href="/contact">Request a quote</a></p>
+  </div>
+</details>
+<details class="vendor-card more-card" data-categories="Network">
+  <summary>
+    <span class="logo-well"><img class="logo-img" src="/images/telecom/acc-business.png" alt="" width="148" height="72"></span>
+    <span class="summary-text">
+      <span class="card-tags"><span class="tag">Network</span></span>
+      <span class="card-title">ACC Business</span>
+    </span>
+    <span class="chevron" aria-hidden="true"></span>
+  </summary>
+  <div class="card-body">
+    <p class="card-desc">ACC Business, an AT&amp;T brand, is designed for customers seeking more than just a service provider, focusing on delivering exceptional service and flexible solutions in networking, data, cloud, and voice offerings. It works exclusively with Solution Providers.</p>
+    <p class="offer-label">Key offerings</p>
+<ul class="offer-list">
+<li>Networking solutions</li>
+<li>Data services</li>
+<li>Cloud offerings</li>
+<li>Voice services</li>
+</ul>
+    <p class="card-action"><a href="/contact">Request a quote</a></p>
+  </div>
+</details>
+<details class="vendor-card more-card" data-categories="SD-WAN|Network">
+  <summary>
+    <span class="logo-well"><img class="logo-img" src="/images/telecom/bigleaf-networks.png" alt="" width="148" height="72"></span>
+    <span class="summary-text">
+      <span class="card-tags"><span class="tag">SD-WAN, Network</span></span>
+      <span class="card-title">Bigleaf Networks</span>
+    </span>
+    <span class="chevron" aria-hidden="true"></span>
+  </summary>
+  <div class="card-body">
+    <p class="card-desc">Bigleaf is creating a future where businesses and organizations never have to micro-manage their internet connectivity. Because internet reliability should just be a given, like electricity or clean water.</p>
+    <p class="offer-label">Key offerings</p>
+<ul class="offer-list">
+<li>Bigleaf Cloud Connect: Optimized SD-WAN network connectivity for seamless business operations.</li>
+<li>Bigleaf Wireless Connect: 5G Wireless connectivity for optimization, redundancy, and scalable internet access.</li>
+<li>Hybrid WAN: Combines the best of wired and wireless circuits to deliver the highest level of optimized connectivity.</li>
+</ul>
+    <p class="card-action"><a href="/contact">Request a quote</a></p>
+  </div>
+</details>
+<details class="vendor-card more-card" data-categories="Network">
+  <summary>
+    <span class="logo-well"><img class="logo-img" src="/images/telecom/breezeline.png" alt="" width="148" height="72"></span>
+    <span class="summary-text">
+      <span class="card-tags"><span class="tag">Network</span></span>
+      <span class="card-title">Breezeline</span>
+    </span>
+    <span class="chevron" aria-hidden="true"></span>
+  </summary>
+  <div class="card-body">
+    <p class="card-desc">Breezeline offers high-speed internet with exclusive savings and reliable service.</p>
+    <p class="offer-label">Key offerings</p>
+<ul class="offer-list">
+<li>Business Internet: High-speed internet with flexible speeds and reliability guarantees</li>
+<li>Ethernet Dedicated Internet: Dedicated fiber-based internet with guaranteed speeds</li>
+<li>Hosted Voice: Customized VoIP phone solutions with advanced calling features</li>
+<li>Business Voice: PRI, SIP &amp; analog phone services</li>
+<li>GPON Internet: Select areas include NH, WV &amp; FL</li>
+<li>Business TV: Cable TV and streaming solutions for business environments</li>
+<li>Backup Internet: Redundant internet connectivity for business continuity</li>
+</ul>
+    <p class="card-action"><a href="/contact">Request a quote</a></p>
+  </div>
+</details>
+<details class="vendor-card more-card" data-categories="Network">
+  <summary>
+    <span class="logo-well"><img class="logo-img" src="/images/telecom/brightspeed.png" alt="" width="148" height="72"></span>
+    <span class="summary-text">
+      <span class="card-tags"><span class="tag">Network</span></span>
+      <span class="card-title">Brightspeed</span>
+    </span>
+    <span class="chevron" aria-hidden="true"></span>
+  </summary>
+  <div class="card-body">
+    <p class="card-desc">We’re Brightspeed, a new internet provider on a mission to bring more connectivity to America. We believe where you call home shouldn’t limit your options — and we’re building the infrastructure to provide millions of homes and businesses with high-quality internet. We connect you to the world so that you can accomplish what you have to do, whatever it is that you do. With an ever-expanding network, we’re bringing connectivity and new opportunities to underserved areas.</p>
+    <p class="offer-label">Key offerings</p>
+<ul class="offer-list">
+<li>Brightspeed Business Fiber: High-speed internet with flexible speeds and reliability guarantees.</li>
+<li>Ethernet Dedicated Internet: Dedicated fiber-based internet with guaranteed speeds.</li>
+<li>Business Premium Fiber: Unmatched speed and reliability.</li>
+<li>Business Voice+: VoIP phone solutions with advanced calling features.</li>
+</ul>
+    <p class="card-action"><a href="/contact">Request a quote</a></p>
+  </div>
+</details>
+<details class="vendor-card more-card" data-categories="Network">
+  <summary>
+    <span class="logo-well"><img class="logo-img" src="/images/telecom/dobson-fiber.png" alt="" width="148" height="72"></span>
+    <span class="summary-text">
+      <span class="card-tags"><span class="tag">Network</span></span>
+      <span class="card-title">Dobson Fiber</span>
+    </span>
+    <span class="chevron" aria-hidden="true"></span>
+  </summary>
+  <div class="card-body">
+    <p class="card-desc">Dobson Fiber owns and operates a 6,500+ mile regional fiber optic network located throughout Oklahoma and parts of Texas and Arkansas. They serve the communities they live in and have delivered quality solutions for over 85 years. All solutions are provided over a state-of-the-art fiber network to provide optimum performance, with fully symmetrical bandwidth services. From small business to large enterprise, they offer solutions to meet the needs of today’s growing markets. With DIA, Broadband, Ethernet, Wavelengths, and UCaaS, they can reach any size of organization while offering 24/7 technical support and a customer service center located in Oklahoma City, OK.</p>
+    <p class="offer-label">Key offerings</p>
+<ul class="offer-list">
+<li>Fiber Internet: High-speed fiber internet with unlimited data and no contracts</li>
+<li>Symmetrical Speeds: Equal upload and download speeds for business applications</li>
+<li>Business Solutions: Scalable internet solutions for small to medium businesses</li>
+<li>Reliable Connectivity: 99.9% uptime guarantee with local support</li>
+<li>Installation Services: Professional fiber installation and setup</li>
+</ul>
+    <p class="card-action"><a href="/contact">Request a quote</a></p>
+  </div>
+</details>
+<details class="vendor-card more-card" data-categories="Network">
+  <summary>
+    <span class="logo-well"><img class="logo-img" src="/images/telecom/epic-io.png" alt="" width="148" height="72"></span>
+    <span class="summary-text">
+      <span class="card-tags"><span class="tag">Network</span></span>
+      <span class="card-title">EPIC iO</span>
+    </span>
+    <span class="chevron" aria-hidden="true"></span>
+  </summary>
+  <div class="card-body">
+    <p class="card-desc">EPIC iO delivers enterprise-grade connectivity solutions designed to keep businesses running seamlessly across multiple locations. From fully managed 5G and POTS replacement to private cellular networks and satellite connectivity, EPIC iO simplifies complex deployments with expert engineering, rapid implementation, and ongoing support. Our AI-driven overlay adds intelligence to connected environments, while WirelessWindow™ provides customers with clear visibility and control over their wireless services.</p>
+    <p class="card-action"><a href="/contact">Request a quote</a></p>
+  </div>
+</details>
+<details class="vendor-card more-card" data-categories="Network">
+  <summary>
+    <span class="logo-well"><img class="logo-img" src="/images/telecom/fiberlight.png" alt="" width="148" height="72"></span>
+    <span class="summary-text">
+      <span class="card-tags"><span class="tag">Network</span></span>
+      <span class="card-title">FiberLight</span>
+    </span>
+    <span class="chevron" aria-hidden="true"></span>
+  </summary>
+  <div class="card-body">
+    <p class="card-desc">FiberLight provides fiber-optic-based networking services to drive organizations towards a digital economy.</p>
+    <p class="card-action"><a href="/contact">Request a quote</a></p>
+  </div>
+</details>
+<details class="vendor-card more-card" data-categories="Network">
+  <summary>
+    <span class="logo-well"><img class="logo-img" src="/images/telecom/for2fi.png" alt="" width="148" height="72"></span>
+    <span class="summary-text">
+      <span class="card-tags"><span class="tag">Network</span></span>
+      <span class="card-title">For2Fi</span>
+    </span>
+    <span class="chevron" aria-hidden="true"></span>
+  </summary>
+  <div class="card-body">
+    <p class="card-desc">For2Fi provides managed wireless WAN solutions with wireless connectivity through 98% of the United States.</p>
+    <p class="card-action"><a href="/contact">Request a quote</a></p>
+  </div>
+</details>
+<details class="vendor-card more-card" data-categories="Network">
+  <summary>
+    <span class="logo-well"><img class="logo-img" src="/images/telecom/lightpath-fiber.png" alt="" width="148" height="72"></span>
+    <span class="summary-text">
+      <span class="card-tags"><span class="tag">Network</span></span>
+      <span class="card-title">Lightpath Fiber</span>
+    </span>
+    <span class="chevron" aria-hidden="true"></span>
+  </summary>
+  <div class="card-body">
+    <p class="card-desc">Lightpath builds and operates all fiber infrastructure designed for the AI era. With connectivity to more than 17,500 locations, 185+ data centers and eight subsea landing stations, our dense network supports cloud, AI and mission critical workloads with low latency and scalable capacity. We approach network expansion fearlessly owning, building and operating our fiber end to end to reach complex, high demand environments. Backed by unwavering service and human accountability, Lightpath delivers infrastructure built boldly and supported by the engineers who stand behind it every day. Experience the Lightpath Difference.</p>
+    <p class="card-action"><a href="/contact">Request a quote</a></p>
+  </div>
+</details>
+<details class="vendor-card more-card" data-categories="Network">
+  <summary>
+    <span class="logo-well"><img class="logo-img" src="/images/telecom/lumen.png" alt="" width="148" height="72"></span>
+    <span class="summary-text">
+      <span class="card-tags"><span class="tag">Network</span></span>
+      <span class="card-title">Lumen</span>
+    </span>
+    <span class="chevron" aria-hidden="true"></span>
+  </summary>
+  <div class="card-body">
+    <p class="card-desc">Lumen provides enterprise technology and telecommunications enabling businesses to capitalize on emerging apps and next-gen technology.</p>
+    <p class="offer-label">Key offerings</p>
+<ul class="offer-list">
+<li>Internet Services: High-speed business internet with guaranteed speeds</li>
+<li>Ethernet Services: Dedicated ethernet connectivity for enterprise applications</li>
+<li>SD-WAN Solutions: Software-defined wide area networking for multi-location businesses</li>
+<li>Cloud Connect: Direct connections to major cloud providers</li>
+<li>Voice Services: Enterprise voice and unified communications solutions</li>
+<li>Security Services: Comprehensive cybersecurity and threat protection</li>
+<li>Managed Services: Fully managed IT infrastructure and support</li>
+</ul>
+    <p class="card-action"><a href="/contact">Request a quote</a></p>
+  </div>
+</details>
+<details class="vendor-card more-card" data-categories="Network">
+  <summary>
+    <span class="logo-well"><img class="logo-img" src="/images/telecom/optimum.png" alt="" width="148" height="72"></span>
+    <span class="summary-text">
+      <span class="card-tags"><span class="tag">Network</span></span>
+      <span class="card-title">Optimum</span>
+    </span>
+    <span class="chevron" aria-hidden="true"></span>
+  </summary>
+  <div class="card-body">
+    <p class="card-desc">Optimum provides high-speed fiber internet, TV, and mobile services.</p>
+    <p class="offer-label">Key offerings</p>
+<ul class="offer-list">
+<li>Fiber Internet: High-speed fiber internet with symmetrical upload and download speeds</li>
+<li>Business Internet: Scalable internet solutions for small to enterprise businesses</li>
+<li>Mobile Services: Nationwide mobile coverage with unlimited data plans</li>
+<li>TV Services: Cable and streaming TV packages for business locations</li>
+<li>WiFi Solutions: Professional WiFi installation and management services</li>
+<li>Phone Services: Business phone systems and unified communications</li>
+</ul>
+    <p class="card-action"><a href="/contact">Request a quote</a></p>
+  </div>
+</details>
+<details class="vendor-card more-card" data-categories="Network">
+  <summary>
+    <span class="logo-well"><img class="logo-img" src="/images/telecom/rise-internet.png" alt="" width="148" height="72"></span>
+    <span class="summary-text">
+      <span class="card-tags"><span class="tag">Network</span></span>
+      <span class="card-title">Rise Internet</span>
+    </span>
+    <span class="chevron" aria-hidden="true"></span>
+  </summary>
+  <div class="card-body">
+    <p class="card-desc">Rise Internet offers fast, reliable internet for homes and businesses with flexible plans.</p>
+    <p class="offer-label">Key offerings</p>
+<ul class="offer-list">
+<li>Business Internet: High-speed internet with flexible speeds and reliability guarantees</li>
+<li>Ethernet Dedicated Internet: Dedicated fiber-based internet with guaranteed speeds</li>
+<li>Business Voice: VoIP phone solutions with advanced calling features</li>
+<li>Backup Internet: Redundant internet connectivity for business continuity</li>
+</ul>
+    <p class="card-action"><a href="/contact">Request a quote</a></p>
+  </div>
+</details>
+<details class="vendor-card more-card" data-categories="Network">
+  <summary>
+    <span class="logo-well"><img class="logo-img" src="/images/telecom/rogers.png" alt="" width="148" height="72"></span>
+    <span class="summary-text">
+      <span class="card-tags"><span class="tag">Network</span></span>
+      <span class="card-title">Rogers</span>
+    </span>
+    <span class="chevron" aria-hidden="true"></span>
+  </summary>
+  <div class="card-body">
+    <p class="card-desc">Rogers provides mobile, internet, TV, home monitoring, and home phone services.</p>
+    <p class="card-action"><a href="/contact">Request a quote</a></p>
+  </div>
+</details>
+<details class="vendor-card more-card" data-categories="Network">
+  <summary>
+    <span class="logo-well"><img class="logo-img" src="/images/telecom/verizon.png" alt="" width="148" height="72"></span>
+    <span class="summary-text">
+      <span class="card-tags"><span class="tag">Network</span></span>
+      <span class="card-title">Verizon</span>
+    </span>
+    <span class="chevron" aria-hidden="true"></span>
+  </summary>
+  <div class="card-body">
+    <p class="card-desc">Verizon provides wireless, internet, TV, and phone services.</p>
+    <p class="card-action"><a href="/contact">Request a quote</a></p>
+  </div>
+</details>
+<details class="vendor-card more-card" data-categories="Network">
+  <summary>
+    <span class="logo-well"><img class="logo-img" src="/images/telecom/viasat.png" alt="" width="148" height="72"></span>
+    <span class="summary-text">
+      <span class="card-tags"><span class="tag">Network</span></span>
+      <span class="card-title">Viasat</span>
+    </span>
+    <span class="chevron" aria-hidden="true"></span>
+  </summary>
+  <div class="card-body">
+    <p class="card-desc">Viasat is the global communications company that believes everyone and everything in the world can be connected. If you have business customers in challenging locations where cable and fiber is not available, Viasat Business has you covered with broadband internet. They have nationwide coverage and download speeds up to 150 Mbps, so your customers finally have a better option over slow DSL and T1’s. Their satellite-based broadband also provides a resilient secondary connection that is completely separate from standard ground-based infrastructures, keeping your customers connected in even the worst situations.</p>
+    <p class="card-action"><a href="/contact">Request a quote</a></p>
+  </div>
+</details>
+<details class="vendor-card more-card" data-categories="Network">
+  <summary>
+    <span class="logo-well"><img class="logo-img" src="/images/telecom/wow-business.png" alt="" width="148" height="72"></span>
+    <span class="summary-text">
+      <span class="card-tags"><span class="tag">Network</span></span>
+      <span class="card-title">WOW! Business</span>
+    </span>
+    <span class="chevron" aria-hidden="true"></span>
+  </summary>
+  <div class="card-body">
+    <p class="card-desc">WOW! provides affordable and reliable business internet, phone, and cable TV.</p>
+    <p class="card-action"><a href="/contact">Request a quote</a></p>
+  </div>
+</details>
+<details class="vendor-card more-card" data-categories="Network">
+  <summary>
+    <span class="logo-well"><img class="logo-img" src="/images/telecom/zayo.png" alt="" width="148" height="72"></span>
+    <span class="summary-text">
+      <span class="card-tags"><span class="tag">Network</span></span>
+      <span class="card-title">Zayo</span>
+    </span>
+    <span class="chevron" aria-hidden="true"></span>
+  </summary>
+  <div class="card-body">
+    <p class="card-desc">Zayo provides bandwidth infrastructure services, fiber, and network solutions.</p>
+    <p class="card-action"><a href="/contact">Request a quote</a></p>
+  </div>
+</details>
+<details class="vendor-card more-card" data-categories="Network">
+  <summary>
+    <span class="logo-well"><img class="logo-img" src="/images/telecom/ziply-fiber.png" alt="" width="148" height="72"></span>
+    <span class="summary-text">
+      <span class="card-tags"><span class="tag">Network</span></span>
+      <span class="card-title">Ziply Fiber</span>
+    </span>
+    <span class="chevron" aria-hidden="true"></span>
+  </summary>
+  <div class="card-body">
+    <p class="card-desc">Ziply Fiber provides fast fiber internet with no annual contracts.</p>
+    <p class="offer-label">Key offerings</p>
+<ul class="offer-list">
+<li>Fiber 100/100: 100 Mbps upload/download, free installation, suitable for basic internet needs.</li>
+<li>Fiber 300/300: 300 Mbps upload/download, free installation, supports high-capacity activities.</li>
+<li>Fiber Gig: Gig speed upload/download, free installation, 25x faster upload than cable, ideal for multi-device households.</li>
+<li>2 Gig Fiber: 2 Gig speed upload/download, free installation, no annual contracts, 30-day money-back guarantee, no buffering or peak-time slowdowns.</li>
+<li>Multi-Gig Plans: Options include 2 Gig, 5 Gig, 10 Gig, and 50 Gig internet speeds, perfect for gamers, content creators, and remote workers, supported by WiFi 7 router.</li>
+<li>WiFi 7 Router: Supports up to 10 Gbps wired and 3.5 Gbps wireless speeds, available for all fiber plans up to 10 Gig.</li>
+<li>Streaming TV Support: Customizable streaming solutions, no confusing bundles, with a guide to find suitable streaming services.</li>
+<li>Business Solutions: 24/7 Network Security, IT Solutions, WiFi Equipment.</li>
+</ul>
+    <p class="card-action"><a href="/contact">Request a quote</a></p>
+  </div>
+</details>
+<details class="vendor-card more-card" data-categories="SD-WAN">
+  <summary>
+    <span class="logo-well"><img class="logo-img" src="/images/telecom/velocloud.png" alt="" width="148" height="72"></span>
+    <span class="summary-text">
+      <span class="card-tags"><span class="tag">SD-WAN</span></span>
+      <span class="card-title">VeloCloud</span>
+    </span>
+    <span class="chevron" aria-hidden="true"></span>
+  </summary>
+  <div class="card-body">
+    <p class="card-desc">VeloCloud provides SD-WAN solutions for enterprise networks.</p>
+    <p class="card-action"><a href="/contact">Request a quote</a></p>
+  </div>
+</details>
+<details class="vendor-card more-card" data-categories="VARs">
+  <summary>
+    <span class="logo-well"><img class="logo-img" src="/images/telecom/airespring.png" alt="" width="148" height="72"></span>
+    <span class="summary-text">
+      <span class="card-tags"><span class="tag">VARs</span></span>
+      <span class="card-title">AireSpring</span>
+    </span>
+    <span class="chevron" aria-hidden="true"></span>
+  </summary>
+  <div class="card-body">
+    <p class="card-desc">AireSpring is a trailblazing global managed services provider spearheading innovation in Managed IT, Network Services, and Unified Communications. Our arsenal of services is vast and versatile, designed to cater to the evolving needs of modern enterprises. From cutting-edge networking and security solutions to advanced communication platforms, we have the tools to propel your business forward.</p>
+    <p class="offer-label">Key offerings</p>
+<ul class="offer-list">
+<li>Business Internet: High-speed internet with flexible speeds and reliability guarantees.</li>
+<li>Ethernet Dedicated Internet: Dedicated fiber-based internet with guaranteed speeds.</li>
+<li>Managed SD-WAN: Assured application performance, business policy automation and end-to-end management.</li>
+<li>Managed Wireless WAN: Combines 4G and 5G wireless connectivity, reliable equipment &amp; an advanced portal to provide a complete solution.</li>
+<li>Managed SASE: Secure access made simple for the modern workforce.</li>
+<li>Unified Communications: Integrated voice, video, and messaging solutions, including Webex, Teams, SIP trunking &amp; POTS/POTS Replacement</li>
+<li>Contact Center: Omnichannel contact center with intelligent routing and analytics.</li>
+</ul>
+    <p class="card-action"><a href="/contact">Request a quote</a></p>
+  </div>
+</details>
+<details class="vendor-card more-card" data-categories="VARs">
+  <summary>
+    <span class="logo-well"><img class="logo-img" src="/images/telecom/mettel.png" alt="" width="148" height="72"></span>
+    <span class="summary-text">
+      <span class="card-tags"><span class="tag">VARs</span></span>
+      <span class="card-title">MetTel</span>
+    </span>
+    <span class="chevron" aria-hidden="true"></span>
+  </summary>
+  <div class="card-body">
+    <p class="card-desc">At MetTel, we’ve been helping our clients connect in smarter ways for more than twenty years. Our business connections result in products and services that are the perfect solution for our clients,. We offer a wide range of devices and services from telecom infrastructure planning to consolidated billing to transparent cloud-based management capabilities. MetTel is the simple, smart solution to all your telecom needs.</p>
+    <p class="offer-label">Key offerings</p>
+<ul class="offer-list">
+<li>POTS Transformation: Replace costly aging copper lines with ease</li>
+<li>Starlink: Provide managed connectivity from anywhere</li>
+<li>Mobility: Simplify mobile device management with added flexibility</li>
+<li>SASE/SD-WAN: Core to Edge network management</li>
+<li>Business Internet: High-speed internet with flexible speeds and reliability guarantees</li>
+<li>Ethernet Dedicated Internet: Dedicated fiber-based internet with guaranteed speeds</li>
+</ul>
+    <p class="card-action"><a href="/contact">Request a quote</a></p>
+  </div>
+</details>
+<details class="vendor-card more-card" data-categories="VARs">
+  <summary>
+    <span class="logo-well"><span class="logo-initials" aria-hidden="true">NI</span></span>
+    <span class="summary-text">
+      <span class="card-tags"><span class="tag">VARs</span></span>
+      <span class="card-title">Nitel</span>
+    </span>
+    <span class="chevron" aria-hidden="true"></span>
+  </summary>
+  <div class="card-body">
+    <p class="card-desc">Nitel simplifies complex technology challenges with seamless managed network solutions.</p>
+    <p class="card-action"><a href="/contact">Request a quote</a></p>
+  </div>
+</details>
+<details class="vendor-card more-card" data-categories="VARs">
+  <summary>
+    <span class="logo-well"><img class="logo-img" src="/images/telecom/spectrotel.png" alt="" width="148" height="72"></span>
+    <span class="summary-text">
+      <span class="card-tags"><span class="tag">VARs</span></span>
+      <span class="card-title">Spectrotel</span>
+    </span>
+    <span class="chevron" aria-hidden="true"></span>
+  </summary>
+  <div class="card-body">
+    <p class="card-desc">Spectrotel aggregates telecommunication services including phone, internet, VoIP, and managed services.</p>
+    <p class="card-action"><a href="/contact">Request a quote</a></p>
+  </div>
+</details>
+        </div>
+        <p class="text-zinc-400 mt-4" id="more-empty" hidden>No vendors in this category.</p>
+      </div>
+    </section>
+
+    <section id="quote" class="border-t border-zinc-800 py-16">
+      <div class="max-w-screen-xl mx-auto px-4 sm:px-6">
+        <h2 class="font-display text-3xl sm:text-4xl font-semibold tracking-tighter mb-4">Want a quote or information?</h2>
+        <p class="text-zinc-400 leading-relaxed max-w-xl mb-6">Request a quote. Brian at Peak Signal reviews it.</p>
+        <a href="/contact" class="quote-btn px-8 py-4 text-lg rounded-2xl">Request a quote</a>
+      </div>
+    </section>
+  </main>
+
+  <footer class="border-t border-zinc-800 py-8">
+    <div class="max-w-screen-xl mx-auto px-4 sm:px-6 text-sm text-zinc-500 flex flex-col md:flex-row justify-between items-center gap-y-4 text-center md:text-left">
+      <div>
+        © Peak Signal
+        · <a href="tel:+19706605088" class="hover:text-zinc-300">970-660-5088</a>
+        · <a href="mailto:hello.peaksignal@gmail.com" class="hover:text-zinc-300">hello.peaksignal@gmail.com</a>
+      </div>
+      <div class="flex flex-wrap justify-center gap-x-6 gap-y-2">
+        <a href="/ai-deployments" class="hover:text-zinc-300">AI Deployments</a>
+        <a href="/telecom" class="hover:text-zinc-300">Telecom</a>
+        <a href="/about" class="hover:text-zinc-300">About</a>
+        <a href="/contact" class="hover:text-zinc-300">Contact</a>
+        <a href="/privacy" class="hover:text-zinc-300">Privacy</a>
+        <a href="/terms" class="hover:text-zinc-300">Terms</a>
+      </div>
+    </div>
+  </footer>
+  <script>
+    (function () {
+      var chips = document.querySelectorAll("[data-filter]");
+      var cards = document.querySelectorAll(".more-card");
+      var empty = document.getElementById("more-empty");
+      chips.forEach(function (chip) {
+        chip.addEventListener("click", function () {
+          chips.forEach(function (item) {
+            item.classList.remove("is-on");
+            item.setAttribute("aria-pressed", "false");
+          });
+          chip.classList.add("is-on");
+          chip.setAttribute("aria-pressed", "true");
+          var filter = chip.getAttribute("data-filter");
+          var shown = 0;
+          cards.forEach(function (card) {
+            var cats = (card.getAttribute("data-categories") || "").split("|");
+            var match = filter === "all" || cats.indexOf(filter) !== -1;
+            card.hidden = !match;
+            if (match) shown += 1;
+          });
+          empty.hidden = shown > 0;
+        });
+      });
+    })();
+  </script>
+<!-- Cloudflare Web Analytics --><script type='module' src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "6a067e22aec645c6b9e360ce149ae7ad"}'></script><!-- End Cloudflare Web Analytics -->
+</body>
+</html>

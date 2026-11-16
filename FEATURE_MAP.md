@@ -35,6 +35,7 @@ Nav links are the anchors in the header `<nav>` (or the lander header nav). CTAs
   - The System → #system
   - Offers → #offers
   - AI Deployments → /ai-deployments
+  - Telecom → /telecom
   - How it Works → #how
   - About → /about
   - Contact → /contact
@@ -44,6 +45,7 @@ Nav links are the anchors in the header `<nav>` (or the lander header nav). CTAs
   - 970-660-5088 → tel:+19706605088
   - hello.peaksignal@gmail.com → mailto:hello.peaksignal@gmail.com
   - AI Deployments → /ai-deployments
+  - Telecom → /telecom
   - About → /about
   - Contact → /contact
   - Privacy → /privacy
@@ -75,6 +77,7 @@ Nav links are the anchors in the header `<nav>` (or the lander header nav). CTAs
   - The System → /#system
   - Offers → /#offers
   - AI Deployments → /ai-deployments
+  - Telecom → /telecom
   - How it Works → /#how
   - Contact → /contact
   - Book a call → https://calendly.com/hello-peaksignal/30min
@@ -101,6 +104,7 @@ Nav links are the anchors in the header `<nav>` (or the lander header nav). CTAs
   - The System → /#system
   - Offers → /#offers
   - AI Deployments → /ai-deployments
+  - Telecom → /telecom
   - How it Works → /#how
   - About → /about
   - Contact → /contact
@@ -144,6 +148,7 @@ Nav links are the anchors in the header `<nav>` (or the lander header nav). CTAs
   - The System → /#system
   - Offers → /#offers
   - AI Deployments → /ai-deployments
+  - Telecom → /telecom
   - How it Works → /#how
   - About → /about
   - Contact → /contact
@@ -152,6 +157,48 @@ Nav links are the anchors in the header `<nav>` (or the lander header nav). CTAs
   - 970-660-5088 → tel:+19706605088
   - hello.peaksignal@gmail.com → mailto:hello.peaksignal@gmail.com
   - AI Deployments → /ai-deployments
+  - Telecom → /telecom
+  - About → /about
+  - Contact → /contact
+  - Privacy → /privacy
+  - Terms → /terms
+
+## /telecom
+
+- Route: /telecom
+- Source file: static-site/telecom.html
+- Purpose: Catalog of business phone, UCaaS, and connectivity vendors. A quote request goes to the contact page for Brian at Peak Signal to review.
+- H1: Telecom & Connectivity
+- Key sections:
+  - How this catalog works
+  - Telecom catalog
+  - More vendors
+  - Want a quote or information?
+- CTAs:
+  - Book a call → https://calendly.com/hello-peaksignal/30min
+  - Request a quote → /contact
+  - Call 970-660-5088 → tel:+19706605088
+- In-page links:
+  - Request a quote → /contact
+  - 970-660-5088 → tel:+19706605088
+  - hello.peaksignal@gmail.com → mailto:hello.peaksignal@gmail.com
+- Forms: none
+- JSON-LD @types: Service
+- Nav links:
+  - Peak Signal → /
+  - The System → /#system
+  - Offers → /#offers
+  - AI Deployments → /ai-deployments
+  - Telecom → /telecom
+  - How it Works → /#how
+  - About → /about
+  - Contact → /contact
+  - Book a call → https://calendly.com/hello-peaksignal/30min
+- Footer links:
+  - 970-660-5088 → tel:+19706605088
+  - hello.peaksignal@gmail.com → mailto:hello.peaksignal@gmail.com
+  - AI Deployments → /ai-deployments
+  - Telecom → /telecom
   - About → /about
   - Contact → /contact
   - Privacy → /privacy
@@ -183,6 +230,7 @@ Nav links are the anchors in the header `<nav>` (or the lander header nav). CTAs
   - The System → /#system
   - Offers → /#offers
   - AI Deployments → /ai-deployments
+  - Telecom → /telecom
   - How it Works → /#how
   - Contact → /contact
   - Book a call → https://calendly.com/hello-peaksignal/30min
@@ -216,6 +264,7 @@ Nav links are the anchors in the header `<nav>` (or the lander header nav). CTAs
   - The System → /#system
   - Offers → /#offers
   - AI Deployments → /ai-deployments
+  - Telecom → /telecom
   - How it Works → /#how
   - Contact → /contact
   - Book a call → https://calendly.com/hello-peaksignal/30min

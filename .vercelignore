@@ -5,6 +5,8 @@
 !static-site/robots.txt
 !static-site/images/
 !static-site/images/cht-before-after.webp
+!static-site/images/telecom/
+!static-site/images/telecom/*.png
 !seo/
 !seo/landers/
 !seo/landers/*.html
