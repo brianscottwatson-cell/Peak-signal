@@ -11,6 +11,7 @@ import {
   extractJsonLd,
   findBanned,
   jsonLdProblems,
+  summaryProblems,
 } from "./telecom-agent.mjs";
 
 const root = join(dirname(fileURLToPath(import.meta.url)), "..");
@@ -29,11 +30,16 @@ test("committed catalog matches the generator and stays public", () => {
   assert.equal(rogers.category, "Network");
   assert.equal(Object.hasOwn(catalog, "note"), false);
   const wow = catalog.vendors.find((vendor) => vendor.name === "WOW! Business");
-  assert.match(wow.summary, /reliable business internet/);
-  assert.doesNotMatch(wow.summary, /affordable/);
+  assert.equal(wow.summary, "WOW! Business offers business internet, phone, and cable television.");
   const breezeline = catalog.vendors.find((vendor) => vendor.name === "Breezeline");
-  assert.match(breezeline.summary, /high-speed internet/);
-  assert.doesNotMatch(breezeline.summary, /savings/);
+  assert.equal(breezeline.summary, "Breezeline offers business internet.");
+  const cox = catalog.vendors.find((vendor) => vendor.name === "Cox");
+  assert.equal(cox.summary, "Cox offers business internet, dedicated connectivity, and voice.");
+  for (const vendor of catalog.vendors) {
+    assert.deepEqual(summaryProblems(vendor.summary, vendor.name), [], vendor.name);
+    assert.ok(vendor.summary.length <= 200, vendor.name);
+    assert.doesNotMatch(vendor.summary, /\b(we|our|ours|us)\b/i);
+  }
 });
 
 test("catalog check fails on a price, promo text, Pax8, loc8, or commission", () => {
@@ -53,6 +59,23 @@ test("catalog check fails on a price, promo text, Pax8, loc8, or commission", ()
     assert.ok(problems.length > 0, label);
     assert.ok(findBanned(JSON.stringify(copy)).length > 0, label);
   }
+});
+
+test("catalog check fails on first person or a summary over 200 characters", () => {
+  const catalog = buildCatalog(root);
+  const samples = [
+    (copy) => { copy.vendors[0].summary = "We offer cloud phone."; },
+    (copy) => { copy.vendors[0].summary = "Our network is available."; },
+    (copy) => { copy.vendors[0].summary = "Call us about business internet."; },
+    (copy) => { copy.vendors[0].summary = `${"Business internet and voice. ".repeat(12)}Done.`; },
+  ];
+  for (const edit of samples) {
+    const copy = structuredClone(catalog);
+    edit(copy);
+    assert.ok(copy.vendors[0].summary.length > 200 || /\b(we|our|ours|us)\b/i.test(copy.vendors[0].summary));
+    assert.ok(catalogProblems(copy).length > 0);
+  }
+  assert.deepEqual(summaryProblems("Comcast offers business internet and dedicated fiber, voice, and mobile."), []);
 });
 
 test("/telecom JSON-LD parses and describes the quote action", () => {

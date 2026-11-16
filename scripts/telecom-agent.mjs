@@ -5,8 +5,11 @@
  * Source: data/telecom-vendor-knowledge.json (sanitized). Plans, prices,
  * promos, setup, discovery, sources, sla, and the internal note are not
  * in that file. Vendors that appear on static-site/telecom.html and are
- * missing from the source are added with the page name and category only.
- * Countries are copied from the source. They are omitted when unknown.
+ * missing from the source are added with the page name and category.
+ * Their summary is the short third-person line in PAGE_SUMMARY, not the
+ * marketing card text. Countries are copied from the source and omitted
+ * when unknown. A summary fails if it uses we, our, or us, or is over
+ * 200 characters.
  *
  *   node scripts/telecom-agent.mjs           check committed outputs
  *   node scripts/telecom-agent.mjs --write   rewrite static-site/telecom/catalog.json
@@ -65,6 +68,49 @@ const BANNED = [
 ];
 
 const OFFER_CATEGORIES = ["UCaaS", "internet", "wireless", "satellite"];
+const SUMMARY_MAX = 200;
+const FIRST_PERSON = /\b(we|our|ours|us)\b/i;
+
+/**
+ * One neutral sentence for vendors that are on /telecom and not in the
+ * knowledge file. The HTML card text is marketing copy and is not published.
+ */
+const PAGE_SUMMARY = {
+  "8x8": "8x8 offers cloud voice, video, and contact center.",
+  Dialpad: "Dialpad offers cloud calling, messaging, meetings, and contact center.",
+  Five9: "Five9 offers cloud contact center software.",
+  GoTo: "GoTo offers video meetings, screen sharing, and webinars.",
+  Net2Phone: "Net2Phone offers cloud voice, video, chat, and email.",
+  Nextiva: "Nextiva offers cloud phone and customer communications.",
+  Ooma: "Ooma offers cloud phone service for businesses.",
+  SpectrumVoIP: "SpectrumVoIP offers cloud phone and business internet.",
+  Talkdesk: "Talkdesk offers a cloud contact center.",
+  TPx: "TPx offers managed network, security, and cloud communications services.",
+  "Vonage Business": "Vonage offers cloud voice, messaging, video, and contact center.",
+  "ACC Business": "ACC Business offers networking, data, cloud, and voice services.",
+  "Bigleaf Networks": "Bigleaf Networks offers managed business internet connectivity.",
+  Breezeline: "Breezeline offers business internet.",
+  Brightspeed: "Brightspeed offers business internet.",
+  "Dobson Fiber": "Dobson Fiber offers fiber internet and cloud phone.",
+  "EPIC iO": "EPIC iO offers managed wireless, private cellular, and satellite connectivity.",
+  FiberLight: "FiberLight offers fiber networking services.",
+  For2Fi: "For2Fi offers managed wireless wide-area connectivity.",
+  "Lightpath Fiber": "Lightpath Fiber offers business fiber connectivity.",
+  Lumen: "Lumen offers enterprise network and telecommunications services.",
+  Optimum: "Optimum offers fiber internet, television, and mobile service.",
+  "Rise Internet": "Rise Internet offers business internet.",
+  Rogers: "Rogers offers mobile, internet, television, and phone service.",
+  Verizon: "Verizon offers wireless, internet, television, and phone service.",
+  Viasat: "Viasat offers satellite internet.",
+  "WOW! Business": "WOW! Business offers business internet, phone, and cable television.",
+  Zayo: "Zayo offers fiber and bandwidth infrastructure.",
+  "Ziply Fiber": "Ziply Fiber offers fiber internet.",
+  VeloCloud: "VeloCloud offers SD-WAN for business networks.",
+  AireSpring: "AireSpring offers managed network and unified communications services.",
+  MetTel: "MetTel offers managed telecom and network services.",
+  Nitel: "Nitel offers managed network services.",
+  Spectrotel: "Spectrotel offers phone, internet, and managed network services.",
+};
 
 export function findBanned(text) {
   const hits = [];
@@ -72,6 +118,17 @@ export function findBanned(text) {
     if (rule.re.test(text)) hits.push(rule.id);
   }
   return hits;
+}
+
+export function summaryProblems(summary, label = "summary") {
+  const problems = [];
+  if (typeof summary !== "string" || !summary.trim()) {
+    problems.push(`${label} is missing`);
+    return problems;
+  }
+  if (summary.length > SUMMARY_MAX) problems.push(`${label} is ${summary.length} characters`);
+  if (FIRST_PERSON.test(summary)) problems.push(`${label} uses first person`);
+  return problems;
 }
 
 export function decodeHtml(text) {
@@ -100,19 +157,6 @@ export function vendorsFromHtml(html) {
     });
   }
   return vendors;
-}
-
-function cleanPageSummary(summary) {
-  let text = summary
-    .replace(/\bwith exclusive savings and\b/gi, "with")
-    .replace(/\baffordable and\s+/gi, "")
-    .replace(/\s+/g, " ")
-    .trim();
-  const sentences = text.split(/(?<=[.!?])\s+/);
-  const kept = sentences.filter((sentence) => findBanned(sentence).length === 0 && !/solution providers/i.test(sentence));
-  text = kept.join(" ").replace(/\s+/g, " ").trim();
-  if (!text || findBanned(text).length) return "";
-  return text;
 }
 
 function publicVendor({ name, category, countries, summary }) {
@@ -149,6 +193,8 @@ export function loadKnowledge(dir = root) {
     }
     const hits = findBanned(JSON.stringify(vendor));
     if (hits.length) throw new Error(`${KNOWLEDGE} vendor ${vendor.id || vendor.name} contains ${hits.join(", ")}`);
+    const summaryHits = summaryProblems(vendor.summary, `${vendor.id || vendor.name} summary`);
+    if (summaryHits.length) throw new Error(`${KNOWLEDGE} ${summaryHits.join("; ")}`);
     assertCountries(vendor.countries, vendor.id || vendor.name);
     if (!PAGE_NAME[vendor.id]) throw new Error(`${KNOWLEDGE} vendor ${vendor.id} has no /telecom name`);
   }
@@ -176,10 +222,12 @@ export function buildCatalog(dir = root) {
       }));
       continue;
     }
+    const summary = PAGE_SUMMARY[card.name];
+    if (!summary) throw new Error(`missing public summary for ${card.name}`);
     vendors.push(publicVendor({
       name: card.name,
       category: card.categories.join(", "),
-      summary: cleanPageSummary(card.summary),
+      summary,
     }));
   }
 
@@ -242,6 +290,9 @@ export function catalogProblems(catalog) {
     }
     if (vendor.summary && findBanned(vendor.summary).length) {
       problems.push(`${vendor.name} summary contains ${findBanned(vendor.summary).join(", ")}`);
+    }
+    for (const problem of summaryProblems(vendor.summary, `${vendor.name || "vendor"} summary`)) {
+      problems.push(problem);
     }
   }
   return problems;
