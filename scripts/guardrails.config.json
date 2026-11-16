@@ -1,4 +1,5 @@
 {
   "priceAllowlist": [],
-  "howToAllow": "Add the exact price token from the failure, such as \"$52\" or \"$1,200.00\", to priceAllowlist. A token allows only that exact string."
+  "brianAllowlist": ["Brian at Peak Signal"],
+  "howToAllow": "Add the exact price token from the failure, such as \"$52\" or \"$1,200.00\", to priceAllowlist. A token allows only that exact string. brianAllowlist is the one exact from-line string, and it is allowed only in static-site/privacy.html and static-site/terms.html."
 }

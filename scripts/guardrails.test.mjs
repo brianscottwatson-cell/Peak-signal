@@ -313,6 +313,111 @@ test("an H1 that does not match the map fails with h1-mismatch", () => {
   }
 });
 
+test("a public Brian fails, including JSON-LD, llms, and the catalog", () => {
+  const cases = [
+    {
+      label: "html",
+      files: { "static-site/index.html": page({ body: "<p>Ask Brian.</p>" }) },
+      file: "static-site/index.html",
+    },
+    {
+      label: "jsonld",
+      files: {
+        "static-site/index.html": page({
+          head: '<script type="application/ld+json">{ "founder": { "@type": "Person", "name": "Brian" } }</script>',
+        }),
+      },
+      file: "static-site/index.html",
+    },
+    {
+      label: "llms",
+      files: {
+        "static-site/index.html": page(),
+        "static-site/llms.txt": "Brian at Peak Signal reviews every quote.\n",
+      },
+      file: "static-site/llms.txt",
+    },
+    {
+      label: "catalog",
+      files: {
+        "static-site/index.html": page(),
+        "static-site/telecom/catalog.json": '{ "summary": "Brian reviews it" }\n',
+      },
+      file: "static-site/telecom/catalog.json",
+    },
+  ];
+  for (const item of cases) {
+    const root = writeFixture({ files: item.files });
+    try {
+      const guard = run("check-guardrails.mjs", root);
+      assert.notEqual(guard.status, 0, item.label);
+      assert.match(guard.output, new RegExp(`${item.file.replaceAll(".", "\\.")}:\\d+ \\[brian\\] personal name is not public copy`), item.label);
+    } finally {
+      cleanup(root);
+    }
+  }
+});
+
+test("the from-line allowlist is one exact string in privacy and terms", () => {
+  const allowed = writeFixture({
+    files: {
+      "static-site/index.html": page(),
+      "static-site/privacy.html": page({ body: "<p>The from-line is Brian at Peak Signal.</p><p>From-line on texts: Brian at Peak Signal.</p>" }),
+      "static-site/terms.html": page({ body: "<p>From-line: Brian at Peak Signal.</p>" }),
+      "seo/README.md": "Voice: Brian at Peak Signal.\n",
+    },
+  });
+  const wrongCase = writeFixture({
+    files: {
+      "static-site/index.html": page(),
+      "static-site/privacy.html": page({ body: "<p>The from-line is brian at Peak Signal.</p>" }),
+    },
+  });
+  const otherName = writeFixture({
+    files: {
+      "static-site/index.html": page(),
+      "static-site/terms.html": page({ body: "<p>Ask Brian.</p>" }),
+    },
+  });
+  const home = writeFixture({
+    files: { "static-site/index.html": page({ body: "<p>Brian at Peak Signal</p>" }) },
+  });
+  const extended = writeFixture({
+    files: {
+      "static-site/index.html": page(),
+      "static-site/privacy.html": page({ body: "<p>Brian at Peak Signal reviews it.</p>" }),
+    },
+  });
+  try {
+    const pass = run("check-guardrails.mjs", allowed);
+    assert.equal(pass.status, 0, pass.output);
+    assert.doesNotMatch(pass.output, /\[brian\]/);
+
+    for (const [label, root, file] of [
+      ["case", wrongCase, "static-site/privacy.html"],
+      ["other", otherName, "static-site/terms.html"],
+      ["home", home, "static-site/index.html"],
+      ["extended", extended, "static-site/privacy.html"],
+    ]) {
+      const guard = run("check-guardrails.mjs", root);
+      assert.notEqual(guard.status, 0, label);
+      assert.match(guard.output, new RegExp(`${file.replaceAll(".", "\\.")}:\\d+ \\[brian\\]`), label);
+    }
+  } finally {
+    cleanup(allowed);
+    cleanup(wrongCase);
+    cleanup(otherName);
+    cleanup(home);
+    cleanup(extended);
+  }
+});
+
+test("the public site has no Brian outside the texting from-line", () => {
+  const guard = run("check-guardrails.mjs", join(scriptsDir, ".."));
+  assert.equal(guard.status, 0, guard.output);
+  assert.doesNotMatch(guard.output, /\[brian\]/);
+});
+
 test("a form endpoint that does not match the map fails with form-action-mismatch", () => {
   const html = page({ body: '<form action="https://example.com/post"></form>' });
   const root = writeFixture({
