@@ -5,6 +5,9 @@
  * Fails if a public page contains a banned term or retired product name,
  * a price that is not on the allowlist, more or fewer than one <h1>,
  * an empty title, or a missing meta description.
+ * Also fails on a case-insensitive "Brian" in public HTML, llms files,
+ * the catalog JSON, and served JSON-LD. The one exact from-line string in
+ * brianAllowlist is allowed only in privacy.html and terms.html.
  *
  * Each failure is one line:
  *   <file>:<line> [rule-id] message
@@ -17,7 +20,7 @@
  * under priceAllowlist. An empty list allows nothing. A missing config
  * file is treated as an empty list.
  */
-import { readFileSync } from "node:fs";
+import { existsSync, readFileSync } from "node:fs";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { contentFiles, formatFailures, inspectHtml, listPublicRoutes, loadPriceAllowlist } from "./public-html.mjs";
@@ -65,15 +68,27 @@ const CONTENT_RULES = {
 };
 
 const PRICE = /\$\d[\d,]*(?:\.\d+)?/g;
+const BRIAN = /\bBrian\b/gi;
+const FROM_LINE = "Brian at Peak Signal";
+const FROM_LINE_FILES = new Set([
+  "static-site/privacy.html",
+  "static-site/terms.html",
+]);
 
 function main() {
   const allow = new Set(loadPriceAllowlist(root));
+  const brianAllow = loadBrianAllowlist(root);
   const files = contentFiles(listPublicRoutes(root));
   const failures = [];
 
   for (const file of files) {
     const html = readFileSync(join(root, file), "utf8");
     checkFile(file, html, allow, failures);
+    checkBrian(file, html, brianAllow, failures);
+  }
+
+  for (const file of extraPublicFiles(root)) {
+    checkBrian(file, readFileSync(join(root, file), "utf8"), brianAllow, failures);
   }
 
   if (failures.length) {
@@ -148,6 +163,70 @@ function findAll(text, re) {
     if (match[0].length === 0) copy.lastIndex += 1;
   }
   return hits;
+}
+
+function extraPublicFiles(dir) {
+  const extras = [
+    "static-site/llms.txt",
+    "static-site/llms-full.txt",
+    "static-site/telecom/catalog.json",
+    "static-site/robots.txt",
+    "seo/robots.txt",
+    "seo/sitemap.xml",
+  ];
+  return extras.filter((file) => existsSync(join(dir, file)));
+}
+
+function loadBrianAllowlist(dir) {
+  const rel = "scripts/guardrails.config.json";
+  const path = join(dir, rel);
+  if (!existsSync(path)) return [FROM_LINE];
+  let json;
+  try {
+    json = JSON.parse(readFileSync(path, "utf8"));
+  } catch (err) {
+    const error = new Error(`${rel} is not valid JSON (${err.message})`);
+    error.rule = "config";
+    throw error;
+  }
+  if (!Object.hasOwn(json, "brianAllowlist")) return [FROM_LINE];
+  const list = json.brianAllowlist;
+  if (!Array.isArray(list) || list.some((item) => typeof item !== "string") || list.length !== 1) {
+    const error = new Error(`${rel} brianAllowlist must be one exact string`);
+    error.rule = "config";
+    throw error;
+  }
+  return list;
+}
+
+function checkBrian(file, text, allow, failures) {
+  const copy = new RegExp(BRIAN.source, "gi");
+  let match;
+  while ((match = copy.exec(text))) {
+    if (isExactFromLine(file, text, match.index, allow)) continue;
+    failures.push({
+      file,
+      line: lineAt(text, match.index),
+      rule: "brian",
+      message: "personal name is not public copy",
+    });
+    if (match[0].length === 0) copy.lastIndex += 1;
+  }
+}
+
+function isExactFromLine(file, text, index, allow) {
+  if (!FROM_LINE_FILES.has(file)) return false;
+  return allow.some((phrase) => {
+    if (!text.startsWith(phrase, index)) return false;
+    const next = text[index + phrase.length];
+    return next == null || !/[A-Za-z0-9\s]/.test(next);
+  });
+}
+
+function lineAt(text, index) {
+  let line = 1;
+  for (let i = 0; i < index; i++) if (text[i] === "\n") line += 1;
+  return line;
 }
 
 function headLine(html) {
