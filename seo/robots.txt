@@ -14,3 +14,5 @@ User-agent: PerplexityBot
 Allow: /
 
 Sitemap: https://getpeaksignal.com/sitemap.xml
+
+# Agent index: https://getpeaksignal.com/llms.txt

@@ -1,0 +1,61 @@
+{
+  "as_of": "2026-11-16",
+  "vendors": [
+    {
+      "id": "ringcentral",
+      "name": "RingCentral",
+      "category": "UCaaS/CCaaS/AI voice",
+      "summary": "RingCentral offers cloud phone, video, messaging, and contact center services.",
+      "countries": ["US", "CA"]
+    },
+    {
+      "id": "zoom",
+      "name": "Zoom",
+      "category": "UCaaS/CCaaS",
+      "summary": "Zoom offers cloud phone, meetings, chat, and contact center services.",
+      "countries": ["US", "CA"]
+    },
+    {
+      "id": "comcast-business",
+      "name": "Comcast Business",
+      "category": "ISP (cable/fiber), voice, mobile",
+      "summary": "Comcast offers business internet and dedicated fiber, voice, and mobile.",
+      "countries": ["US"]
+    },
+    {
+      "id": "att-business",
+      "name": "AT&T Business",
+      "category": "ISP (fiber, 5G fixed wireless), wireless, UCaaS",
+      "summary": "AT&T offers business fiber, fixed wireless internet, dedicated internet, and cloud phone.",
+      "countries": ["US"]
+    },
+    {
+      "id": "spectrum-business",
+      "name": "Spectrum Business",
+      "category": "ISP (HFC cable), voice, UCaaS, mobile",
+      "summary": "Spectrum offers business internet, voice, cloud phone, and mobile.",
+      "countries": ["US"]
+    },
+    {
+      "id": "cox-business",
+      "name": "Cox Business",
+      "category": "ISP (cable/fiber), voice",
+      "summary": "Cox offers business internet, dedicated connectivity, and voice.",
+      "countries": ["US"]
+    },
+    {
+      "id": "starlink-business",
+      "name": "Starlink Business",
+      "category": "Satellite internet",
+      "summary": "Starlink offers satellite internet.",
+      "countries": ["US", "CA"]
+    },
+    {
+      "id": "t-mobile-business",
+      "name": "T-Mobile for Business",
+      "category": "Wireless, 5G business internet",
+      "summary": "T-Mobile for Business offers business wireless and 5G business internet.",
+      "countries": ["US"]
+    }
+  ]
+}

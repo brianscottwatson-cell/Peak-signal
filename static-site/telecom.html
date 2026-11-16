@@ -7,6 +7,7 @@
   <meta name="description" content="Business phone, UCaaS, and connectivity. Open a vendor for a short description and key offerings, then request a quote. Brian at Peak Signal reviews it.">
   <meta name="robots" content="index, follow">
   <link rel="canonical" href="https://getpeaksignal.com/telecom">
+  <link rel="alternate" type="application/json" href="/telecom/catalog.json" title="Telecom vendor catalog">
   <meta property="og:type" content="website">
   <meta property="og:title" content="Telecom & Connectivity | Peak Signal">
   <meta property="og:description" content="Business phone, UCaaS, and connectivity. Open a vendor for a short description and key offerings, then request a quote. Brian at Peak Signal reviews it.">
@@ -140,20 +141,105 @@
   </style>
   <script type="application/ld+json">
   {
-  "@context": "https://schema.org",
-  "@type": "Service",
-  "name": "Telecom & Connectivity",
-  "serviceType": "Business phone, UCaaS, and connectivity",
-  "url": "https://getpeaksignal.com/telecom",
-  "description": "Business phone, UCaaS, and connectivity. Open a vendor for a short description and key offerings, then request a quote. Brian at Peak Signal reviews it.",
-  "provider": {
-    "@type": "Organization",
-    "name": "Peak Signal",
-    "url": "https://getpeaksignal.com/",
-    "telephone": "+1-970-660-5088",
-    "email": "hello.peaksignal@gmail.com"
+    "@context": "https://schema.org",
+    "@type": "Service",
+    "name": "Telecom & Connectivity",
+    "serviceType": "Business phone, UCaaS, internet, wireless, and satellite",
+    "url": "https://getpeaksignal.com/telecom",
+    "description": "Business phone and UCaaS, internet and fiber, wireless, and satellite for the United States and Canada. Availability is checked per service address. Brian at Peak Signal reviews every quote by appointment.",
+    "areaServed": [
+      { "@type": "Country", "name": "US" },
+      { "@type": "Country", "name": "CA" }
+    ],
+    "provider": {
+      "@type": "Organization",
+      "@id": "https://getpeaksignal.com/#organization",
+      "name": "Peak Signal",
+      "url": "https://getpeaksignal.com/",
+      "logo": "https://getpeaksignal.com/images/peak-signal-logo.svg",
+      "telephone": "+1-970-660-5088",
+      "email": "hello.peaksignal@gmail.com",
+      "areaServed": [
+        { "@type": "Country", "name": "US" },
+        { "@type": "Country", "name": "CA" }
+      ],
+      "contactPoint": {
+        "@type": "ContactPoint",
+        "contactType": "sales",
+        "telephone": "+1-970-660-5088",
+        "areaServed": [
+          { "@type": "Country", "name": "US" },
+          { "@type": "Country", "name": "CA" }
+        ],
+        "availableLanguage": "en",
+        "hoursAvailable": {
+          "@type": "OpeningHoursSpecification",
+          "description": "Answers 24/7.",
+          "dayOfWeek": [
+            "Monday",
+            "Tuesday",
+            "Wednesday",
+            "Thursday",
+            "Friday",
+            "Saturday",
+            "Sunday"
+          ],
+          "opens": "00:00",
+          "closes": "23:59"
+        }
+      }
+    },
+    "hasOfferCatalog": {
+      "@type": "OfferCatalog",
+      "name": "Telecom categories",
+      "itemListElement": [
+        {
+          "@type": "Offer",
+          "itemOffered": {
+            "@type": "Service",
+            "name": "UCaaS",
+            "description": "Business phone and unified communications. Availability is checked per service address."
+          }
+        },
+        {
+          "@type": "Offer",
+          "itemOffered": {
+            "@type": "Service",
+            "name": "internet",
+            "description": "Business internet and fiber. Availability is checked per service address."
+          }
+        },
+        {
+          "@type": "Offer",
+          "itemOffered": {
+            "@type": "Service",
+            "name": "wireless",
+            "description": "Business wireless. Availability is checked per service address."
+          }
+        },
+        {
+          "@type": "Offer",
+          "itemOffered": {
+            "@type": "Service",
+            "name": "satellite",
+            "description": "Satellite connectivity. Availability is checked per service address."
+          }
+        }
+      ]
+    },
+    "potentialAction": {
+      "@type": "CommunicateAction",
+      "name": "Request a quote",
+      "target": {
+        "@type": "EntryPoint",
+        "urlTemplate": "https://getpeaksignal.com/telecom/quote",
+        "actionPlatform": [
+          "https://schema.org/DesktopWebPlatform",
+          "https://schema.org/MobileWebPlatform"
+        ]
+      }
+    }
   }
-}
   </script>
 <style>
   .ps-nav-toggle{display:none;align-items:center;justify-content:center;width:44px;height:44px;margin-left:auto;padding:0;border:1px solid #3f3f46;border-radius:12px;background:transparent;color:#fff;cursor:pointer;flex:0 0 auto}

@@ -4,8 +4,13 @@
 !static-site/*.html
 !static-site/robots.txt
 !static-site/561e3578a4683d5290c4773ae1de5a76.txt
+!static-site/llms.txt
+!static-site/llms-full.txt
+!static-site/telecom/
+!static-site/telecom/catalog.json
 !static-site/images/
 !static-site/images/cht-before-after.webp
+!static-site/images/peak-signal-logo.svg
 !static-site/tailwind.css
 !static-site/images/telecom/
 !static-site/images/telecom/*.png

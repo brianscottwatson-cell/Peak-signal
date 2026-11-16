@@ -185,7 +185,7 @@ Nav links are the anchors in the header `<nav>` (or the lander header nav). CTAs
   - 970-660-5088 → tel:+19706605088
   - hello.peaksignal@gmail.com → mailto:hello.peaksignal@gmail.com
 - Forms: none
-- JSON-LD @types: Service
+- JSON-LD @types: Service, Organization, ContactPoint, Country, OpeningHoursSpecification, OfferCatalog, Offer, CommunicateAction, EntryPoint
 - Nav links:
   - Peak Signal → /
   - The System → /#system

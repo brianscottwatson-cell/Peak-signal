@@ -25,7 +25,7 @@ jobs:
           node-version: lts/*
 
       - name: Unit tests
-        run: node --test scripts/guardrails.test.mjs scripts/seo.test.mjs
+        run: node --test scripts/guardrails.test.mjs scripts/seo.test.mjs scripts/telecom-agent.test.mjs
 
       - name: WWW redirect
         if: success() || failure()
@@ -54,6 +54,10 @@ jobs:
       - name: IndexNow key
         if: success() || failure()
         run: node --test scripts/indexnow.test.mjs
+
+      - name: Telecom agent files
+        if: success() || failure()
+        run: node scripts/telecom-agent.mjs
 
       - name: Install voice dependencies
         if: success() || failure()
