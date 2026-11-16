@@ -13,7 +13,7 @@
 
 The quote form is https://getpeaksignal.com/telecom/quote. Agents may POST a quote request to https://getpeaksignal.com/api/telecom/quote-request. Those two come in a separate change and may not be live yet. Until they are, send people to https://getpeaksignal.com/contact.
 
-Brian at Peak Signal reviews every quote by appointment. The phone line answers 24/7: (970) 660-5088.
+Peak Signal reviews every quote by appointment. The phone line answers 24/7: (970) 660-5088.
 
 ## Index
 

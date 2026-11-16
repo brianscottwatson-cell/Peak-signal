@@ -426,7 +426,7 @@ const LLMS_REQUIRED = [
   "https://getpeaksignal.com/api/telecom/quote-request",
   "may not be live yet",
   "https://getpeaksignal.com/contact",
-  "Brian at Peak Signal",
+  "Peak Signal",
   "appointment",
   "(970) 660-5088",
   "https://getpeaksignal.com/telecom/catalog.json",
