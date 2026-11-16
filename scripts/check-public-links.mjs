@@ -16,7 +16,7 @@
  */
 import http from "node:http";
 import { execFileSync } from "node:child_process";
-import { existsSync, mkdirSync, mkdtempSync, readFileSync, writeFileSync } from "node:fs";
+import { existsSync, mkdirSync, mkdtempSync, readdirSync, readFileSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -226,6 +226,15 @@ function assertVercelConfig() {
   );
   if (!www) fail("vercel.json is missing the www.getpeaksignal.com 301");
 
+  const noindex = (config.headers ?? []).find(
+    (item) =>
+      item.source === "/(.*)" &&
+      Array.isArray(item.headers) &&
+      item.headers.some((header) => header.key === "X-Robots-Tag" && header.value === "noindex"),
+  );
+  if (!noindex) fail("vercel.json must send X-Robots-Tag: noindex on every path");
+  assertExpressIgnoresVercelConfig();
+
   for (const file of staleRootCopies) {
     if (existsSync(join(root, file))) fail(`stale Vercel root copy still present: ${file}`);
   }
@@ -251,6 +260,27 @@ function ignoredByVercelIgnore(files) {
   } catch (err) {
     if (err && err.status === 1) return new Set();
     throw err;
+  }
+}
+
+function walkTs(dir, out = []) {
+  if (!existsSync(dir)) return out;
+  for (const entry of readdirSync(dir, { withFileTypes: true })) {
+    const path = join(dir, entry.name);
+    if (entry.isDirectory()) walkTs(path, out);
+    else if (entry.name.endsWith(".ts")) out.push(path);
+  }
+  return out;
+}
+
+/** The Replit Express app is the routers. It must not read vercel.json or emit noindex. */
+function assertExpressIgnoresVercelConfig() {
+  const dirs = ["static-site", "seo", "voice", "ops"].map((name) => join(root, name));
+  for (const file of dirs.flatMap((dir) => walkTs(dir))) {
+    const text = readFileSync(file, "utf8");
+    const rel = file.slice(root.length + 1);
+    if (text.includes("vercel.json")) fail(`${rel} reads vercel.json; the Express server must not`);
+    if (/x-robots-tag/i.test(text)) fail(`${rel} sets X-Robots-Tag; production must stay indexable`);
   }
 }
 
@@ -382,7 +412,8 @@ async function main() {
 
     console.log(`OK: ${pages.size} public pages, ${sitemapLocs.length} sitemap URLs, ${checked.length} internal hrefs.`);
     console.log("Banned phrases absent. Cloudflare beacon once per page.");
-    console.log("vercel.json serves static-site/ and seo/, proxies /api/(.*) to Replit, and 301s www to the apex.");
+    console.log("vercel.json serves static-site/ and seo/, proxies /api/(.*) to Replit, 301s www to the apex, and sends X-Robots-Tag: noindex.");
+    console.log("Express routers do not read vercel.json and do not set X-Robots-Tag.");
     console.log("Home #system, #offers, and #how resolve.");
   } finally {
     server.close();
