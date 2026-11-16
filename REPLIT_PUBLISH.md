@@ -61,3 +61,21 @@ curl -sS -o /dev/null -w "%{http_code}\n" https://getpeaksignal.com/images/telec
 ```
 
 Each should print `200`. `telecom.html` has to be in that filename list. A `*.html` glob would pick it up, but the explicit list will not. The router file `static-site/static-site-router.ts` also has to be the copy that serves `GET /telecom`, 301s `GET /telecom.html`, and serves `GET /images/telecom/:file`. `seo/sitemap.xml` has to be the copy that lists the new URL. Homepage `index.html` is already on the list; publish the copy that links the new page.
+
+## www to apex
+
+`static-site/www-apex-redirect.ts` is new. Both routers import it. Copy it into the Replit app next to the static router:
+
+`artifacts/api-server/src/static-site/www-apex-redirect.ts`
+
+Also publish the updated `static-site/static-site-router.ts` and `seo/seo-landers-router.ts`. They mount the redirect themselves. No `build.mjs` filename to add: this file is TypeScript source, not one of the HTML copies. Rebuild the api-server so the new module is in the Autoscale build.
+
+The redirect reads the Host header. `Host: www.getpeaksignal.com` on GET or HEAD returns 301 to `https://getpeaksignal.com` plus the same path and query. The apex, localhost, `*.replit.app`, and Vercel preview hosts are not `www.getpeaksignal.com`, so they are unchanged. POST and every other method are unchanged. Anything under `/api`, and any request with an `Upgrade` header, is unchanged, so Twilio webhooks and `/api/voice` websockets are not redirected.
+
+`seo/sitemap.xml` now has a `<lastmod>` on every URL (the git commit date of that page's source file). Publish that sitemap with the seo router. The filename did not change, so the copy list does not grow. After publish:
+
+```
+curl -sI -H 'Host: www.getpeaksignal.com' https://getpeaksignal.com/telecom
+```
+
+Expect `301` and `Location: https://getpeaksignal.com/telecom`. The same request with `Host: getpeaksignal.com` stays `200`.

@@ -6,6 +6,7 @@ import { Router, type Request, type Response } from "express";
 import { readFileSync, existsSync } from "node:fs";
 import { join } from "node:path";
 import { installBrotliMitigation, rejectBrotliContentEncoding } from "../voice/brotli-guard";
+import { wwwApexRedirect } from "../static-site/www-apex-redirect";
 
 installBrotliMitigation(typeof __filename === "string" ? __filename : undefined);
 
@@ -59,6 +60,7 @@ function loadRobots(): string | null {
 
 export const seoLandersRouter = Router();
 seoLandersRouter.use(rejectBrotliContentEncoding);
+seoLandersRouter.use(wwwApexRedirect);
 
 for (const [route, file] of Object.entries(PAGES)) {
   seoLandersRouter.get(route, (_req: Request, res: Response) => {
