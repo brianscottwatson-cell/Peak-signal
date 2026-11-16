@@ -1,4 +1,4 @@
 {
-  "priceAllowlist": [],
+  "priceAllowlist": ["$1,000", "$2,500", "$5,000", "$10,000"],
   "howToAllow": "Add the exact price token from the failure, such as \"$52\" or \"$1,200.00\", to priceAllowlist. A token allows only that exact string."
 }
