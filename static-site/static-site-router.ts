@@ -5,15 +5,19 @@
  */
 import { Router, type Request, type Response } from "express";
 import { readFileSync, existsSync } from "node:fs";
-import { join } from "node:path";
+import { dirname, join } from "node:path";
+import { fileURLToPath } from "node:url";
 import { installBrotliMitigation, rejectBrotliContentEncoding } from "../voice/brotli-guard";
 import { wwwApexRedirect } from "./www-apex-redirect";
+import { applyQuoteLinks, formAvailable, intakeDisabledHtml, readTelecomAsset } from "../telecom/telecom-chat.mjs";
+
+const moduleDir = typeof __dirname === "string" ? __dirname : dirname(fileURLToPath(import.meta.url));
 
 installBrotliMitigation(typeof __filename === "string" ? __filename : undefined);
 
 const fileCandidates = (name: string) => [
-  join(__dirname, name),
-  join(__dirname, "static-site", name),
+  join(moduleDir, name),
+  join(moduleDir, "static-site", name),
   join(process.cwd(), "static-site", name),
   join(process.cwd(), "src", "static-site", name),
   join(process.cwd(), "dist", "static-site", name),
@@ -121,10 +125,56 @@ staticSiteRouter.get("/ai-deployments.html", redirectClean("/ai-deployments"));
 staticSiteRouter.get("/telecom", (_req: Request, res: Response) => {
   const html = load("telecom.html");
   if (!html) return res.status(404).type("text").send("telecom missing");
-  res.type("html").send(html);
+  res.type("html").send(applyQuoteLinks(html));
 });
 
 staticSiteRouter.get("/telecom.html", redirectClean("/telecom"));
+
+staticSiteRouter.get("/telecom/quote", (_req: Request, res: Response) => {
+  if (!formAvailable()) {
+    res.status(404).type("html").send(intakeDisabledHtml());
+    return;
+  }
+  const html = readTelecomAsset("quote.html");
+  if (!html) {
+    res.status(404).type("html").send(intakeDisabledHtml());
+    return;
+  }
+  res.type("html").send(html);
+});
+
+staticSiteRouter.get("/openapi.json", (_req: Request, res: Response) => {
+  if (!formAvailable()) {
+    res.status(404).json({ ok: false, error: "disabled" });
+    return;
+  }
+  const body = readTelecomAsset("openapi.json");
+  if (!body) {
+    res.status(404).json({ ok: false, error: "disabled" });
+    return;
+  }
+  res.type("application/json").send(body);
+});
+
+function sendScript(res: Response, name: string) {
+  const body = load(name);
+  if (!body) return res.status(404).type("text").send("missing");
+  res.setHeader("Content-Type", "text/javascript; charset=utf-8");
+  res.setHeader("Cache-Control", "no-cache");
+  res.send(body);
+}
+
+staticSiteRouter.get("/telecom-chat.js", (_req: Request, res: Response) => {
+  sendScript(res, "telecom-chat.js");
+});
+
+staticSiteRouter.get("/telecom-visitor-copy.mjs", (_req: Request, res: Response) => {
+  sendScript(res, "telecom-visitor-copy.mjs");
+});
+
+staticSiteRouter.get("/telecom-carrier-rules.mjs", (_req: Request, res: Response) => {
+  sendScript(res, "telecom-carrier-rules.mjs");
+});
 
 staticSiteRouter.get("/llms.txt", (_req: Request, res: Response) => {
   const body = load("llms.txt");

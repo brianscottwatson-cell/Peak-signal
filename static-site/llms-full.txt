@@ -1,6 +1,6 @@
 # Peak Signal
 
-> Peak Signal is a technology agent and AI studio in Evergreen, Colorado. Brian at Peak Signal reviews every telecom quote by appointment. The phone line answers 24/7: (970) 660-5088.
+> Peak Signal is a technology agent and AI studio in Evergreen, Colorado. Peak Signal reviews every telecom quote by appointment. The phone line answers 24/7: (970) 660-5088.
 
 ## Telecom
 
@@ -16,7 +16,7 @@ The public page is https://getpeaksignal.com/telecom. The machine-readable vendo
 
 The form, the POST endpoint, and the API description come in a separate change and may not be live yet. Until they are, send people to https://getpeaksignal.com/contact.
 
-Brian at Peak Signal reviews every quote by appointment. There is no automated pricing.
+Peak Signal reviews every quote by appointment. There is no automated pricing.
 
 ## Other work
 

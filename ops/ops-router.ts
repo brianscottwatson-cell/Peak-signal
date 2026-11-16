@@ -7,9 +7,13 @@
  */
 import { Router, type Request, type Response, type NextFunction } from "express";
 import { existsSync, readFileSync } from "node:fs";
-import { join } from "node:path";
+import { dirname, join } from "node:path";
+import { fileURLToPath } from "node:url";
+
+const moduleDir = typeof __dirname === "string" ? __dirname : dirname(fileURLToPath(import.meta.url));
 import crypto from "node:crypto";
 import { installBrotliMitigation, rejectBrotliContentEncoding, SAFE_ACCEPT_ENCODING } from "../voice/brotli-guard";
+import { handleOpsHttp, sharedTelecomChat } from "../telecom/telecom-chat.mjs";
 
 installBrotliMitigation(typeof __filename === "string" ? __filename : undefined);
 
@@ -153,8 +157,8 @@ function parseComms(md: string): string[] {
 
 function loadHtml(name: string): string {
   const candidates = [
-    join(__dirname, name),
-    join(__dirname, "ops", name),
+    join(moduleDir, name),
+    join(moduleDir, "ops", name),
     join(process.cwd(), "src", "ops", name),
     join(process.cwd(), "dist", "ops", name),
     join(process.cwd(), "ops", name),
@@ -220,6 +224,24 @@ opsRouter.get("/", (_req, res) => {
 
 opsRouter.get("/c/:slug", (_req, res) => {
   res.type("html").send(loadHtml("cht.html"));
+});
+
+opsRouter.get("/telecom", (_req, res) => {
+  if (!sharedTelecomChat().reviewEnabled()) {
+    res.status(404).type("text").send("not found");
+    return;
+  }
+  res.type("html").send(loadHtml("telecom.html"));
+});
+
+opsRouter.get("/api/telecom/requests", (req, res) => {
+  handleOpsHttp(req, res, sharedTelecomChat(), { authed: authed(req), op: "list" });
+});
+
+opsRouter.post("/api/telecom/requests/:id", (req, res) => {
+  const raw = req.params.id;
+  const id = Array.isArray(raw) ? raw[0] : raw;
+  handleOpsHttp(req, res, sharedTelecomChat(), { authed: authed(req), op: "decide", id: String(id || "") });
 });
 
 opsRouter.post("/api/login", (req, res) => {

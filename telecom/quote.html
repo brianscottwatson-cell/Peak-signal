@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en" class="bg-zinc-950">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Request a quote | Peak Signal</title>
+  <meta name="description" content="Ask Peak Signal for a telecom quote. Every request is reviewed. Nothing is ordered from this form.">
+  <meta name="robots" content="noindex, nofollow">
+  <link rel="canonical" href="https://getpeaksignal.com/telecom/quote">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Space+Grotesk:wght@500;600&display=swap');
+    body { font-family: 'Inter', system-ui, sans-serif; }
+    .font-display { font-family: 'Space Grotesk', 'Inter', sans-serif; font-weight: 600; }
+    a:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible { outline: 2px solid #3B82F6; outline-offset: 3px; }
+    .hp { position: absolute; left: -9999px; }
+  </style>
+</head>
+<body class="bg-zinc-950 text-zinc-200">
+  <nav class="border-b border-zinc-800 bg-zinc-950/80 backdrop-blur-lg sticky top-0 z-50">
+    <div class="max-w-screen-xl mx-auto px-4 sm:px-6 py-4 sm:py-5 flex flex-wrap items-center gap-x-4 gap-y-3">
+      <a href="/" class="flex items-center gap-x-2 shrink-0" aria-label="Peak Signal home">
+        <span class="font-display text-xl sm:text-2xl font-semibold tracking-tighter">Peak Signal</span>
+      </a>
+      <div class="hidden md:flex flex-wrap items-center gap-x-6 gap-y-2 text-sm">
+        <a href="/telecom" class="hover:text-white transition-colors">Telecom</a>
+        <a href="/contact" class="hover:text-white transition-colors">Contact</a>
+      </div>
+      <div class="flex items-center gap-2 sm:w-auto sm:ml-auto">
+        <a href="https://calendly.com/hello-peaksignal/30min" target="_blank" rel="noopener" class="text-center px-3 sm:px-5 py-2.5 text-sm font-medium bg-white text-zinc-950 hover:bg-zinc-100 transition-colors rounded-xl whitespace-nowrap">Book a call</a>
+      </div>
+    </div>
+  </nav>
+
+  <main class="max-w-3xl mx-auto px-4 sm:px-6 py-16">
+    <p class="text-sm font-medium tracking-[3px] text-[#3B82F6] mb-4">TELECOM</p>
+    <h1 class="font-display text-4xl sm:text-5xl font-semibold tracking-tighter leading-none mb-6">Request a quote</h1>
+    <p class="text-lg text-zinc-300 leading-relaxed mb-10">Tell Peak Signal what you need. Every request is reviewed before anything is submitted. Nothing is ordered from this form.</p>
+
+    <form id="quote-form" class="space-y-6" novalidate>
+      <input class="hp" type="text" name="_gotcha" id="gotcha" tabindex="-1" autocomplete="off" aria-hidden="true">
+
+      <div>
+        <label class="block text-sm font-medium mb-2" for="business">Business</label>
+        <input class="w-full bg-zinc-900 border border-zinc-700 rounded-xl px-4 py-3" id="business" name="business" type="text" autocomplete="organization" maxlength="120" required>
+      </div>
+
+      <div>
+        <label class="block text-sm font-medium mb-2" for="contact_name">Contact name</label>
+        <input class="w-full bg-zinc-900 border border-zinc-700 rounded-xl px-4 py-3" id="contact_name" name="contact_name" type="text" autocomplete="name" maxlength="80" required>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div>
+          <label class="block text-sm font-medium mb-2" for="email">Email</label>
+          <input class="w-full bg-zinc-900 border border-zinc-700 rounded-xl px-4 py-3" id="email" name="email" type="email" autocomplete="email" maxlength="120">
+        </div>
+        <div>
+          <label class="block text-sm font-medium mb-2" for="phone">Phone</label>
+          <input class="w-full bg-zinc-900 border border-zinc-700 rounded-xl px-4 py-3" id="phone" name="phone" type="tel" autocomplete="tel" maxlength="40">
+        </div>
+      </div>
+      <p class="text-sm text-zinc-500 -mt-3">Enter an email address or a phone number. Both are fine.</p>
+
+      <div>
+        <label class="block text-sm font-medium mb-2" for="service_address">Service address</label>
+        <input class="w-full bg-zinc-900 border border-zinc-700 rounded-xl px-4 py-3" id="service_address" name="service_address" type="text" autocomplete="street-address" maxlength="200" required>
+      </div>
+
+      <div>
+        <label class="block text-sm font-medium mb-2" for="country">Country</label>
+        <select class="w-full bg-zinc-900 border border-zinc-700 rounded-xl px-4 py-3" id="country" name="country" required>
+          <option value="">Choose a country</option>
+          <option value="US">United States</option>
+          <option value="CA">Canada</option>
+        </select>
+      </div>
+
+      <div>
+        <label class="block text-sm font-medium mb-2" for="services">Services wanted</label>
+        <input class="w-full bg-zinc-900 border border-zinc-700 rounded-xl px-4 py-3" id="services" name="services" type="text" maxlength="500" placeholder="Internet, phone, or both" required>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div>
+          <label class="block text-sm font-medium mb-2" for="lines_seats">Lines or seats</label>
+          <input class="w-full bg-zinc-900 border border-zinc-700 rounded-xl px-4 py-3" id="lines_seats" name="lines_seats" type="text" maxlength="80" placeholder="For example, 12 seats" required>
+        </div>
+        <div>
+          <label class="block text-sm font-medium mb-2" for="timeline">Timeline</label>
+          <input class="w-full bg-zinc-900 border border-zinc-700 rounded-xl px-4 py-3" id="timeline" name="timeline" type="text" maxlength="120" placeholder="For example, this month" required>
+        </div>
+      </div>
+
+      <div>
+        <label class="block text-sm font-medium mb-2" for="notes">Notes</label>
+        <textarea class="w-full bg-zinc-900 border border-zinc-700 rounded-2xl px-4 py-3" id="notes" name="notes" rows="4" maxlength="2000"></textarea>
+      </div>
+
+      <label class="flex items-start gap-x-3 text-sm text-zinc-400" for="consent">
+        <input class="mt-1 accent-blue-500" id="consent" name="consent" type="checkbox" value="yes" required>
+        <span>Peak Signal may contact me about this request.</span>
+      </label>
+
+      <p class="text-sm text-zinc-500">Peak Signal uses what you send on this form to review the request. See the <a class="text-zinc-300 underline underline-offset-4" href="/privacy">Privacy Policy</a> and <a class="text-zinc-300 underline underline-offset-4" href="/terms">Terms</a>.</p>
+
+      <div id="quote-errors" class="text-sm text-red-300" role="alert" hidden></div>
+
+      <button class="w-full bg-white text-zinc-950 font-medium py-4 rounded-2xl hover:bg-zinc-100 transition-colors text-lg" id="quote-submit" type="submit">Request a quote</button>
+    </form>
+
+    <section id="quote-result" class="mt-10 bg-zinc-900 border border-zinc-800 rounded-3xl p-6 sm:p-8" hidden>
+      <h2 class="font-display text-2xl font-semibold tracking-tighter mb-3">Request received</h2>
+      <p id="quote-message" class="text-zinc-200 leading-relaxed"></p>
+      <p id="quote-reference" class="mt-4 text-zinc-400"></p>
+    </section>
+  </main>
+
+  <footer class="border-t border-zinc-800 py-8">
+    <div class="max-w-screen-xl mx-auto px-6 text-sm text-zinc-500 text-center">
+      <a class="hover:text-zinc-300" href="/telecom">Telecom</a>
+      · <a class="hover:text-zinc-300" href="/contact">Contact</a>
+      · <a class="hover:text-zinc-300" href="tel:+19706605088">970-660-5088</a>
+    </div>
+  </footer>
+
+  <script>
+    (function () {
+      var form = document.getElementById("quote-form");
+      var errors = document.getElementById("quote-errors");
+      var result = document.getElementById("quote-result");
+      var button = document.getElementById("quote-submit");
+      var key = (window.crypto && crypto.randomUUID) ? crypto.randomUUID() : "idem-" + Date.now();
+      var sending = false;
+
+      function value(id) {
+        var el = document.getElementById(id);
+        return el ? el.value.trim() : "";
+      }
+
+      function showErrors(list) {
+        errors.hidden = false;
+        errors.replaceChildren();
+        (list || ["That request could not be read."]).forEach(function (message) {
+          var p = document.createElement("p");
+          p.textContent = message;
+          errors.appendChild(p);
+        });
+      }
+
+      form.addEventListener("submit", function (event) {
+        event.preventDefault();
+        if (sending) return;
+        sending = true;
+        button.disabled = true;
+        errors.hidden = true;
+        fetch("/api/telecom/quote-request", {
+          method: "POST",
+          headers: { Accept: "application/json", "Content-Type": "application/json" },
+          body: JSON.stringify({
+            business: value("business"),
+            contact_name: value("contact_name"),
+            email: value("email"),
+            phone: value("phone"),
+            service_address: value("service_address"),
+            country: value("country"),
+            services: value("services"),
+            lines_seats: value("lines_seats"),
+            timeline: value("timeline"),
+            notes: value("notes"),
+            consent: document.getElementById("consent").checked,
+            _gotcha: value("gotcha"),
+            idempotencyKey: key
+          })
+        }).then(function (response) {
+          return response.json().then(function (body) {
+            return { ok: response.ok, body: body };
+          });
+        }).then(function (resultBody) {
+          var body = resultBody.body || {};
+          if (!resultBody.ok || !body.ok || !body.id) {
+            sending = false;
+            button.disabled = false;
+            showErrors(body.errors || [body.error === "disabled" ? "This form is disabled." : "We could not save the request. Call 970-660-5088 or use the contact page. Nothing was ordered."]);
+            return;
+          }
+          document.getElementById("quote-message").textContent = body.message || "";
+          document.getElementById("quote-reference").textContent = "Reference ID: " + body.id;
+          form.hidden = true;
+          result.hidden = false;
+        }).catch(function () {
+          sending = false;
+          button.disabled = false;
+          showErrors(["We could not save the request. Call 970-660-5088 or use the contact page. Nothing was ordered."]);
+        });
+      });
+    })();
+  </script>
+</body>
+</html>
