@@ -82,6 +82,7 @@ Nav links are the anchors in the header `<nav>` (or the lander header nav). CTAs
   - Contact → /contact
   - Book a call → https://calendly.com/hello-peaksignal/30min
 - Footer links:
+  - Telecom → /telecom
   - About → /about
   - Privacy → /privacy
   - Terms → /terms
@@ -113,6 +114,7 @@ Nav links are the anchors in the header `<nav>` (or the lander header nav). CTAs
   - Evergreen → /ai-websites-evergreen-co
   - 970-660-5088 → tel:+19706605088
   - hello.peaksignal@gmail.com → mailto:hello.peaksignal@gmail.com
+  - Telecom → /telecom
   - About → /about
   - Contact → /contact
   - Privacy → /privacy
@@ -235,6 +237,7 @@ Nav links are the anchors in the header `<nav>` (or the lander header nav). CTAs
   - Contact → /contact
   - Book a call → https://calendly.com/hello-peaksignal/30min
 - Footer links:
+  - Telecom → /telecom
   - Privacy → /privacy
   - Terms → /terms
   - Contact → /contact
@@ -269,6 +272,7 @@ Nav links are the anchors in the header `<nav>` (or the lander header nav). CTAs
   - Contact → /contact
   - Book a call → https://calendly.com/hello-peaksignal/30min
 - Footer links:
+  - Telecom → /telecom
   - Privacy → /privacy
   - Terms → /terms
   - Contact → /contact
@@ -307,6 +311,7 @@ Nav links are the anchors in the header `<nav>` (or the lander header nav). CTAs
   - Contact → /contact
 - Footer links:
   - getpeaksignal.com → /
+  - Telecom → /telecom
 
 ## /ai-automation-evergreen-colorado
 
@@ -342,6 +347,7 @@ Nav links are the anchors in the header `<nav>` (or the lander header nav). CTAs
   - Contact → /contact
 - Footer links:
   - getpeaksignal.com → /
+  - Telecom → /telecom
 
 ## /ai-agents-small-business-evergreen
 
@@ -376,6 +382,7 @@ Nav links are the anchors in the header `<nav>` (or the lander header nav). CTAs
   - Contact → /contact
 - Footer links:
   - getpeaksignal.com → /
+  - Telecom → /telecom
 
 ## /sitemap.xml
 
