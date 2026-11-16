@@ -25,7 +25,7 @@ jobs:
           node-version: lts/*
 
       - name: Unit tests
-        run: node --test scripts/guardrails.test.mjs scripts/seo.test.mjs scripts/telecom-agent.test.mjs
+        run: node --test scripts/guardrails.test.mjs scripts/seo.test.mjs scripts/telecom-agent.test.mjs scripts/telecom-public-copy.test.mjs telecom/telecom-chat.test.mjs
 
       - name: WWW redirect
         if: success() || failure()

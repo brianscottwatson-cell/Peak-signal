@@ -1262,6 +1262,37 @@
       btn.focus();
     });
   })();
+  (function () {
+    function previewUi() {
+      try {
+        var host = location.hostname;
+        var chat = new URLSearchParams(location.search).get("chat");
+        if (chat !== "1") return false;
+        if (host === "localhost" || host === "127.0.0.1") return true;
+        return /\.vercel\.app$/i.test(host) && host.indexOf("-git-") !== -1;
+      } catch (err) {
+        return false;
+      }
+    }
+    function mount(mode) {
+      if (window.__peakTelecomChatMounted) return;
+      window.__peakTelecomChatMounted = true;
+      window.__PEAK_TELECOM_CHAT_MODE = mode;
+      var script = document.createElement("script");
+      script.type = "module";
+      script.src = "/telecom-chat.js";
+      document.body.appendChild(script);
+    }
+    fetch("/api/telecom/config", { headers: { Accept: "application/json" } })
+      .then(function (response) { return response.ok ? response.json() : null; })
+      .then(function (cfg) {
+        if (cfg && cfg.enabled === true) mount("live");
+        else if (previewUi()) mount("preview");
+      })
+      .catch(function () {
+        if (previewUi()) mount("preview");
+      });
+  })();
 </script>
 <!-- Cloudflare Web Analytics --><script type='module' src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "6a067e22aec645c6b9e360ce149ae7ad"}'></script><!-- End Cloudflare Web Analytics -->
 </body>

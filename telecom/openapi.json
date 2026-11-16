@@ -1,0 +1,206 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "Peak Signal telecom intake",
+    "version": "1.0.0",
+    "description": "Quote requests for Brian at Peak Signal. He reviews every request. Nothing is ordered, and there is no automated pricing. The form, this document, and the quote request endpoint answer with disabled until intake is turned on."
+  },
+  "servers": [
+    { "url": "https://getpeaksignal.com" }
+  ],
+  "paths": {
+    "/telecom/quote": {
+      "get": {
+        "operationId": "getTelecomQuoteForm",
+        "summary": "Quote request form",
+        "description": "Plain HTML form. When intake is off, the response is 404 and the form is disabled.",
+        "responses": {
+          "200": {
+            "description": "The quote form.",
+            "content": {
+              "text/html": {
+                "schema": { "type": "string" }
+              }
+            }
+          },
+          "404": {
+            "description": "Intake is off. The form is disabled.",
+            "content": {
+              "text/html": {
+                "schema": { "type": "string" },
+                "example": "This form is disabled."
+              }
+            }
+          }
+        }
+      }
+    },
+    "/openapi.json": {
+      "get": {
+        "operationId": "getOpenApi",
+        "summary": "This document",
+        "responses": {
+          "200": {
+            "description": "OpenAPI document.",
+            "content": {
+              "application/json": {
+                "schema": { "type": "object" }
+              }
+            }
+          },
+          "404": {
+            "description": "Intake is off.",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/Disabled" },
+                "example": { "ok": false, "error": "disabled" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/telecom/quote-request": {
+      "post": {
+        "operationId": "createTelecomQuoteRequest",
+        "summary": "Store a quote request for Brian at Peak Signal",
+        "description": "Validates the JSON body, stores one queue record, and notifies Brian at Peak Signal only. A filled honeypot is rejected. The response never includes a price. Repeat submissions of the same request return the same reference ID and do not notify Brian again.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/QuoteRequest" },
+              "example": {
+                "business": "North Line Co",
+                "contact_name": "Ada Lovelace",
+                "email": "ada@example.com",
+                "phone": "3125550142",
+                "service_address": "1801 California Street, Suite 2900, Denver, CO 80202",
+                "country": "US",
+                "services": "Business internet",
+                "lines_seats": "12 seats",
+                "timeline": "This month",
+                "notes": "Please include phone service.",
+                "consent": true,
+                "_gotcha": ""
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "The request is in the queue. Brian at Peak Signal was notified once.",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/QuoteAccepted" },
+                "example": {
+                  "ok": true,
+                  "id": "tq_0123456789abcdef",
+                  "message": "Brian at Peak Signal reviews every request; no automated pricing."
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "The body failed validation, or the honeypot was filled.",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/QuoteErrors" },
+                "examples": {
+                  "validation": {
+                    "value": {
+                      "ok": false,
+                      "errors": ["Enter an email address or a phone number."]
+                    }
+                  },
+                  "honeypot": {
+                    "value": {
+                      "ok": false,
+                      "errors": ["That request could not be accepted."]
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Intake is off.",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/Disabled" },
+                "example": { "ok": false, "error": "disabled" }
+              }
+            }
+          },
+          "429": {
+            "description": "Too many requests from this network.",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/QuoteErrors" },
+                "example": {
+                  "ok": false,
+                  "errors": ["Please wait a few minutes and try again."]
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "QuoteRequest": {
+        "type": "object",
+        "required": ["business", "contact_name", "service_address", "country", "services", "lines_seats", "timeline", "consent"],
+        "properties": {
+          "business": { "type": "string", "minLength": 2, "maxLength": 120 },
+          "contact_name": { "type": "string", "minLength": 2, "maxLength": 80 },
+          "email": { "type": "string", "maxLength": 120, "description": "Required when phone is empty." },
+          "phone": { "type": "string", "maxLength": 40, "description": "Required when email is empty. At least 10 digits." },
+          "service_address": { "type": "string", "minLength": 8, "maxLength": 200 },
+          "country": { "type": "string", "enum": ["US", "CA", "United States", "Canada"] },
+          "services": { "type": "string", "minLength": 2, "maxLength": 500 },
+          "lines_seats": { "type": "string", "minLength": 1, "maxLength": 80 },
+          "timeline": { "type": "string", "minLength": 2, "maxLength": 120 },
+          "notes": { "type": "string", "maxLength": 2000 },
+          "consent": { "type": "boolean", "description": "Must be true. The visitor agrees Peak Signal may contact them about this request." },
+          "idempotencyKey": { "type": "string", "minLength": 8, "maxLength": 80 },
+          "_gotcha": { "type": "string", "description": "Honeypot. Leave empty. A non-empty value is rejected and is not stored." }
+        }
+      },
+      "QuoteAccepted": {
+        "type": "object",
+        "required": ["ok", "id", "message"],
+        "properties": {
+          "ok": { "type": "boolean", "const": true },
+          "id": { "type": "string", "pattern": "^tq_[0-9a-f]{16}$", "description": "Reference ID." },
+          "message": {
+            "type": "string",
+            "const": "Brian at Peak Signal reviews every request; no automated pricing."
+          },
+          "duplicate": { "type": "boolean", "description": "True when this request was already stored. Brian is not notified again." }
+        }
+      },
+      "QuoteErrors": {
+        "type": "object",
+        "required": ["ok", "errors"],
+        "properties": {
+          "ok": { "type": "boolean", "const": false },
+          "errors": {
+            "type": "array",
+            "items": { "type": "string" }
+          }
+        }
+      },
+      "Disabled": {
+        "type": "object",
+        "required": ["ok", "error"],
+        "properties": {
+          "ok": { "type": "boolean", "const": false },
+          "error": { "type": "string", "const": "disabled" }
+        }
+      }
+    }
+  }
+}

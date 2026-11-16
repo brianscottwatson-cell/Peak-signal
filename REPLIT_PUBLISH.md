@@ -69,7 +69,12 @@ The block below is the copy this repo's router expects, around the existing copi
 +  mkdirSync(join(distStatic, "telecom"), { recursive: true });
 +  copyFileSync(join(srcStatic, "telecom", "catalog.json"), join(distStatic, "telecom", "catalog.json"));
 +  cpSync(join(srcStatic, "images"), join(distStatic, "images"), { recursive: true });
++  mkdirSync(join(distRoot, "telecom"), { recursive: true });
++  copyFileSync(join(srcRoot, "telecom/quote.html"), join(distRoot, "telecom/quote.html"));
++  copyFileSync(join(srcRoot, "telecom/openapi.json"), join(distRoot, "telecom/openapi.json"));
 ```
+
+`telecom/quote.html` and `telecom/openapi.json` are copied into `dist/telecom/` for the router. Do not add a public rewrite that serves those files without the intake flag. The router returns 404 for `/telecom/quote` and `/openapi.json` until `PEAK_TELECOM_INTAKE_ENABLED` is exactly `1`.
 
 `cpSync` copies the whole `images/` directory, including `cht-before-after.webp`, `images/peak-signal-logo.svg`, `images/telecom/*.png`, and `images/telecom/*.webp`, into `dist/static-site/images/`. `telecom.html`, `tailwind.css`, `llms.txt`, `llms-full.txt`, and `561e3578a4683d5290c4773ae1de5a76.txt` have to be in the filename list. `telecom/catalog.json` is not in that list: the `mkdirSync` and `copyFileSync` lines above are what publish it. A `*.html` glob does not copy `.txt`, `.css`, `.json`, or images. If the build copies images one file at a time instead of `cpSync`, add every `static-site/images/telecom/*.png`, every `static-site/images/telecom/*.webp`, and `static-site/images/peak-signal-logo.svg`. Do not add `loc8.png`.
 
@@ -115,3 +120,70 @@ curl -sI -H 'Host: www.getpeaksignal.com' https://getpeaksignal.com/telecom
 ```
 
 Expect `301` and `Location: https://getpeaksignal.com/telecom`. The same request with `Host: getpeaksignal.com` stays `200`.
+
+## Telecom chat (`PEAK_TELECOM_CHAT`)
+
+The in-page quote and opportunity chat is off unless `PEAK_TELECOM_CHAT` is exactly `1`. Leave it unset in production until Brian turns it on. With the flag off, `/telecom` keeps the catalog and every "Request a quote" link goes to `/contact`. These routes stay inert (404):
+
+- `GET /api/telecom/config`
+- `POST /api/telecom/address`
+- `POST /api/telecom/requests`
+- `GET /ops/telecom`
+- `GET /ops/api/telecom/requests`
+- `POST /ops/api/telecom/requests/:id`
+
+Copy these into the Replit app and mount them when you publish. The HTML catalog is not enough on its own.
+
+- `static-site/telecom.html`, `static-site/telecom-chat.js`, `static-site/telecom-visitor-copy.mjs`, `static-site/telecom-carrier-rules.mjs`
+- `static-site/static-site-router.ts` (also serves the three chat scripts)
+- `telecom/telecom-chat.mjs`, `telecom/telecom-chat-router.ts`
+- `ops/ops-router.ts`, `ops/ops.html`, `ops/telecom.html`
+
+```js
+import { telecomChatRouter } from "./telecom/telecom-chat-router";
+app.use("/api/telecom", telecomChatRouter);
+```
+
+`app.use("/ops", opsRouter)` stays as it is. `express.json()` has to run before these routers.
+
+### Env and secrets
+
+| Name | Required | Purpose |
+|---|---|---|
+| `PEAK_TELECOM_CHAT` | To turn the chat on | Exactly `1`. Any other value, including unset, keeps the chat and the routes off. |
+| `PEAK_FORMSPREE` | No | Where Brian's notification is posted. Defaults to the contact form endpoint `https://formspree.io/f/mgobgrlr`. One post, to that URL only. No visitor reply, no copy to anyone else. |
+| `GITHUB_TOKEN` | No | Same secret the voice hangup uses. When set, the queue file is also written to `brianscottwatson-cell/brain` at `clients/peak-signal/telecom-queue.json`. |
+| `TELECOM_REQUESTS_PATH` | No | Queue file. Default `<cwd>/data/telecom-requests.json`. |
+| `OPS_PASSWORD` | To open the review page | Existing ops login. `HARNESS_PASSWORD` still works. |
+
+The queue is the JSON file above. Brian reviews it at `/ops/telecom` after logging in. Approve and decline only update that file. They do not email the visitor, order service, or contact a vendor.
+
+Nothing on this path calls a carrier, a vendor portal, or an ordering API. The visitor's only confirmation is the message on the page.
+
+### Seeing it before production
+
+On a Vercel preview whose hostname contains `-git-` and ends in `.vercel.app`, open `/telecom?chat=1`. The chat renders. Submitting does not queue or email anyone while `PEAK_TELECOM_CHAT` is off. The same `?chat=1` query does nothing on `getpeaksignal.com`.
+
+Locally, with the voice dependencies installed:
+
+```
+PEAK_TELECOM_CHAT=1 PEAK_FORMSPREE=http://127.0.0.1:9/none OPS_PASSWORD=local node telecom/dev-server.mjs
+```
+
+Then open `http://127.0.0.1:4173/telecom`. Omit `PEAK_TELECOM_CHAT` and open `http://127.0.0.1:4173/telecom?chat=1` to preview the screens without writing the queue.
+
+## Telecom intake form (`PEAK_TELECOM_INTAKE_ENABLED`)
+
+This flag is separate from `PEAK_TELECOM_CHAT`. Either one can be on while the other is off. Both default to off. They write the same queue file and use the same Brian notification. Neither one emails the visitor or contacts a vendor.
+
+| Flag | What it opens |
+|---|---|
+| `PEAK_TELECOM_CHAT=1` | In-page chat, `GET /api/telecom/config`, `POST /api/telecom/address`, `POST /api/telecom/requests` |
+| `PEAK_TELECOM_INTAKE_ENABLED=1` | `GET /telecom/quote`, `POST /api/telecom/quote-request`, `GET /openapi.json`. Quote buttons on `/telecom` point at `/telecom/quote`. |
+| Either flag | `/ops/telecom` after the existing ops login, so Brian can review the shared queue |
+
+With both unset, `/telecom` is the catalog and every "Request a quote" link still goes to `/contact`. The quote form, the quote-request endpoint, and `/openapi.json` answer `404` with a disabled message. A filled honeypot on the quote request is rejected and is not stored or emailed.
+
+`POST /api/telecom/quote-request` accepts JSON only. A saved request returns a reference ID and the message `Brian at Peak Signal reviews every request; no automated pricing.` The response has no prices. Notification is one post to `PEAK_FORMSPREE` (or the contact form endpoint) for Brian only.
+
+Copy `telecom/quote.html`, `telecom/openapi.json`, `telecom/telecom-chat.mjs`, and `static-site/static-site-router.ts` with the chat files above. The router serves the form and the OpenAPI document. The build lines in the diff copy those two static files into `dist/telecom/`.

@@ -2,6 +2,9 @@
 *
 !static-site/
 !static-site/*.html
+!static-site/telecom-chat.js
+!static-site/telecom-visitor-copy.mjs
+!static-site/telecom-carrier-rules.mjs
 !static-site/robots.txt
 !static-site/561e3578a4683d5290c4773ae1de5a76.txt
 !static-site/llms.txt

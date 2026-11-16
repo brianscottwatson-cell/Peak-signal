@@ -1,0 +1,181 @@
+/**
+ * Visitor-facing copy for the telecom quote and opportunity chat.
+ * The page, the API errors, and the tests all use these strings.
+ * No prices. No vendor-portal names. The owner is Brian at Peak Signal.
+ */
+export const COPY = {
+  section: {
+    kicker: "Quote or opportunity",
+    title: "Talk to the agent",
+    intro:
+      "Two paths: a connectivity quote at a U.S. or Canadian business address, or a vendor opportunity such as RingCentral. Carriers that may serve the address are listed for Brian at Peak Signal to confirm. Nothing is ordered from this page.",
+  },
+  paths: {
+    connectKicker: "Path 1 · Connectivity quote",
+    connectTitle: "Internet or fiber at an address",
+    connectBody:
+      "Give a U.S. or Canadian service address and a bandwidth need. You'll see carriers that may serve that area. Brian at Peak Signal confirms availability and pricing.",
+    opportunityKicker: "Path 2 · Vendor opportunity",
+    opportunityTitle: "Submit a RingCentral opportunity",
+    opportunityBody:
+      "Tell us about the company and what you need. Brian at Peak Signal reviews it before anything goes to the vendor.",
+  },
+  chrome: {
+    agentName: "Peak Signal agent",
+    you: "You",
+    agent: "Agent",
+    restart: "Restart",
+    send: "Send",
+    footnote:
+      "Nothing is ordered from this page. Brian at Peak Signal reviews a request before a quote is confirmed. This page does not email you a copy.",
+    inputPlaceholder: "Type a message...",
+  },
+  welcome: {
+    p1: "I can help with a connectivity quote at a U.S. or Canadian business address, or start a vendor opportunity such as RingCentral. Carriers that may serve the area are listed for Brian to confirm. Nothing is ordered automatically.",
+    p2: "How can I help?",
+    chipUs: "I need fiber at a U.S. office",
+    chipCa: "I need fiber at a Canadian office",
+    chipOpportunity: "I want to look at RingCentral",
+  },
+  address: {
+    ask: "I can check internet and fiber options at a U.S. or Canadian business address. Choose a country, then enter the street, city, and ZIP or postal code.",
+    country: "Country",
+    unitedStates: "United States",
+    canada: "Canada",
+    street: "Street address",
+    city: "City",
+    state: "State",
+    zip: "ZIP code",
+    province: "Province",
+    postal: "Postal code",
+    continue: "Continue",
+    placeholder: "Street, city, and ZIP or postal code...",
+  },
+  company: {
+    ask: "Thanks. What's the company name?",
+    label: "Company name",
+    placeholder: "Company name...",
+  },
+  contact: {
+    ask: "And the best contact name, email, and phone?",
+    opportunityAsk: "What's the best contact name, email, and phone?",
+    name: "Contact name",
+    email: "Email",
+    phone: "Phone",
+    placeholder: "Name, email, and phone...",
+  },
+  bandwidth: {
+    ask: "About what bandwidth do you need?",
+    label: "Bandwidth",
+    chip500: "500 Mbps",
+    chip1g: "1 Gbps",
+    chipUnsure: "Not sure — recommend options",
+    placeholder: "Bandwidth need, for example 1 Gbps...",
+  },
+  results: {
+    loading: "Loading catalog options…",
+    introUs:
+      "Here are carriers that may serve this U.S. address. This is not a live availability check. Brian will confirm which carriers can serve it, and Brian will confirm pricing.",
+    introCa:
+      "Here are carriers that may serve this Canadian address. Only vendors that may serve Canada are shown, including Rogers. U.S. cable and fiber carriers that do not serve Canada are omitted. Brian will confirm availability and pricing. This is not a live quote.",
+    empty: "No catalog vendors are marked for this country. Brian at Peak Signal can still review the address.",
+    mayServe: "May serve this area. Brian will confirm.",
+    pricing: "Brian will confirm pricing",
+    review: "Review selected option",
+    noteUs:
+      "Available vendors vary by address. These are carriers that may serve this area, not a guarantee. Brian will confirm pricing.",
+    noteCa:
+      "Only vendors that may serve Canada are shown at this address, including Rogers. U.S. cable and fiber carriers that do not serve this location are omitted. All pricing is confirmed by Brian. This is not a live quote.",
+  },
+  summary: {
+    ask: "Here's a quote summary. Request it and Brian at Peak Signal will review it before anything is confirmed. Nothing is ordered automatically.",
+    title: "Quote summary",
+    country: "Country",
+    address: "Address",
+    company: "Company",
+    contact: "Contact",
+    need: "Need",
+    carrier: "Carrier",
+    option: "Option",
+    pricing: "Pricing",
+    change: "Change option",
+    request: "Request this quote",
+  },
+  consent: {
+    label: "Peak Signal may contact me about this request.",
+    privacy:
+      "Peak Signal uses what you send on this form to review the request. See the Privacy Policy and Terms.",
+    privacyPolicy: "Privacy Policy",
+    terms: "Terms",
+  },
+  confirmQuote: {
+    title: "Quote request received",
+    p1: "Thanks, {name}. I've sent this quote request for {carrier} · {option} at {address} to Peak Signal.",
+    p2: "Brian at Peak Signal will review and confirm your quote by the end of the next business day. Nothing has been ordered.",
+  },
+  opportunity: {
+    user: "I want to look at RingCentral",
+    companyAsk:
+      "I can start a RingCentral opportunity for you. Brian at Peak Signal reviews it before anything goes to the vendor. What's the company name?",
+    seatsAsk: "How many seats should we plan for?",
+    seatsLabel: "Seats",
+    seatsPlaceholder: "Number of seats...",
+    currentAsk: "What's your current provider, if you have one?",
+    currentLabel: "Current provider",
+    currentChip: "Not sure",
+    currentPlaceholder: "Current provider...",
+    contractAsk: "When does that contract end, if you know?",
+    contractLabel: "Contract end",
+    contractChip: "Not sure",
+    contractPlaceholder: "Contract end date...",
+    locationsAsk: "Which locations should we include?",
+    locationsLabel: "Locations",
+    locationsPlaceholder: "Locations...",
+    needsAsk:
+      "Anything else about what you need? For example, keep existing numbers, add SMS, or replace desk phones.",
+    needsLabel: "Needs",
+    needsChip: "Not sure yet",
+    needsPlaceholder: "Needs or notes...",
+    reviewAsk:
+      "Here's a review of what I'll send to Peak Signal. You can edit anything before submitting. Brian reviews it before it goes to the vendor.",
+    reviewTitle: "Opportunity review",
+    vendor: "Vendor",
+    edit: "Edit details",
+    save: "Save changes",
+    submit: "Submit to Peak Signal",
+  },
+  confirmOpportunity: {
+    title: "Opportunity received",
+    p1: "Thanks, {name}. I've sent this {vendor} opportunity for {company} to Peak Signal.",
+    p2: "Brian will review it before it goes to the vendor. Nothing has been submitted to {vendor}. You should hear back within one business day.",
+  },
+  validation: {
+    country: "Choose United States or Canada.",
+    street: "Enter a street address.",
+    city: "Enter a city.",
+    state: "Enter a two-letter U.S. state, like CO.",
+    zip: "Enter a U.S. ZIP code, like 80202.",
+    province: "Enter a two-letter Canadian province, like ON.",
+    postal: "Enter a Canadian postal code, like M5X 1C9.",
+    company: "Enter the company name.",
+    contactName: "Enter the contact name.",
+    email: "Enter an email address.",
+    phone: "Enter a phone number with at least 10 digits.",
+    bandwidth: "Enter the bandwidth you need, or choose one of the options.",
+    offering: "Choose an option to review.",
+    seats: "Enter the number of seats, like 18.",
+    current: "Enter the current provider, or choose Not sure.",
+    contract: "Enter the contract end, or choose Not sure.",
+    locations: "Enter the locations to include.",
+    needs: "Enter what you need, or choose Not sure yet.",
+    vendor: "Choose a vendor from the catalog.",
+    consent: "Check the box: Peak Signal may contact me about this request.",
+    rate: "Please wait a few minutes and try again.",
+    saveFailed: "We could not save the request. Call 970-660-5088 or use the contact page. Nothing was ordered.",
+    previewTitle: "Request not sent",
+    previewNotSent:
+      "This preview did not send your request. Nothing was queued, and Brian was not emailed. Nothing was ordered.",
+    unreadable: "That request could not be read.",
+    submitOnce: "Submit once from the page.",
+  },
+};

@@ -169,13 +169,15 @@ Nav links are the anchors in the header `<nav>` (or the lander header nav). CTAs
 
 - Route: /telecom
 - Source file: static-site/telecom.html
-- Purpose: Catalog of business phone, UCaaS, and connectivity vendors. A quote request goes to the contact page for Brian at Peak Signal to review.
+- Purpose: Catalog of business phone, UCaaS, and connectivity vendors. A quote request goes to the contact page for Brian at Peak Signal to review. With PEAK_TELECOM_CHAT=1, the page also opens an in-page quote and opportunity chat. That chat and its API stay off unless the flag is set. With PEAK_TELECOM_INTAKE_ENABLED=1, the quote buttons go to /telecom/quote. That form, POST /api/telecom/quote-request, and /openapi.json stay off unless the intake flag is set. The two flags are independent and share one queue.
 - H1: Telecom & Connectivity
 - Key sections:
   - How this catalog works
   - Telecom catalog
   - More vendors
   - Want a quote or information?
+  - Quote and opportunity chat (off unless PEAK_TELECOM_CHAT=1)
+  - Quote form at /telecom/quote (off unless PEAK_TELECOM_INTAKE_ENABLED=1)
 - CTAs:
   - Book a call → https://calendly.com/hello-peaksignal/30min
   - Request a quote → /contact
