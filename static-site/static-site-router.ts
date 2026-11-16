@@ -49,6 +49,13 @@ staticSiteRouter.get("/robots.txt", (_req: Request, res: Response) => {
   res.type("text/plain").send(body);
 });
 
+// IndexNow key. Public by design. build.mjs must copy this filename too.
+staticSiteRouter.get("/561e3578a4683d5290c4773ae1de5a76.txt", (_req: Request, res: Response) => {
+  const body = load("561e3578a4683d5290c4773ae1de5a76.txt");
+  if (!body) return res.status(404).type("text").send("indexnow key missing");
+  res.type("text/plain").send(body.trim() + "\n");
+});
+
 staticSiteRouter.get("/", (_req: Request, res: Response) => {
   const html = load("index.html");
   if (!html) return res.status(404).type("text").send("index missing");

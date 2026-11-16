@@ -10,6 +10,22 @@ Copy the router files into the Replit app when you publish. The HTML files are n
 
 The router looks in `dist/static-site/` (among other candidates). An HTML-only copy leaves the image 404 on Autoscale.
 
+## IndexNow after each publish
+
+The key file is `static-site/561e3578a4683d5290c4773ae1de5a76.txt`. It is public by design and is served at `/561e3578a4683d5290c4773ae1de5a76.txt`. Add that filename to the copy list in `artifacts/api-server/build.mjs`, next to `robots.txt`:
+
+```
+"561e3578a4683d5290c4773ae1de5a76.txt",
+```
+
+Publish the updated `static-site/static-site-router.ts` as well, and rebuild the api-server. After `https://getpeaksignal.com/561e3578a4683d5290c4773ae1de5a76.txt` returns the key, submit the sitemap from a machine that can reach the public site:
+
+```
+node scripts/indexnow-ping.mjs --publish
+```
+
+That posts the sitemap URLs to `https://api.indexnow.org/indexnow`. Without `--publish` the script prints the body and does not send it. Do not add this command to GitHub Actions.
+
 ## Diff to apply in `artifacts/api-server/build.mjs`
 
 The block below is the copy this repo's router expects, around the existing copies of `index.html`, `contact.html`, `privacy.html`, `terms.html`, `robots.txt`, and `google166e848c42566a74.html` (described near line 141). Match the variable names already in that file if they differ (`copyFileSync`, `srcStatic`, `distStatic`).

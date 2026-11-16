@@ -43,6 +43,10 @@ jobs:
         if: success() || failure()
         run: node scripts/check-public-links.mjs
 
+      - name: IndexNow key
+        if: success() || failure()
+        run: node --test scripts/indexnow.test.mjs
+
       - name: Install voice dependencies
         if: success() || failure()
         working-directory: voice/cht
