@@ -1,0 +1,7 @@
+{
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test": "status=0; for f in *.test.ts; do node --experimental-strip-types \"$f\" || status=1; done; exit $status"
+  }
+}
