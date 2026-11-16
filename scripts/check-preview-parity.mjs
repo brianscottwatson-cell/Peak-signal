@@ -29,7 +29,8 @@ const bypass = process.env.VERCEL_AUTOMATION_BYPASS_SECRET || "";
 
 const routes = JSON.parse(readFileSync(join(root, "vercel.json"), "utf8")).rewrites
   .filter((rule) => typeof rule.destination === "string" && rule.destination.startsWith("/"))
-  .map((rule) => rule.source);
+  .map((rule) => rule.source)
+  .filter((source) => !source.includes(":"));
 
 const htmlPages = new Set([
   "/",
@@ -38,6 +39,7 @@ const htmlPages = new Set([
   "/terms",
   "/about",
   "/ai-deployments",
+  "/telecom",
   "/ai-websites-evergreen-co",
   "/ai-automation-evergreen-colorado",
   "/ai-agents-small-business-evergreen",

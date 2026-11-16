@@ -103,6 +103,25 @@ staticSiteRouter.get("/ai-deployments", (_req: Request, res: Response) => {
 
 staticSiteRouter.get("/ai-deployments.html", redirectClean("/ai-deployments"));
 
+staticSiteRouter.get("/telecom", (_req: Request, res: Response) => {
+  const html = load("telecom.html");
+  if (!html) return res.status(404).type("text").send("telecom missing");
+  res.type("html").send(html);
+});
+
+staticSiteRouter.get("/telecom.html", redirectClean("/telecom"));
+
+// Binary logos. Replit build.mjs must also copy src/static-site/images/telecom/*.png
+// to dist/static-site/images/telecom/ (the HTML filename list does not).
+staticSiteRouter.get("/images/telecom/:file", (req: Request, res: Response) => {
+  const raw = req.params.file;
+  const file = Array.isArray(raw) ? raw[0] : raw;
+  if (!file || !/^[a-z0-9-]+\.png$/.test(file)) return res.status(404).type("text").send("image missing");
+  const body = loadBuffer(`images/telecom/${file}`);
+  if (!body) return res.status(404).type("text").send("image missing");
+  res.type("image/png").send(body);
+});
+
 // Binary. Replit build.mjs must also copy src/static-site/images/cht-before-after.webp
 // to dist/static-site/images/cht-before-after.webp (the HTML copy glob does not).
 staticSiteRouter.get("/images/cht-before-after.webp", (_req: Request, res: Response) => {
