@@ -8,6 +8,10 @@
  * Also fails on a case-insensitive "Brian" in public HTML, llms files,
  * the catalog JSON, and served JSON-LD. The one exact from-line string in
  * brianAllowlist is allowed only in privacy.html and terms.html.
+ * llms files, catalog.json, the sitemap, and static-site HTML also fail
+ * when they name /openapi.json, /telecom/quote, or /api/telecom/quote-request
+ * before that exact route is served, or when they contain "may not be live yet"
+ * or "separate change".
  *
  * Each failure is one line:
  *   <file>:<line> [rule-id] message
@@ -20,7 +24,7 @@
  * under priceAllowlist. An empty list allows nothing. A missing config
  * file is treated as an empty list.
  */
-import { existsSync, readFileSync } from "node:fs";
+import { existsSync, readdirSync, readFileSync } from "node:fs";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { contentFiles, formatFailures, inspectHtml, listPublicRoutes, loadPriceAllowlist } from "./public-html.mjs";
@@ -75,6 +79,17 @@ const FROM_LINE_FILES = new Set([
   "static-site/terms.html",
 ]);
 
+const ABSENT_ROUTES = [
+  { path: "/openapi.json", re: /\/openapi\.json(?![\w])/gi },
+  { path: "/telecom/quote", re: /\/telecom\/quote(?![\w/-])/gi },
+  { path: "/api/telecom/quote-request", re: /\/api\/telecom\/quote-request(?![\w/-])/gi },
+];
+
+const WRITER_NOTES = [
+  { phrase: "may not be live yet", re: /may not be live yet/gi },
+  { phrase: "separate change", re: /separate change/gi },
+];
+
 function main() {
   const allow = new Set(loadPriceAllowlist(root));
   const brianAllow = loadBrianAllowlist(root);
@@ -89,6 +104,11 @@ function main() {
 
   for (const file of extraPublicFiles(root)) {
     checkBrian(file, readFileSync(join(root, file), "utf8"), brianAllow, failures);
+  }
+
+  const served = servedRoutes(root);
+  for (const file of agentPublicFiles(root)) {
+    checkAbsentCopy(file, readFileSync(join(root, file), "utf8"), served, failures);
   }
 
   if (failures.length) {
@@ -163,6 +183,105 @@ function findAll(text, re) {
     if (match[0].length === 0) copy.lastIndex += 1;
   }
   return hits;
+}
+
+function agentPublicFiles(dir) {
+  const files = [];
+  function add(rel) {
+    if (!files.includes(rel) && existsSync(join(dir, rel))) files.push(rel);
+  }
+
+  const staticDir = join(dir, "static-site");
+  if (existsSync(staticDir)) {
+    for (const name of readdirSync(staticDir).sort()) {
+      if (name.endsWith(".html") || /^llms/i.test(name)) add(`static-site/${name}`);
+    }
+  }
+  add("static-site/telecom/catalog.json");
+  add("static-site/sitemap.xml");
+  add("seo/sitemap.xml");
+
+  const seoDir = join(dir, "seo");
+  if (existsSync(seoDir)) {
+    for (const name of readdirSync(seoDir).sort()) {
+      if (/^llms/i.test(name)) add(`seo/${name}`);
+    }
+  }
+  return files;
+}
+
+function servedRoutes(dir) {
+  const served = new Set();
+  for (const route of ABSENT_ROUTES) {
+    if (routeIsServed(dir, route.path)) served.add(route.path);
+  }
+  return served;
+}
+
+function routeIsServed(dir, routePath) {
+  return vercelServes(dir, routePath) || routerServes(dir, routePath);
+}
+
+function vercelServes(dir, routePath) {
+  const path = join(dir, "vercel.json");
+  if (!existsSync(path)) return false;
+  let json;
+  try {
+    json = JSON.parse(readFileSync(path, "utf8"));
+  } catch {
+    return false;
+  }
+  const rules = [...(json.rewrites ?? []), ...(json.redirects ?? [])];
+  return rules.some((rule) => ruleServes(dir, rule, routePath));
+}
+
+function ruleServes(dir, rule, routePath) {
+  if (!rule || rule.source !== routePath) return false;
+  const dest = rule.destination;
+  if (typeof dest !== "string" || dest.length === 0) return false;
+  if (/[()*:]/.test(dest)) return false;
+  if (rule.statusCode) return true;
+  if (/^https?:\/\//i.test(dest)) return true;
+  return existsSync(join(dir, dest.replace(/^\//, "")));
+}
+
+function routerServes(dir, routePath) {
+  const routers = [
+    "static-site/static-site-router.ts",
+    "seo/seo-landers-router.ts",
+  ];
+  const needles = [`.get("${routePath}"`, `.get('${routePath}'`];
+  for (const rel of routers) {
+    const abs = join(dir, rel);
+    if (!existsSync(abs)) continue;
+    const text = readFileSync(abs, "utf8");
+    if (needles.some((needle) => text.includes(needle))) return true;
+  }
+  return false;
+}
+
+function checkAbsentCopy(file, text, served, failures) {
+  for (const route of ABSENT_ROUTES) {
+    if (served.has(route.path)) continue;
+    for (const hit of findAll(text, route.re)) {
+      failures.push({
+        file,
+        line: lineAt(text, hit.index),
+        rule: "absent-url",
+        message: `'${route.path}' is not a live route`,
+      });
+    }
+  }
+  for (const note of WRITER_NOTES) {
+    for (const hit of findAll(text, note.re)) {
+      failures.push({
+        file,
+        line: lineAt(text, hit.index),
+        rule: "writer-note",
+        message: `'${note.phrase}' is not public copy`,
+      });
+    }
+  }
 }
 
 function extraPublicFiles(dir) {

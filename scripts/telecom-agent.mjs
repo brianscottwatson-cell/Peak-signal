@@ -23,6 +23,7 @@ const KNOWLEDGE = "data/telecom-vendor-knowledge.json";
 const PAGE = "static-site/telecom.html";
 const CATALOG = "static-site/telecom/catalog.json";
 const QUOTE_URL = "https://getpeaksignal.com/contact";
+const FORM_URL = "https://getpeaksignal.com/telecom";
 
 /** Knowledge id -> visible name on /telecom. */
 const PAGE_NAME = {
@@ -400,7 +401,7 @@ export function jsonLdProblems(html) {
       const targets = [].concat(target ?? []);
       const entry = targets.find((item) => item && typeNames(item).includes("EntryPoint"));
       const url = entry?.urlTemplate || entry?.url || (typeof target === "string" ? target : "");
-      if (url !== "https://getpeaksignal.com/telecom/quote") problems.push("CommunicateAction EntryPoint is not the quote URL");
+      if (url !== FORM_URL) problems.push("CommunicateAction EntryPoint is not the quote URL");
     }
   }
 
@@ -422,15 +423,12 @@ const LLMS_REQUIRED = [
   "United States",
   "Canada",
   "per service address",
-  "https://getpeaksignal.com/telecom/quote",
-  "https://getpeaksignal.com/api/telecom/quote-request",
-  "may not be live yet",
+  FORM_URL,
   "https://getpeaksignal.com/contact",
   "Peak Signal",
   "appointment",
   "(970) 660-5088",
   "https://getpeaksignal.com/telecom/catalog.json",
-  "https://getpeaksignal.com/openapi.json",
 ];
 
 export function llmsProblems(text, { full = false } = {}) {

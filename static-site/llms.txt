@@ -7,11 +7,10 @@
 [Telecom and connectivity](https://getpeaksignal.com/telecom) covers business phone and UCaaS, internet and fiber, wireless, and satellite for the United States and Canada. Availability is checked per service address.
 
 - Vendor catalog: https://getpeaksignal.com/telecom/catalog.json
-- API description: https://getpeaksignal.com/openapi.json
 
 ## Request a quote
 
-The quote form is https://getpeaksignal.com/telecom/quote. Agents may POST a quote request to https://getpeaksignal.com/api/telecom/quote-request. Those two come in a separate change and may not be live yet. Until they are, send people to https://getpeaksignal.com/contact.
+The quote form is https://getpeaksignal.com/telecom. The contact page is https://getpeaksignal.com/contact.
 
 Peak Signal reviews every quote by appointment. The phone line answers 24/7: (970) 660-5088.
 
