@@ -151,6 +151,29 @@
     ]
   }
   </script>
+<style>
+  .ps-nav-toggle{display:none;align-items:center;justify-content:center;width:44px;height:44px;margin-left:auto;padding:0;border:1px solid #3f3f46;border-radius:12px;background:transparent;color:#fff;cursor:pointer;flex:0 0 auto}
+  .ps-nav-toggle:focus-visible{outline:2px solid #3B82F6;outline-offset:3px}
+  .ps-nav-toggle svg{display:block}
+  .ps-nav-toggle .ps-icon-close{display:none}
+  .ps-nav-toggle[aria-expanded="true"] .ps-icon-open{display:none}
+  .ps-nav-toggle[aria-expanded="true"] .ps-icon-close{display:block}
+  .ps-nav-panel{display:none;flex-basis:100%;width:100%;max-width:100%;padding:4px 0 8px;box-sizing:border-box}
+  .ps-nav-panel a{display:flex;align-items:center;min-height:44px;padding:8px 4px;color:#e4e4e7;text-decoration:none;font-size:1rem;line-height:1.3}
+  .ps-nav-panel a.font-medium,.ps-nav-panel a[aria-current="page"]{color:#fff;font-weight:600}
+  .ps-nav-panel[hidden]{display:none !important}
+  @media (max-width:767px){
+    .ps-nav-toggle{display:inline-flex}
+    #ps-desktop-nav{display:none !important}
+    .ps-nav-panel:not([hidden]){display:block}
+    .ps-nav-book{flex:1 0 100%}
+    .ps-nav-book > a{display:block;width:100%;box-sizing:border-box;text-align:center}
+  }
+  @media (min-width:768px){
+    .ps-nav-toggle,.ps-nav-panel{display:none !important}
+  }
+</style>
+<noscript><style>@media (max-width:767px){#ps-mobile-nav[hidden]{display:block !important}}</style></noscript>
 </head>
 <body class="bg-zinc-950 text-zinc-200">
   <nav class="border-b border-zinc-800 bg-zinc-950/80 backdrop-blur-lg sticky top-0 z-50">
@@ -163,7 +186,11 @@
         <span class="font-display text-xl sm:text-2xl font-semibold tracking-tighter">Peak Signal</span>
       </a>
 
-      <div class="hidden md:flex flex-wrap items-center gap-x-6 gap-y-2 lg:gap-x-8 text-sm">
+      <button type="button" class="ps-nav-toggle" aria-expanded="false" aria-controls="ps-mobile-nav" aria-label="Open menu">
+        <svg class="ps-icon-open" width="20" height="20" viewBox="0 0 20 20" aria-hidden="true" focusable="false"><path d="M3 5h14M3 10h14M3 15h14" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+        <svg class="ps-icon-close" width="20" height="20" viewBox="0 0 20 20" aria-hidden="true" focusable="false"><path d="M5 5l10 10M15 5L5 15" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+      </button>
+      <div id="ps-desktop-nav" class="hidden md:flex flex-wrap items-center gap-x-6 gap-y-2 lg:gap-x-8 text-sm">
         <a href="#system" class="hover:text-white transition-colors">The System</a>
         <a href="#offers" class="hover:text-white transition-colors">Offers</a>
         <a href="/ai-deployments" class="hover:text-white transition-colors">AI Deployments</a>
@@ -173,10 +200,20 @@
         <a href="/contact" class="hover:text-white transition-colors">Contact</a>
       </div>
 
-      <div class="flex items-center gap-2 sm:gap-3 w-full sm:w-auto sm:ml-auto">
+      <div class="ps-nav-book flex items-center gap-2 sm:gap-3 w-full sm:w-auto sm:ml-auto">
         <a href="https://calendly.com/hello-peaksignal/30min" target="_blank" rel="noopener" class="flex-1 sm:flex-none text-center px-3 sm:px-5 py-2.5 text-sm font-medium bg-white text-zinc-950 hover:bg-zinc-100 transition-colors rounded-xl whitespace-nowrap">
           Book a call
         </a>
+      </div>
+    
+      <div id="ps-mobile-nav" class="ps-nav-panel" hidden>
+        <a href="#system" class="hover:text-white transition-colors">The System</a>
+        <a href="#offers" class="hover:text-white transition-colors">Offers</a>
+        <a href="/ai-deployments" class="hover:text-white transition-colors">AI Deployments</a>
+        <a href="/telecom" class="hover:text-white transition-colors">Telecom</a>
+        <a href="#how" class="hover:text-white transition-colors">How it Works</a>
+        <a href="/about" class="hover:text-white transition-colors">About</a>
+        <a href="/contact" class="hover:text-white transition-colors">Contact</a>
       </div>
     </div>
   </nav>
@@ -647,6 +684,33 @@
       </div>
     </div>
   </footer>
+<script>
+  (function () {
+    var btn = document.querySelector(".ps-nav-toggle");
+    var panel = document.getElementById("ps-mobile-nav");
+    if (!btn || !panel) return;
+    function open() { return btn.getAttribute("aria-expanded") === "true"; }
+    function setOpen(next) {
+      btn.setAttribute("aria-expanded", next ? "true" : "false");
+      btn.setAttribute("aria-label", next ? "Close menu" : "Open menu");
+      if (next) panel.removeAttribute("hidden");
+      else panel.setAttribute("hidden", "");
+    }
+    btn.addEventListener("click", function () {
+      var next = !open();
+      setOpen(next);
+      if (next) {
+        var first = panel.querySelector("a");
+        if (first) first.focus();
+      }
+    });
+    document.addEventListener("keydown", function (event) {
+      if (event.key !== "Escape" || !open()) return;
+      setOpen(false);
+      btn.focus();
+    });
+  })();
+</script>
 <!-- Cloudflare Web Analytics --><script type='module' src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "6a067e22aec645c6b9e360ce149ae7ad"}'></script><!-- End Cloudflare Web Analytics -->
 </body>
 </html>
