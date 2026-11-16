@@ -308,6 +308,8 @@ Nav links are the anchors in the header `<nav>` (or the lander header nav). CTAs
   - Capture → /ai-websites-evergreen-co
   - Keep → /ai-automation-evergreen-colorado
   - Answer → /ai-agents-small-business-evergreen
+  - AI Deployments → /ai-deployments
+  - Telecom → /telecom
   - Contact → /contact
 - Footer links:
   - getpeaksignal.com → /
@@ -344,6 +346,8 @@ Nav links are the anchors in the header `<nav>` (or the lander header nav). CTAs
   - Capture → /ai-websites-evergreen-co
   - Keep → /ai-automation-evergreen-colorado
   - Answer → /ai-agents-small-business-evergreen
+  - AI Deployments → /ai-deployments
+  - Telecom → /telecom
   - Contact → /contact
 - Footer links:
   - getpeaksignal.com → /
@@ -379,6 +383,8 @@ Nav links are the anchors in the header `<nav>` (or the lander header nav). CTAs
   - Capture → /ai-websites-evergreen-co
   - Keep → /ai-automation-evergreen-colorado
   - Answer → /ai-agents-small-business-evergreen
+  - AI Deployments → /ai-deployments
+  - Telecom → /telecom
   - Contact → /contact
 - Footer links:
   - getpeaksignal.com → /
