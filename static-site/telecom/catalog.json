@@ -1,0 +1,291 @@
+{
+  "name": "Peak Signal telecom catalog",
+  "url": "https://getpeaksignal.com/telecom",
+  "area_served": [
+    "US",
+    "CA"
+  ],
+  "availability": "Availability is checked per service address.",
+  "quote_request_url": "https://getpeaksignal.com/contact",
+  "vendors": [
+    {
+      "name": "RingCentral",
+      "category": "UCaaS/CCaaS/AI voice",
+      "countries": [
+        "US",
+        "CA"
+      ],
+      "summary": "Cloud phone, video, messaging (RingEX), and contact center (RingCX).",
+      "quote_request_url": "https://getpeaksignal.com/contact"
+    },
+    {
+      "name": "Zoom",
+      "category": "UCaaS/CCaaS",
+      "countries": [
+        "US",
+        "CA"
+      ],
+      "summary": "Zoom Phone with Workplace (meetings, chat, AI Companion) and Zoom Contact Center.",
+      "quote_request_url": "https://getpeaksignal.com/contact"
+    },
+    {
+      "name": "Comcast",
+      "category": "ISP (cable/fiber), voice, mobile",
+      "countries": [
+        "US"
+      ],
+      "summary": "Business Internet 300 Mbps-2 Gbps, Dedicated fiber to 10 Gbps, VoiceEdge/Voice Mobility, Business Mobile, SecurityEdge, Wireless Connect backup.",
+      "quote_request_url": "https://getpeaksignal.com/contact"
+    },
+    {
+      "name": "AT&T",
+      "category": "ISP (fiber, 5G fixed wireless), wireless, UCaaS",
+      "countries": [
+        "US"
+      ],
+      "summary": "Business Fiber 300 Mbps-5 Gbps symmetrical, Internet Air for Business, Dedicated Internet, Office@Hand (RingCentral-powered), Dynamic Defense.",
+      "quote_request_url": "https://getpeaksignal.com/contact"
+    },
+    {
+      "name": "Spectrum",
+      "category": "ISP (HFC cable), voice, UCaaS, mobile",
+      "countries": [
+        "US"
+      ],
+      "summary": "Fiber-Powered internet 500 Mbps-1 Gig (2 Gig select), Invincible WiFi with 5G backup, Business Voice, Business Connect with RingCentral, Business Mobile, Spectrum Enterprise.",
+      "quote_request_url": "https://getpeaksignal.com/contact"
+    },
+    {
+      "name": "Cox",
+      "category": "ISP (cable/fiber), voice",
+      "countries": [
+        "US"
+      ],
+      "summary": "Charter closed Cox acquisition Aug 20 2026; Cox markets now Spectrum-branded. Internet 500 Mbps-2 Gbps, dedicated to 100 Gbps, Net Assurance backup, VoiceManager, Business Connect with RingCentral, Complete Care IT support.",
+      "quote_request_url": "https://getpeaksignal.com/contact"
+    },
+    {
+      "name": "Starlink",
+      "category": "Satellite internet",
+      "countries": [
+        "US",
+        "CA"
+      ],
+      "summary": "LEO satellite internet with Local Priority (land, one country) and Global Priority (worldwide and ocean) plans.",
+      "quote_request_url": "https://getpeaksignal.com/contact"
+    },
+    {
+      "name": "T-Mobile for Business",
+      "category": "Wireless, 5G business internet",
+      "countries": [
+        "US"
+      ],
+      "summary": "Business wireless plans, 5G Business Internet, T-Satellite, and network slicing.",
+      "quote_request_url": "https://getpeaksignal.com/contact"
+    },
+    {
+      "name": "8x8",
+      "category": "Communications",
+      "summary": "One platform for voice, video, collaboration, and contact center.",
+      "quote_request_url": "https://getpeaksignal.com/contact"
+    },
+    {
+      "name": "Dialpad",
+      "category": "Communications",
+      "summary": "Built on trust, reliability, and world-class communication tools, Dialpad brings calling, messaging, meetings, and support together in one AI-powered platform. Dialpad's AI-native contact center and communications platform is built for human and AI agent collaboration, enabling CX transformation at scale.",
+      "quote_request_url": "https://getpeaksignal.com/contact"
+    },
+    {
+      "name": "Five9",
+      "category": "Communications",
+      "summary": "Five9 offers cloud-native contact center software enabling digital customer service, sales, and marketing engagement.",
+      "quote_request_url": "https://getpeaksignal.com/contact"
+    },
+    {
+      "name": "GoTo",
+      "category": "Communications",
+      "summary": "GoTo offers business collaboration tools including video conferencing, screen sharing, and webinars.",
+      "quote_request_url": "https://getpeaksignal.com/contact"
+    },
+    {
+      "name": "Net2Phone",
+      "category": "Communications",
+      "summary": "Net2phone provides cloud communications solutions uniting voice, video, chat, AI and email for businesses. Net2phone offers comprehensive unified communications with advanced features. Ideal for AI, Hospitality, call center/CCaaS, Teams & POTS replacement.",
+      "quote_request_url": "https://getpeaksignal.com/contact"
+    },
+    {
+      "name": "Nextiva",
+      "category": "Communications",
+      "summary": "A unified business communications, productivity, and customer relationship platform.",
+      "quote_request_url": "https://getpeaksignal.com/contact"
+    },
+    {
+      "name": "Ooma",
+      "category": "Communications",
+      "summary": "At Ooma, we create powerful communications solutions for businesses and consumers, all delivered through our advanced, cloud-based software service platform.",
+      "quote_request_url": "https://getpeaksignal.com/contact"
+    },
+    {
+      "name": "SpectrumVoIP",
+      "category": "Communications",
+      "summary": "SpectrumVoIP provides cloud-hosted VoIP, fast internet, AI-driven surveillance, and managed network security.",
+      "quote_request_url": "https://getpeaksignal.com/contact"
+    },
+    {
+      "name": "Talkdesk",
+      "category": "Communications",
+      "summary": "Talkdesk provides a global cloud contact center leader for modern AI-powered customer service.",
+      "quote_request_url": "https://getpeaksignal.com/contact"
+    },
+    {
+      "name": "TPx",
+      "category": "VARs, Network, Communications, SD-WAN",
+      "summary": "TPx is your sidekick for smart IT—helping organizations connect, secure, and grow with confidence. Leveraging decades of experience, TPx delivers managed services for cybersecurity, networks, and cloud communications that reduce risk and maximize the value of IT investments.",
+      "quote_request_url": "https://getpeaksignal.com/contact"
+    },
+    {
+      "name": "Vonage Business",
+      "category": "Communications",
+      "summary": "Vonage provides flexible and scalable voice, messaging, video, and data capabilities across Unified Communications, Contact Centers, and Communications APIs.",
+      "quote_request_url": "https://getpeaksignal.com/contact"
+    },
+    {
+      "name": "ACC Business",
+      "category": "Network",
+      "summary": "ACC Business, an AT&T brand, is designed for customers seeking more than just a service provider, focusing on delivering exceptional service and flexible solutions in networking, data, cloud, and voice offerings.",
+      "quote_request_url": "https://getpeaksignal.com/contact"
+    },
+    {
+      "name": "Bigleaf Networks",
+      "category": "SD-WAN, Network",
+      "summary": "Bigleaf is creating a future where businesses and organizations never have to micro-manage their internet connectivity. Because internet reliability should just be a given, like electricity or clean water.",
+      "quote_request_url": "https://getpeaksignal.com/contact"
+    },
+    {
+      "name": "Breezeline",
+      "category": "Network",
+      "summary": "Breezeline offers high-speed internet with reliable service.",
+      "quote_request_url": "https://getpeaksignal.com/contact"
+    },
+    {
+      "name": "Brightspeed",
+      "category": "Network",
+      "summary": "We’re Brightspeed, a new internet provider on a mission to bring more connectivity to America. We believe where you call home shouldn’t limit your options — and we’re building the infrastructure to provide millions of homes and businesses with high-quality internet. We connect you to the world so that you can accomplish what you have to do, whatever it is that you do. With an ever-expanding network, we’re bringing connectivity and new opportunities to underserved areas.",
+      "quote_request_url": "https://getpeaksignal.com/contact"
+    },
+    {
+      "name": "Dobson Fiber",
+      "category": "Network",
+      "summary": "Dobson Fiber owns and operates a 6,500+ mile regional fiber optic network located throughout Oklahoma and parts of Texas and Arkansas. They serve the communities they live in and have delivered quality solutions for over 85 years. All solutions are provided over a state-of-the-art fiber network to provide optimum performance, with fully symmetrical bandwidth services. From small business to large enterprise, they offer solutions to meet the needs of today’s growing markets. With DIA, Broadband, Ethernet, Wavelengths, and UCaaS, they can reach any size of organization while offering 24/7 technical support and a customer service center located in Oklahoma City, OK.",
+      "quote_request_url": "https://getpeaksignal.com/contact"
+    },
+    {
+      "name": "EPIC iO",
+      "category": "Network",
+      "summary": "EPIC iO delivers enterprise-grade connectivity solutions designed to keep businesses running seamlessly across multiple locations. From fully managed 5G and POTS replacement to private cellular networks and satellite connectivity, EPIC iO simplifies complex deployments with expert engineering, rapid implementation, and ongoing support. Our AI-driven overlay adds intelligence to connected environments, while WirelessWindow™ provides customers with clear visibility and control over their wireless services.",
+      "quote_request_url": "https://getpeaksignal.com/contact"
+    },
+    {
+      "name": "FiberLight",
+      "category": "Network",
+      "summary": "FiberLight provides fiber-optic-based networking services to drive organizations towards a digital economy.",
+      "quote_request_url": "https://getpeaksignal.com/contact"
+    },
+    {
+      "name": "For2Fi",
+      "category": "Network",
+      "summary": "For2Fi provides managed wireless WAN solutions with wireless connectivity through 98% of the United States.",
+      "quote_request_url": "https://getpeaksignal.com/contact"
+    },
+    {
+      "name": "Lightpath Fiber",
+      "category": "Network",
+      "summary": "Lightpath builds and operates all fiber infrastructure designed for the AI era. With connectivity to more than 17,500 locations, 185+ data centers and eight subsea landing stations, our dense network supports cloud, AI and mission critical workloads with low latency and scalable capacity. We approach network expansion fearlessly owning, building and operating our fiber end to end to reach complex, high demand environments. Backed by unwavering service and human accountability, Lightpath delivers infrastructure built boldly and supported by the engineers who stand behind it every day. Experience the Lightpath Difference.",
+      "quote_request_url": "https://getpeaksignal.com/contact"
+    },
+    {
+      "name": "Lumen",
+      "category": "Network",
+      "summary": "Lumen provides enterprise technology and telecommunications enabling businesses to capitalize on emerging apps and next-gen technology.",
+      "quote_request_url": "https://getpeaksignal.com/contact"
+    },
+    {
+      "name": "Optimum",
+      "category": "Network",
+      "summary": "Optimum provides high-speed fiber internet, TV, and mobile services.",
+      "quote_request_url": "https://getpeaksignal.com/contact"
+    },
+    {
+      "name": "Rise Internet",
+      "category": "Network",
+      "summary": "Rise Internet offers fast, reliable internet for homes and businesses with flexible plans.",
+      "quote_request_url": "https://getpeaksignal.com/contact"
+    },
+    {
+      "name": "Rogers",
+      "category": "Network",
+      "summary": "Rogers provides mobile, internet, TV, home monitoring, and home phone services.",
+      "quote_request_url": "https://getpeaksignal.com/contact"
+    },
+    {
+      "name": "Verizon",
+      "category": "Network",
+      "summary": "Verizon provides wireless, internet, TV, and phone services.",
+      "quote_request_url": "https://getpeaksignal.com/contact"
+    },
+    {
+      "name": "Viasat",
+      "category": "Network",
+      "summary": "Viasat is the global communications company that believes everyone and everything in the world can be connected. If you have business customers in challenging locations where cable and fiber is not available, Viasat Business has you covered with broadband internet. They have nationwide coverage and download speeds up to 150 Mbps, so your customers finally have a better option over slow DSL and T1’s. Their satellite-based broadband also provides a resilient secondary connection that is completely separate from standard ground-based infrastructures, keeping your customers connected in even the worst situations.",
+      "quote_request_url": "https://getpeaksignal.com/contact"
+    },
+    {
+      "name": "WOW! Business",
+      "category": "Network",
+      "summary": "WOW! provides reliable business internet, phone, and cable TV.",
+      "quote_request_url": "https://getpeaksignal.com/contact"
+    },
+    {
+      "name": "Zayo",
+      "category": "Network",
+      "summary": "Zayo provides bandwidth infrastructure services, fiber, and network solutions.",
+      "quote_request_url": "https://getpeaksignal.com/contact"
+    },
+    {
+      "name": "Ziply Fiber",
+      "category": "Network",
+      "summary": "Ziply Fiber provides fast fiber internet with no annual contracts.",
+      "quote_request_url": "https://getpeaksignal.com/contact"
+    },
+    {
+      "name": "VeloCloud",
+      "category": "SD-WAN",
+      "summary": "VeloCloud provides SD-WAN solutions for enterprise networks.",
+      "quote_request_url": "https://getpeaksignal.com/contact"
+    },
+    {
+      "name": "AireSpring",
+      "category": "VARs",
+      "summary": "AireSpring is a trailblazing global managed services provider spearheading innovation in Managed IT, Network Services, and Unified Communications. Our arsenal of services is vast and versatile, designed to cater to the evolving needs of modern enterprises. From cutting-edge networking and security solutions to advanced communication platforms, we have the tools to propel your business forward.",
+      "quote_request_url": "https://getpeaksignal.com/contact"
+    },
+    {
+      "name": "MetTel",
+      "category": "VARs",
+      "summary": "At MetTel, we’ve been helping our clients connect in smarter ways for more than twenty years. Our business connections result in products and services that are the perfect solution for our clients,. We offer a wide range of devices and services from telecom infrastructure planning to consolidated billing to transparent cloud-based management capabilities. MetTel is the simple, smart solution to all your telecom needs.",
+      "quote_request_url": "https://getpeaksignal.com/contact"
+    },
+    {
+      "name": "Nitel",
+      "category": "VARs",
+      "summary": "Nitel simplifies complex technology challenges with seamless managed network solutions.",
+      "quote_request_url": "https://getpeaksignal.com/contact"
+    },
+    {
+      "name": "Spectrotel",
+      "category": "VARs",
+      "summary": "Spectrotel aggregates telecommunication services including phone, internet, VoIP, and managed services.",
+      "quote_request_url": "https://getpeaksignal.com/contact"
+    }
+  ]
+}

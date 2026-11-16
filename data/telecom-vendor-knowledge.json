@@ -1,0 +1,61 @@
+{
+  "as_of": "2026-11-16",
+  "vendors": [
+    {
+      "id": "ringcentral",
+      "name": "RingCentral",
+      "category": "UCaaS/CCaaS/AI voice",
+      "summary": "Cloud phone, video, messaging (RingEX), and contact center (RingCX).",
+      "countries": ["US", "CA"]
+    },
+    {
+      "id": "zoom",
+      "name": "Zoom",
+      "category": "UCaaS/CCaaS",
+      "summary": "Zoom Phone with Workplace (meetings, chat, AI Companion) and Zoom Contact Center.",
+      "countries": ["US", "CA"]
+    },
+    {
+      "id": "comcast-business",
+      "name": "Comcast Business",
+      "category": "ISP (cable/fiber), voice, mobile",
+      "summary": "Business Internet 300 Mbps-2 Gbps, Dedicated fiber to 10 Gbps, VoiceEdge/Voice Mobility, Business Mobile, SecurityEdge, Wireless Connect backup.",
+      "countries": ["US"]
+    },
+    {
+      "id": "att-business",
+      "name": "AT&T Business",
+      "category": "ISP (fiber, 5G fixed wireless), wireless, UCaaS",
+      "summary": "Business Fiber 300 Mbps-5 Gbps symmetrical, Internet Air for Business, Dedicated Internet, Office@Hand (RingCentral-powered), Dynamic Defense.",
+      "countries": ["US"]
+    },
+    {
+      "id": "spectrum-business",
+      "name": "Spectrum Business",
+      "category": "ISP (HFC cable), voice, UCaaS, mobile",
+      "summary": "Fiber-Powered internet 500 Mbps-1 Gig (2 Gig select), Invincible WiFi with 5G backup, Business Voice, Business Connect with RingCentral, Business Mobile, Spectrum Enterprise.",
+      "countries": ["US"]
+    },
+    {
+      "id": "cox-business",
+      "name": "Cox Business",
+      "category": "ISP (cable/fiber), voice",
+      "summary": "Charter closed Cox acquisition Aug 20 2026; Cox markets now Spectrum-branded. Internet 500 Mbps-2 Gbps, dedicated to 100 Gbps, Net Assurance backup, VoiceManager, Business Connect with RingCentral, Complete Care IT support.",
+      "countries": ["US"]
+    },
+    {
+      "id": "starlink-business",
+      "name": "Starlink Business",
+      "category": "Satellite internet",
+      "summary": "LEO satellite internet with Local Priority (land, one country) and Global Priority (worldwide and ocean) plans.",
+      "countries": ["US", "CA"]
+    },
+    {
+      "id": "t-mobile-business",
+      "name": "T-Mobile for Business",
+      "category": "Wireless, 5G business internet",
+      "summary": "Business wireless plans, 5G Business Internet, T-Satellite, and network slicing.",
+      "countries": ["US"]
+    }
+  ]
+}

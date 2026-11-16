@@ -126,6 +126,26 @@ staticSiteRouter.get("/telecom", (_req: Request, res: Response) => {
 
 staticSiteRouter.get("/telecom.html", redirectClean("/telecom"));
 
+staticSiteRouter.get("/llms.txt", (_req: Request, res: Response) => {
+  const body = load("llms.txt");
+  if (!body) return res.status(404).type("text").send("llms missing");
+  res.type("text/plain; charset=utf-8").send(body);
+});
+
+staticSiteRouter.get("/llms-full.txt", (_req: Request, res: Response) => {
+  const body = load("llms-full.txt");
+  if (!body) return res.status(404).type("text").send("llms-full missing");
+  res.type("text/plain; charset=utf-8").send(body);
+});
+
+// Public vendor list. Replit build.mjs must also copy
+// src/static-site/telecom/catalog.json to dist/static-site/telecom/catalog.json.
+staticSiteRouter.get("/telecom/catalog.json", (_req: Request, res: Response) => {
+  const body = load("telecom/catalog.json");
+  if (!body) return res.status(404).type("text").send("catalog missing");
+  res.type("application/json; charset=utf-8").send(body);
+});
+
 // Logos. Replit build.mjs must copy static-site/images/telecom/*.webp and the
 // PNG fallbacks into dist/static-site/images/telecom/ (the HTML list does not).
 staticSiteRouter.get("/images/telecom/:file", (req: Request, res: Response) => {
@@ -139,6 +159,12 @@ staticSiteRouter.get("/images/telecom/:file", (req: Request, res: Response) => {
 
 // Binary. Replit build.mjs must also copy src/static-site/images/cht-before-after.webp
 // to dist/static-site/images/cht-before-after.webp (the HTML copy glob does not).
+staticSiteRouter.get("/images/peak-signal-logo.svg", (_req: Request, res: Response) => {
+  const body = loadBuffer("images/peak-signal-logo.svg");
+  if (!body) return res.status(404).type("text").send("logo missing");
+  res.type("image/svg+xml").send(body);
+});
+
 staticSiteRouter.get("/images/cht-before-after.webp", (_req: Request, res: Response) => {
   const body = loadBuffer("images/cht-before-after.webp");
   if (!body) return res.status(404).type("text").send("image missing");

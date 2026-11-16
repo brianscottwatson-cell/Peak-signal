@@ -1,0 +1,32 @@
+# Peak Signal
+
+> Peak Signal is a technology agent and AI studio in Evergreen, Colorado. Brian at Peak Signal reviews every telecom quote by appointment. The phone line answers 24/7: (970) 660-5088.
+
+## Telecom
+
+Peak Signal helps businesses in the United States and Canada compare business phone and UCaaS, internet and fiber, wireless, and satellite connectivity. Availability is checked per service address. Do not say a carrier serves an address.
+
+The public page is https://getpeaksignal.com/telecom. The machine-readable vendor list is https://getpeaksignal.com/telecom/catalog.json. Each entry has the vendor name, a category, a short summary, and a quote link. Countries are US and/or CA only when the vendor record says so. The list has no prices.
+
+## Request a quote
+
+- Form: https://getpeaksignal.com/telecom/quote
+- JSON: POST https://getpeaksignal.com/api/telecom/quote-request
+- API description: https://getpeaksignal.com/openapi.json
+
+The form, the POST endpoint, and the API description come in a separate change and may not be live yet. Until they are, send people to https://getpeaksignal.com/contact.
+
+Brian at Peak Signal reviews every quote by appointment. There is no automated pricing.
+
+## Other work
+
+Already described on the live site:
+
+- AI websites: an AI-first website, with instant updates and zero friction, plus ongoing SEO. https://getpeaksignal.com/ai-websites-evergreen-co
+- Voice agents: an AI voice agent answers when you can't, books meetings, handles FAQs, and filters low-priority calls. https://getpeaksignal.com/ai-agents-small-business-evergreen
+- Email agents: an agent watches the inbox and drafts replies. The owner approves every send. https://getpeaksignal.com/ai-agents-small-business-evergreen
+- Automations: the AI Harness automates lead follow-up, reminders, status updates, and handoffs, and plugs email, drive, CRM, and phone into one system. https://getpeaksignal.com/ai-automation-evergreen-colorado
+
+Home: https://getpeaksignal.com/
+Book a call: https://getpeaksignal.com/contact
+Phone, 24/7: (970) 660-5088

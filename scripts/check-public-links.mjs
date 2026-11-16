@@ -33,6 +33,10 @@ const routes = {
   "/about": "static-site/about.html",
   "/ai-deployments": "static-site/ai-deployments.html",
   "/telecom": "static-site/telecom.html",
+  "/llms.txt": "static-site/llms.txt",
+  "/llms-full.txt": "static-site/llms-full.txt",
+  "/telecom/catalog.json": "static-site/telecom/catalog.json",
+  "/images/peak-signal-logo.svg": "static-site/images/peak-signal-logo.svg",
   "/robots.txt": "static-site/robots.txt",
   "/google166e848c42566a74.html": "static-site/google166e848c42566a74.html",
   "/tailwind.css": "static-site/tailwind.css",
@@ -95,7 +99,9 @@ function fail(message) {
 
 function contentType(file) {
   if (file.endsWith(".xml")) return "application/xml; charset=utf-8";
+  if (file.endsWith(".json")) return "application/json; charset=utf-8";
   if (file.endsWith(".txt")) return "text/plain; charset=utf-8";
+  if (file.endsWith(".svg")) return "image/svg+xml";
   if (file.endsWith(".webp")) return "image/webp";
   if (file.endsWith(".css")) return "text/css; charset=utf-8";
   return "text/html; charset=utf-8";
