@@ -3,7 +3,7 @@
   "info": {
     "title": "Peak Signal telecom intake",
     "version": "1.0.0",
-    "description": "Quote requests for Brian at Peak Signal. He reviews every request. Nothing is ordered, and there is no automated pricing. The form, this document, and the quote request endpoint answer with disabled until intake is turned on."
+    "description": "Quote requests for Peak Signal. Every request is reviewed. Nothing is ordered from the form. The form, this document, and the quote request endpoint answer with disabled until intake is turned on."
   },
   "servers": [
     { "url": "https://getpeaksignal.com" }
@@ -63,8 +63,8 @@
     "/api/telecom/quote-request": {
       "post": {
         "operationId": "createTelecomQuoteRequest",
-        "summary": "Store a quote request for Brian at Peak Signal",
-        "description": "Validates the JSON body, stores one queue record, and notifies Brian at Peak Signal only. A filled honeypot is rejected. The response never includes a price. Repeat submissions of the same request return the same reference ID and do not notify Brian again.",
+        "summary": "Store a quote request for Peak Signal",
+        "description": "Validates the JSON body, stores one queue record, and notifies Peak Signal only. A filled honeypot is rejected. The response never includes a price. Repeat submissions of the same request return the same reference ID and do not notify anyone again.",
         "requestBody": {
           "required": true,
           "content": {
@@ -89,14 +89,14 @@
         },
         "responses": {
           "200": {
-            "description": "The request is in the queue. Brian at Peak Signal was notified once.",
+            "description": "The request is in the queue. Peak Signal was notified once.",
             "content": {
               "application/json": {
                 "schema": { "$ref": "#/components/schemas/QuoteAccepted" },
                 "example": {
                   "ok": true,
                   "id": "tq_0123456789abcdef",
-                  "message": "Brian at Peak Signal reviews every request; no automated pricing."
+                  "message": "Peak Signal has the request. Our team will review it before anything is submitted. Nothing is ordered automatically."
                 }
               }
             }
@@ -177,9 +177,9 @@
           "id": { "type": "string", "pattern": "^tq_[0-9a-f]{16}$", "description": "Reference ID." },
           "message": {
             "type": "string",
-            "const": "Brian at Peak Signal reviews every request; no automated pricing."
+            "const": "Peak Signal has the request. Our team will review it before anything is submitted. Nothing is ordered automatically."
           },
-          "duplicate": { "type": "boolean", "description": "True when this request was already stored. Brian is not notified again." }
+          "duplicate": { "type": "boolean", "description": "True when this request was already stored. Peak Signal is not notified again." }
         }
       },
       "QuoteErrors": {

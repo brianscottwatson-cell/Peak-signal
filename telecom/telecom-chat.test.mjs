@@ -159,8 +159,8 @@ test("US and Canada addresses validate, and carriers follow the catalog", () => 
   assert.doesNotMatch(packed, /\$\d/);
   assert.doesNotMatch(packed, /\bNRC\b|\bMRC\b/);
   for (const carrier of usCarriers.concat(caCarriers)) {
-    assert.equal(carrier.pricing, "Brian will confirm pricing");
-    assert.equal(carrier.availability, "May serve this area. Brian will confirm.");
+    assert.equal(carrier.pricing, "Peak Signal will follow up with options.");
+    assert.equal(carrier.availability, "May serve this area. Peak Signal will confirm.");
     assert.ok(carrier.offerings.length > 0);
   }
 });
@@ -176,7 +176,7 @@ test("a quote is queued once and only Brian is notified", async () => {
     assert.equal(first.body.notified, true);
     const stored = JSON.parse(readFileSync(service.file, "utf8"));
     assert.equal(stored.requests.length, 1);
-    assert.equal(stored.requests[0].pricing, "Brian will confirm pricing");
+    assert.equal(stored.requests[0].pricing, "Peak Signal will follow up with options.");
     assert.equal(calls.length, 1);
     assert.equal(calls[0].url, env.PEAK_FORMSPREE);
     const payload = JSON.parse(calls[0].init.body);
@@ -184,7 +184,7 @@ test("a quote is queued once and only Brian is notified", async () => {
     assert.equal(payload.email, undefined);
     assert.equal(payload._replyto, undefined);
     assert.equal(payload._cc, undefined);
-    assert.match(payload.message, /Brian will confirm pricing/);
+    assert.match(payload.message, /Peak Signal will follow up with options/);
     assert.match(payload.message, /No reply was sent to the visitor/);
     assert.match(payload.message, /Nothing was sent to a vendor/);
     assert.doesNotMatch(payload.message, /\$\d/);
@@ -284,7 +284,7 @@ test("an opportunity is queued, and a needs URL is not fetched", async () => {
     assert.equal(row.kind, "opportunity");
     assert.equal(row.seats, "18");
     assert.equal(row.vendorName, "RingCentral");
-    assert.equal(row.pricing, "Brian will confirm pricing");
+    assert.equal(row.pricing, "Peak Signal will follow up with options.");
   } finally {
     cleanup();
   }
@@ -360,7 +360,7 @@ test("public chat files carry the visitor copy and none of the banned material",
   assert.match(client, /telecom-visitor-copy/);
   assert.doesNotMatch(client, /formspree/i);
   assert.match(COPY.consent.label, /Peak Signal may contact me about this request\./);
-  assert.match(COPY.results.pricing, /Brian will confirm pricing/);
+  assert.match(COPY.results.pricing, /Peak Signal will follow up with options/);
   const gate = createSubmitGate(() => "idem-key-41");
   assert.equal(gate.begin(), "idem-key-41");
   assert.equal(gate.begin(), "");

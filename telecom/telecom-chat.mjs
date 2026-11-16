@@ -16,8 +16,22 @@ import {
   validateQuote,
 } from "../static-site/telecom-carrier-rules.mjs";
 import { COPY } from "../static-site/telecom-visitor-copy.mjs";
+import {
+  PUBLIC_MESSAGE,
+  SYSTEM_PROMPT,
+  TURNSTILE_MESSAGE,
+  asData,
+  createMemoryLimiter,
+  detectFraud,
+  killed,
+  logTelecom,
+  publicResponse,
+  unavailableResponse,
+  verifyTurnstile,
+} from "./telecom-security.mjs";
 
-export const INTAKE_MESSAGE = "Brian at Peak Signal reviews every request; no automated pricing.";
+export { PUBLIC_MESSAGE, SYSTEM_PROMPT };
+export const INTAKE_MESSAGE = PUBLIC_MESSAGE;
 
 export const INTAKE_ERRORS = {
   business: "Enter the business name.",
@@ -45,11 +59,19 @@ export function intakeEnabled(env = process.env) {
   return String(env.PEAK_TELECOM_INTAKE_ENABLED || "").trim() === "1";
 }
 
-export function applyIntakeLinks(html, env = process.env) {
-  if (!intakeEnabled(env)) return html;
+export function formAvailable(env = process.env) {
+  return !killed(env) && (telecomChatEnabled(env) || intakeEnabled(env));
+}
+
+export function applyQuoteLinks(html, env = process.env) {
+  if (!formAvailable(env)) return html;
   return String(html)
     .replaceAll('href="/contact" class="quote-btn', 'href="/telecom/quote" class="quote-btn')
     .replaceAll('<a href="/contact">Request a quote</a>', '<a href="/telecom/quote">Request a quote</a>');
+}
+
+export function applyIntakeLinks(html, env = process.env) {
+  return applyQuoteLinks(html, env);
 }
 
 export function intakeDisabledHtml() {
@@ -71,7 +93,7 @@ export function intakeDisabledHtml() {
   <main>
     <h1>Request a quote</h1>
     <p>${INTAKE_ERRORS.disabled}</p>
-    <p>Brian at Peak Signal can still be reached from the <a href="/contact">contact page</a>.</p>
+    <p>Peak Signal can still be reached from the <a href="/contact">contact page</a>.</p>
   </main>
 </body>
 </html>`;
@@ -293,6 +315,8 @@ export function createTelecomChat(options = {}) {
   const fetchImpl = options.fetch || globalThis.fetch;
   const nowFn = options.now || (() => new Date());
   const catalog = options.catalog || loadCatalog(options.catalogPath || catalogPath());
+  const limiter = options.limiter || createMemoryLimiter(options.limits || {});
+  const log = options.log || ((line) => console.log(String(line)));
   const rateLimit = Number.isFinite(options.rateLimit) ? options.rateLimit : RATE_LIMIT;
   const rateWindowMs = Number.isFinite(options.rateWindowMs) ? options.rateWindowMs : RATE_WINDOW_MS;
   const persist = options.persist;
@@ -348,8 +372,12 @@ export function createTelecomChat(options = {}) {
   }
 
   function config() {
+    if (killed(env)) return { status: 503, body: unavailableResponse() };
     if (!enabled()) return disabled();
-    return { status: 200, body: { ok: true, enabled: true } };
+    const body = { ok: true, enabled: true };
+    const siteKey = String(env.TURNSTILE_SITE_KEY || "").trim();
+    if (siteKey) body.turnstileSiteKey = siteKey;
+    return { status: 200, body };
   }
 
   function address(input, req) {
@@ -373,8 +401,85 @@ export function createTelecomChat(options = {}) {
     };
   }
 
+  async function gateRequest(body, req, now) {
+    if (killed(env)) return { status: 503, body: unavailableResponse() };
+    const gate = limiter.check({
+      ip: clientIp(req),
+      sessionId: String(body?.sessionId || ""),
+      now,
+    });
+    const turnstile = await verifyTurnstile({
+      secret: env.TURNSTILE_SECRET_KEY,
+      token: body?.turnstileToken,
+      fetchImpl,
+      log,
+    });
+    if (!turnstile.ok) return { status: 400, body: { ok: false, errors: [TURNSTILE_MESSAGE] } };
+    if (gate.limited) return { status: 429, body: { ok: false, errors: [COPY.validation.rate] } };
+    return { gate };
+  }
+
+  function chatQuoteValue(body) {
+    const errors = [];
+    const address = validateAddress(body);
+    if (!address.ok) errors.push(...address.errors);
+    const services = clip(body?.services, 500);
+    const seatsLocations = clip(body?.seatsLocations, 120);
+    const currentProvider = clip(body?.currentProvider, 120);
+    const timeline = clip(body?.timeline, 120);
+    const contactName = clip(body?.contactName, 80);
+    const contactEmail = clip(body?.contactEmail, 120);
+    const contactPhone = clip(body?.contactPhone, 40);
+    const vendor = clip(body?.vendor, 80);
+    const names = new Set(catalog.map((vendorCard) => vendorCard.name));
+    if (services.length < 2) errors.push(COPY.validation.services);
+    if (seatsLocations.length < 1) errors.push(COPY.validation.counts);
+    if (currentProvider.length < 2) errors.push(COPY.validation.provider);
+    if (timeline.length < 2) errors.push(COPY.validation.timeline);
+    if (contactName.length < 2) errors.push(COPY.validation.contactName);
+    if (!validEmail(contactEmail)) errors.push(COPY.validation.email);
+    if (!validPhone(contactPhone)) errors.push(COPY.validation.phone);
+    if (vendor && vendor !== COPY.vendor.notSure && !names.has(vendor)) errors.push(COPY.validation.vendor);
+    if (!(body?.consent === true || body?.consent === "yes")) errors.push(COPY.validation.consent);
+    if (errors.length) return { ok: false, errors };
+    const fraudFlags = detectFraud({
+      ...address.address,
+      contactEmail,
+      contactPhone,
+      services,
+      currentProvider,
+      timeline,
+      seatsLocations,
+      contactName,
+      company: contactName,
+    });
+    return {
+      ok: true,
+      errors: [],
+      value: {
+        kind: "quote",
+        ...address.address,
+        company: contactName,
+        contactName,
+        contactEmail,
+        contactPhone,
+        vendorName: vendor,
+        services,
+        seatsLocations,
+        linesSeats: seatsLocations,
+        currentProvider,
+        timeline,
+        pricing: PUBLIC_MESSAGE,
+        fraudFlags,
+      },
+    };
+  }
+
   async function submit(body, req) {
+    if (killed(env)) return { status: 503, body: unavailableResponse() };
     if (!enabled()) return disabled();
+    const guarded = await gateRequest(body, req, Date.now());
+    if (guarded.status) return guarded;
     const key = String(body?.idempotencyKey || "").trim();
     if (key && !validKey(key)) {
       return { status: 400, body: { ok: false, errors: [COPY.validation.submitOnce] } };
@@ -398,9 +503,11 @@ export function createTelecomChat(options = {}) {
       return { status: 400, body: { ok: false, errors: [COPY.validation.vendor] } };
     }
 
-    const checked = kind === "quote"
-      ? validateQuote(body, carriers(body?.country))
-      : validateOpportunity(body, catalog);
+    const checked = kind === "quote" && body.services
+      ? chatQuoteValue(body)
+      : kind === "quote"
+        ? validateQuote(body, carriers(body?.country))
+        : validateOpportunity(body, catalog);
     if (!checked.ok) {
       save(store);
       return { status: 400, body: { ok: false, errors: checked.errors } };
@@ -410,7 +517,7 @@ export function createTelecomChat(options = {}) {
       id: `tq_${randomBytes(8).toString("hex")}`,
       idempotencyKey: key,
       fingerprint: fingerprint(checked.value),
-      status: "requested",
+      status: body?.services ? "ready_for_partner_submission" : "requested",
       createdAt: nowDate.toISOString(),
       decidedAt: "",
       decisionNote: "",
@@ -438,6 +545,15 @@ export function createTelecomChat(options = {}) {
     } catch (err) {
       console.error("telecom notify failed", record.id, err?.message || err);
     }
+    logTelecom("telecom.request", {
+      id: record.id,
+      kind: record.kind,
+      email: record.contactEmail,
+      phone: record.contactPhone,
+      flags: record.fraudFlags || [],
+      ip: clientIp(req),
+    }, log);
+    if (body?.services) return { status: 200, body: publicResponse(record.id) };
     return { status: 200, body: { ok: true, id: record.id, duplicate: false, notified } };
   }
 
@@ -455,7 +571,8 @@ export function createTelecomChat(options = {}) {
   }
 
   async function quoteRequest(body, req) {
-    if (!intakeOn()) return { status: 404, body: { ok: false, error: "disabled" } };
+    if (killed(env)) return { status: 503, body: unavailableResponse() };
+    if (!formAvailable(env)) return { status: 404, body: { ok: false, error: "disabled" } };
     const store = readStore(file);
     const nowDate = nowFn();
     const now = nowDate.getTime();
@@ -519,7 +636,7 @@ export function createTelecomChat(options = {}) {
       id: `tq_${randomBytes(8).toString("hex")}`,
       idempotencyKey: key,
       fingerprint: fingerprint(value),
-      status: "requested",
+      status: "ready_for_partner_submission",
       createdAt: nowDate.toISOString(),
       decidedAt: "",
       decisionNote: "",

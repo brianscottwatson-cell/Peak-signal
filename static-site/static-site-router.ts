@@ -9,7 +9,7 @@ import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { installBrotliMitigation, rejectBrotliContentEncoding } from "../voice/brotli-guard";
 import { wwwApexRedirect } from "./www-apex-redirect";
-import { applyIntakeLinks, intakeDisabledHtml, intakeEnabled, readTelecomAsset } from "../telecom/telecom-chat.mjs";
+import { applyQuoteLinks, formAvailable, intakeDisabledHtml, readTelecomAsset } from "../telecom/telecom-chat.mjs";
 
 const moduleDir = typeof __dirname === "string" ? __dirname : dirname(fileURLToPath(import.meta.url));
 
@@ -125,13 +125,13 @@ staticSiteRouter.get("/ai-deployments.html", redirectClean("/ai-deployments"));
 staticSiteRouter.get("/telecom", (_req: Request, res: Response) => {
   const html = load("telecom.html");
   if (!html) return res.status(404).type("text").send("telecom missing");
-  res.type("html").send(applyIntakeLinks(html));
+  res.type("html").send(applyQuoteLinks(html));
 });
 
 staticSiteRouter.get("/telecom.html", redirectClean("/telecom"));
 
 staticSiteRouter.get("/telecom/quote", (_req: Request, res: Response) => {
-  if (!intakeEnabled()) {
+  if (!formAvailable()) {
     res.status(404).type("html").send(intakeDisabledHtml());
     return;
   }
@@ -144,7 +144,7 @@ staticSiteRouter.get("/telecom/quote", (_req: Request, res: Response) => {
 });
 
 staticSiteRouter.get("/openapi.json", (_req: Request, res: Response) => {
-  if (!intakeEnabled()) {
+  if (!formAvailable()) {
     res.status(404).json({ ok: false, error: "disabled" });
     return;
   }

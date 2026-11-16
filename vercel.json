@@ -1,12 +1,6 @@
 {
   "cleanUrls": false,
   "trailingSlash": false,
-  "headers": [
-    {
-      "source": "/(.*)",
-      "headers": [{ "key": "X-Robots-Tag", "value": "noindex" }]
-    }
-  ],
   "redirects": [
     { "source": "/index.html", "destination": "/", "statusCode": 301 },
     { "source": "/about.html", "destination": "/about", "statusCode": 301 },
@@ -53,6 +47,10 @@
     { "source": "/api/(.*)", "destination": "https://peak-signal.replit.app/api/$1" }
   ],
   "headers": [
+    {
+      "source": "/(.*)",
+      "headers": [{ "key": "X-Robots-Tag", "value": "noindex" }]
+    },
     {
       "source": "/telecom-visitor-copy.mjs",
       "headers": [{ "key": "Content-Type", "value": "text/javascript; charset=utf-8" }]

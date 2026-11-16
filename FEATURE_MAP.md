@@ -91,7 +91,7 @@ Nav links are the anchors in the header `<nav>` (or the lander header nav). CTAs
 
 - Route: /about
 - Source file: static-site/about.html
-- Purpose: About Brian at Peak Signal, the studio in Evergreen, Colorado.
+- Purpose: About Peak Signal, the studio in Evergreen, Colorado.
 - H1: About Peak Signal
 - Key sections: none
 - CTAs:
