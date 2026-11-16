@@ -1,0 +1,740 @@
+[
+  {
+    "name": "RingCentral",
+    "slug": "ringcentral",
+    "categories": [
+      "Communications"
+    ],
+    "description": "Cloud Message Video Phone (MVP), customer engagement and contact center. Replaces legacy on-prem PBX and video conferencing, and integrates with third-party business apps.",
+    "offerings": [
+      "RingCentral MVP (Message, Video, Phone): Cloud-based unified communications solution combining voice, video, messaging, and collaboration.",
+      "RingCentral Video: HD video meetings and webinars with advanced collaboration tools.",
+      "RingCentral Contact Center: AI-powered omnichannel contact center with intelligent routing and analytics.",
+      "RingCentral Events: Virtual and hybrid event platform for large-scale meetings and events.",
+      "RingCentral Webinar: Professional webinar hosting with engagement tools and analytics.",
+      "RingCentral Rooms: Conference room solutions with video collaboration and content sharing.",
+      "RingCentral App: Mobile and desktop applications for seamless communication across devices.",
+      "AI-Enhanced Productivity: AI-powered meeting insights, call summaries, and automated transcription."
+    ],
+    "source": "loc8",
+    "logo": "logos/ringcentral.png",
+    "primary": true,
+    "pax8_billing_note": true
+  },
+  {
+    "name": "Zoom",
+    "slug": "zoom",
+    "categories": [
+      "Communications"
+    ],
+    "description": "A video-first unified communications platform with video meetings, voice (phone), webinars, and chat across desktop, phone, mobile, and conference rooms.",
+    "offerings": [
+      "Video Conferencing (Zoom Meetings)",
+      "Webinar Services",
+      "Team Chat and Messaging",
+      "Cloud Phone System",
+      "Whiteboarding",
+      "Zoom Events (Virtual/Hybrid Events)",
+      "Zoom Sessions",
+      "AI/ML Companion",
+      "Zoom Workplace",
+      "Compliance Manager Plus",
+      "Meeting Survivability",
+      "Zoom Mesh"
+    ],
+    "source": "loc8",
+    "logo": "logos/zoom.png",
+    "primary": true,
+    "pax8_billing_note": true
+  },
+  {
+    "name": "Comcast",
+    "slug": "comcast",
+    "categories": [
+      "Network"
+    ],
+    "description": "Comcast Business offers connectivity, secure networking solutions, and unified communications for medium and large organizations. For MSPs reselling to SMB clients, Comcast provides comprehensive internet, voice, and cybersecurity solutions with 24/7 support.",
+    "offerings": [
+      "Business Internet: High-speed internet with flexible speeds and reliability guarantees.",
+      "Ethernet Dedicated Internet: Dedicated fiber-based internet with guaranteed speeds.",
+      "Business Voice: VoIP phone solutions with advanced calling features.",
+      "Unified Communications: Integrated voice, video, and messaging solutions.",
+      "SecurityEdge: Comprehensive cybersecurity protection for business networks.",
+      "WiFi Pro: Managed WiFi solutions with enterprise-grade security.",
+      "Business TV: Cable TV and streaming solutions for business environments.",
+      "Backup Internet: Redundant internet connectivity for business continuity."
+    ],
+    "source": "loc8",
+    "logo": "logos/comcast.png",
+    "primary": true,
+    "pax8_billing_note": false
+  },
+  {
+    "name": "AT&T",
+    "slug": "att",
+    "categories": [
+      "Network"
+    ],
+    "description": "AT&T provides connectivity, secure networking solutions, and unified communications for medium and large organizations.",
+    "offerings": [
+      "Connectivity solutions",
+      "Secure networking",
+      "Unified communications",
+      "Enterprise services"
+    ],
+    "source": "loc8",
+    "logo": "logos/att.png",
+    "primary": true,
+    "pax8_billing_note": false
+  },
+  {
+    "name": "Spectrum",
+    "slug": "spectrum",
+    "categories": [
+      "Network"
+    ],
+    "description": "Spectrum provides reliable high-speed internet, premium cable TV, sports, 5G mobile, and home phone.",
+    "offerings": [],
+    "source": "loc8",
+    "logo": "logos/spectrum.png",
+    "primary": true,
+    "pax8_billing_note": false
+  },
+  {
+    "name": "Cox",
+    "slug": "cox",
+    "categories": [
+      "Network"
+    ],
+    "description": "Cox provides connectivity and cybersecurity solutions for governmental and educational organizations. For MSPs reselling to SMB clients, Cox offers enterprise-grade internet, voice, and security solutions with reliable connectivity.",
+    "offerings": [
+      "Business Internet: High-speed fiber and cable internet solutions for businesses",
+      "Ethernet Services: Dedicated ethernet connectivity for enterprise applications",
+      "Voice Solutions: Business phone systems and unified communications",
+      "Cybersecurity Services: Comprehensive security solutions to protect business networks",
+      "Managed WiFi: Professional wireless networking solutions",
+      "Cloud Services: Scalable cloud infrastructure and backup solutions"
+    ],
+    "source": "loc8",
+    "logo": "logos/cox.png",
+    "primary": true,
+    "pax8_billing_note": false
+  },
+  {
+    "name": "Starlink",
+    "slug": "starlink",
+    "categories": [
+      "Network"
+    ],
+    "description": "Starlink provides high-speed satellite internet for business.",
+    "offerings": [],
+    "source": "loc8",
+    "logo": "logos/starlink.png",
+    "primary": true,
+    "pax8_billing_note": false
+  },
+  {
+    "name": "T-Mobile for Business",
+    "slug": "t-mobile",
+    "categories": [
+      "Wireless"
+    ],
+    "description": "T-Mobile for Business offers nationwide 5G wireless and business internet, business phone plans, and bundled connectivity, device management, and security. Coverage includes a nationwide 5G network and, on select plans, satellite-to-mobile service.",
+    "offerings": [
+      "5G Business Internet, available nationwide (speeds vary on the cellular network)",
+      "Business phone plans, including CoreMobile, ProMobile, and SuperMobile",
+      "Business All-In, bundling connectivity, device management, security, and protection",
+      "T-Satellite on select plans",
+      "Advanced network solutions for coverage and critical operations"
+    ],
+    "source": "t-mobile.com",
+    "logo": "logos/t-mobile.png",
+    "primary": true,
+    "pax8_billing_note": false
+  },
+  {
+    "name": "8x8",
+    "slug": "8x8",
+    "categories": [
+      "Communications"
+    ],
+    "description": "One platform for voice, video, collaboration, and contact center.",
+    "offerings": [
+      "Contact Center: 8x8® Contact Center™ enhances agent performance with AI to simplify operations and improve customer satisfaction.",
+      "Unified Communications: 8x8 Work® connects teams and customers globally using an AI-enabled communications suite.",
+      "Communications APIs: 8x8 no-code CPaaS enables connections with customers on preferred channels from a single platform.",
+      "CX Beyond the Contact Center: 8x8 Engage™ supports all customer-facing teams to stay connected and assist customers easily.",
+      "8x8 for Microsoft Teams: Amplifies Microsoft Teams with 8x8 communication capabilities and contact center integrations."
+    ],
+    "source": "loc8",
+    "logo": "logos/8x8.png",
+    "primary": false,
+    "pax8_billing_note": true
+  },
+  {
+    "name": "Dialpad",
+    "slug": "dialpad",
+    "categories": [
+      "Communications"
+    ],
+    "description": "Built on trust, reliability, and world-class communication tools, Dialpad brings calling, messaging, meetings, and support together in one AI-powered platform. Dialpad's AI-native contact center and communications platform is built for human and AI agent collaboration, enabling CX transformation at scale.",
+    "offerings": [
+      "Dialpad AI Agents: Deploy autonomous voice and digital agents that take action, trigger automated workflows and easily scale support organizations.",
+      "Dialpad Support: Transform the contact center with AI that expedites agent onboarding, simplifies coaching, and boosts CSAT.",
+      "Dialpad Sell: Close deals faster with AI-driven outreach, automated playbooks, and real-time in-call sales coaching.",
+      "Dialpad Connect: Streamline conversations with an AI-native platform that automates note-taking and delivers real-time insights."
+    ],
+    "source": "loc8",
+    "logo": "logos/dialpad.png",
+    "primary": false,
+    "pax8_billing_note": false
+  },
+  {
+    "name": "Five9",
+    "slug": "five9",
+    "categories": [
+      "Communications"
+    ],
+    "description": "Five9 offers cloud-native contact center software enabling digital customer service, sales, and marketing engagement. For MSPs reselling to SMB clients, Five9 provides AI-powered omnichannel solutions with advanced analytics and workforce optimization.",
+    "offerings": [
+      "Intelligent Cloud Contact Center: AI-powered omnichannel contact center with predictive analytics.",
+      "Customer Service Suite: Comprehensive tools for customer support and issue resolution.",
+      "Sales Acceleration: Tools and automation for sales teams to increase conversion rates.",
+      "Marketing Automation: Integrated marketing tools for lead generation and nurturing.",
+      "Workforce Optimization: Advanced analytics and reporting for agent performance optimization.",
+      "Omnichannel Routing: Intelligent routing across voice, email, chat, and social channels.",
+      "Real-time Analytics: Live dashboards and reporting for contact center performance.",
+      "CRM Integrations: Native integrations with leading CRM platforms."
+    ],
+    "source": "loc8",
+    "logo": "logos/five9.png",
+    "primary": false,
+    "pax8_billing_note": false
+  },
+  {
+    "name": "GoTo",
+    "slug": "goto",
+    "categories": [
+      "Communications"
+    ],
+    "description": "GoTo offers business collaboration tools including video conferencing, screen sharing, and webinars. For MSPs reselling to SMB clients, GoTo provides comprehensive communication and collaboration solutions.",
+    "offerings": [
+      "GoToMeeting: Professional video conferencing and online meeting solutions",
+      "GoToWebinar: Comprehensive webinar hosting and management platform",
+      "GoToConnect: Unified communications with phone, video, and messaging",
+      "GoToTraining: Interactive online training and learning management",
+      "Screen Sharing: Real-time desktop sharing and remote collaboration",
+      "Mobile Apps: Full-featured mobile applications for on-the-go collaboration"
+    ],
+    "source": "loc8",
+    "logo": "logos/goto.png",
+    "primary": false,
+    "pax8_billing_note": false
+  },
+  {
+    "name": "Net2Phone",
+    "slug": "net2phone",
+    "categories": [
+      "Communications"
+    ],
+    "description": "Net2phone provides cloud communications solutions uniting voice, video, chat, AI and email for businesses. Net2phone offers comprehensive unified communications with advanced features. Ideal for AI, Hospitality, call center/CCaaS, Teams & POTS replacement.",
+    "offerings": [
+      "Business Phone Systems: Cloud-based VoIP solutions for businesses",
+      "Unified Communications: Integrated voice, video, chat, and email platform",
+      "Mobile Applications: Full-featured mobile apps for remote work",
+      "Video Conferencing: Professional video meeting solutions",
+      "Call Center Solutions: Inbound and outbound call center platforms",
+      "Integration Tools: CRM and business application integrations",
+      "Teams: Enabling Teams to Communicate and Collaborate securely in real-time",
+      "Hospitality: Cloud Based Integrated Go Forward and Ahead Position",
+      "POTS Replacement: Full Analog Services Replacement Capability",
+      "AI: Advanced Company and User Solutions offering Standalone and Compatible Products"
+    ],
+    "source": "loc8",
+    "logo": "logos/net2phone.png",
+    "primary": false,
+    "pax8_billing_note": false
+  },
+  {
+    "name": "Nextiva",
+    "slug": "nextiva",
+    "categories": [
+      "Communications"
+    ],
+    "description": "A unified business communications, productivity, and customer relationship platform.",
+    "offerings": [
+      "Business Phone System: Cloud-based VoIP with advanced call management",
+      "Contact Center: Omnichannel customer service and support platform",
+      "Unified Communications: Integrated voice, video, chat, and messaging",
+      "CRM Integration: Native integrations with popular CRM platforms",
+      "Analytics & Reporting: Advanced call analytics and performance reporting",
+      "Mobile Apps: Full-featured mobile applications for remote teams"
+    ],
+    "source": "loc8",
+    "logo": "logos/nextiva.png",
+    "primary": false,
+    "pax8_billing_note": true
+  },
+  {
+    "name": "Ooma",
+    "slug": "ooma",
+    "categories": [
+      "Communications"
+    ],
+    "description": "At Ooma, we create powerful communications solutions for businesses and consumers, all delivered through our advanced, cloud-based software service platform.",
+    "offerings": [
+      "Business Phone: With features like a Virtual Receptionist, CRM Integrations and videoconferencing, Ooma Office enables you to enhance your customer service and collaborate with your team more efficiently.",
+      "Ooma AI: Handles calls so you can spend less time managing interruptions and more time connecting with your customers.",
+      "POTS Line Replacement: Ooma AirDial® is your turnkey solution to digitally upgrade your POTS lines.",
+      "Enterprise Communications: Empower employees to be more productive with the tools to communicate and collaborate seamlessly, the way they want.",
+      "Ooma Connect: Reliable 5G business internet and phone service, designed to work together."
+    ],
+    "source": "loc8",
+    "logo": "logos/ooma.png",
+    "primary": false,
+    "pax8_billing_note": false
+  },
+  {
+    "name": "SpectrumVoIP",
+    "slug": "spectrum-voip",
+    "categories": [
+      "Communications"
+    ],
+    "description": "SpectrumVoIP provides cloud-hosted VoIP, fast internet, AI-driven surveillance, and managed network security.",
+    "offerings": [],
+    "source": "loc8",
+    "logo": "logos/spectrum-voip.png",
+    "primary": false,
+    "pax8_billing_note": false
+  },
+  {
+    "name": "Talkdesk",
+    "slug": "talkdesk",
+    "categories": [
+      "Communications"
+    ],
+    "description": "Talkdesk provides a global cloud contact center leader for modern AI-powered customer service.",
+    "offerings": [],
+    "source": "loc8",
+    "logo": "logos/talkdesk.png",
+    "primary": false,
+    "pax8_billing_note": false
+  },
+  {
+    "name": "TPx",
+    "slug": "tpx",
+    "categories": [
+      "VARs",
+      "Network",
+      "Communications",
+      "SD-WAN"
+    ],
+    "description": "TPx is your sidekick for smart IT—helping organizations connect, secure, and grow with confidence. Leveraging decades of experience, TPx delivers managed services for cybersecurity, networks, and cloud communications that reduce risk and maximize the value of IT investments.",
+    "offerings": [
+      "Business Internet: High-speed internet with flexible speeds and reliability guarantees.",
+      "Ethernet Dedicated Internet: Dedicated fiber-based internet with guaranteed speeds.",
+      "Managed SD-WAN: Assured application performance, business policy automation and end-to-end management.",
+      "Managed SASE: Secure access made simple for the modern workforce.",
+      "Unified Communications: Integrated voice, video, and messaging solutions, including Webex, Teams, & SIP trunking/SmartVoice",
+      "Contact Center: Omnichannel contact center with intelligent routing and analytics."
+    ],
+    "source": "loc8",
+    "logo": "logos/tpx.png",
+    "primary": false,
+    "pax8_billing_note": false
+  },
+  {
+    "name": "Vonage Business",
+    "slug": "vonage",
+    "categories": [
+      "Communications"
+    ],
+    "description": "Vonage provides flexible and scalable voice, messaging, video, and data capabilities across Unified Communications, Contact Centers, and Communications APIs. For MSPs reselling to SMB clients, Vonage offers high-reliability cloud communications with developer community support.",
+    "offerings": [
+      "Communications APIs: Comprehensive voice, video, messaging, and verification APIs for developers.",
+      "Unified Communications: Cloud-based phone system with advanced collaboration features.",
+      "Contact Center: Omnichannel contact center solutions with AI-powered analytics.",
+      "Video API: High-quality video calling and conferencing integration.",
+      "SMS API: Global SMS messaging with delivery tracking and two-way messaging.",
+      "Voice API: Programmable voice calling with advanced routing and recording.",
+      "Verify API: Phone number verification and two-factor authentication.",
+      "AI Platform: AI-powered conversation analytics and insights."
+    ],
+    "source": "loc8",
+    "logo": "logos/vonage.png",
+    "primary": false,
+    "pax8_billing_note": false
+  },
+  {
+    "name": "ACC Business",
+    "slug": "acc-business",
+    "categories": [
+      "Network"
+    ],
+    "description": "ACC Business, an AT&T brand, is designed for customers seeking more than just a service provider, focusing on delivering exceptional service and flexible solutions in networking, data, cloud, and voice offerings. It works exclusively with Solution Providers, making it an ideal partner for MSPs looking to resell specialized communication solutions to SMB clients.",
+    "offerings": [
+      "Networking solutions",
+      "Data services",
+      "Cloud offerings",
+      "Voice services"
+    ],
+    "source": "loc8",
+    "logo": "logos/acc-business.png",
+    "primary": false,
+    "pax8_billing_note": false
+  },
+  {
+    "name": "Bigleaf Networks",
+    "slug": "bigleaf-networks",
+    "categories": [
+      "SD-WAN",
+      "Network"
+    ],
+    "description": "Bigleaf is creating a future where businesses and organizations never have to micro-manage their internet connectivity. Because internet reliability should just be a given, like electricity or clean water.",
+    "offerings": [
+      "Bigleaf Cloud Connect: Optimized SD-WAN network connectivity for seamless business operations.",
+      "Bigleaf Wireless Connect: 5G Wireless connectivity for optimization, redundancy, and scalable internet access.",
+      "Hybrid WAN: Combines the best of wired and wireless circuits to deliver the highest level of optimized connectivity."
+    ],
+    "source": "loc8",
+    "logo": "logos/bigleaf-networks.png",
+    "primary": false,
+    "pax8_billing_note": false
+  },
+  {
+    "name": "Breezeline",
+    "slug": "breezeline",
+    "categories": [
+      "Network"
+    ],
+    "description": "Breezeline offers high-speed internet with exclusive savings and reliable service.",
+    "offerings": [
+      "Business Internet: High-speed internet with flexible speeds and reliability guarantees",
+      "Ethernet Dedicated Internet: Dedicated fiber-based internet with guaranteed speeds",
+      "Hosted Voice: Customized VoIP phone solutions with advanced calling features",
+      "Business Voice: PRI, SIP & analog phone services",
+      "GPON Internet: Select areas include NH, WV & FL",
+      "Business TV: Cable TV and streaming solutions for business environments",
+      "Backup Internet: Redundant internet connectivity for business continuity"
+    ],
+    "source": "loc8",
+    "logo": "logos/breezeline.png",
+    "primary": false,
+    "pax8_billing_note": false
+  },
+  {
+    "name": "Brightspeed",
+    "slug": "brightspeed",
+    "categories": [
+      "Network"
+    ],
+    "description": "We’re Brightspeed, a new internet provider on a mission to bring more connectivity to America. We believe where you call home shouldn’t limit your options — and we’re building the infrastructure to provide millions of homes and businesses with high-quality internet. We connect you to the world so that you can accomplish what you have to do, whatever it is that you do. With an ever-expanding network, we’re bringing connectivity and new opportunities to underserved areas.",
+    "offerings": [
+      "Brightspeed Business Fiber: High-speed internet with flexible speeds and reliability guarantees.",
+      "Ethernet Dedicated Internet: Dedicated fiber-based internet with guaranteed speeds.",
+      "Business Premium Fiber: Unmatched speed and reliability.",
+      "Business Voice+: VoIP phone solutions with advanced calling features."
+    ],
+    "source": "loc8",
+    "logo": "logos/brightspeed.png",
+    "primary": false,
+    "pax8_billing_note": false
+  },
+  {
+    "name": "Dobson Fiber",
+    "slug": "dobson-fiber",
+    "categories": [
+      "Network"
+    ],
+    "description": "Dobson Fiber owns and operates a 6,500+ mile regional fiber optic network located throughout Oklahoma and parts of Texas and Arkansas. They serve the communities they live in and have delivered quality solutions for over 85 years. All solutions are provided over a state-of-the-art fiber network to provide optimum performance, with fully symmetrical bandwidth services. From small business to large enterprise, they offer solutions to meet the needs of today’s growing markets. With DIA, Broadband, Ethernet, Wavelengths, and UCaaS, they can reach any size of organization while offering 24/7 technical support and a customer service center located in Oklahoma City, OK.",
+    "offerings": [
+      "Fiber Internet: High-speed fiber internet with unlimited data and no contracts",
+      "Symmetrical Speeds: Equal upload and download speeds for business applications",
+      "Business Solutions: Scalable internet solutions for small to medium businesses",
+      "Reliable Connectivity: 99.9% uptime guarantee with local support",
+      "Installation Services: Professional fiber installation and setup"
+    ],
+    "source": "loc8",
+    "logo": "logos/dobson-fiber.png",
+    "primary": false,
+    "pax8_billing_note": false
+  },
+  {
+    "name": "EPIC iO",
+    "slug": "epic-io",
+    "categories": [
+      "Network"
+    ],
+    "description": "EPIC iO delivers enterprise-grade connectivity solutions designed to keep businesses running seamlessly across multiple locations. From fully managed 5G and POTS replacement to private cellular networks and satellite connectivity, EPIC iO simplifies complex deployments with expert engineering, rapid implementation, and ongoing support. Our AI-driven overlay adds intelligence to connected environments, while WirelessWindow™ provides customers with clear visibility and control over their wireless services.",
+    "offerings": [],
+    "source": "loc8",
+    "logo": "logos/epic-io.png",
+    "primary": false,
+    "pax8_billing_note": false
+  },
+  {
+    "name": "FiberLight",
+    "slug": "fiberlight",
+    "categories": [
+      "Network"
+    ],
+    "description": "FiberLight provides fiber-optic-based networking services to drive organizations towards a digital economy.",
+    "offerings": [],
+    "source": "loc8",
+    "logo": "logos/fiberlight.png",
+    "primary": false,
+    "pax8_billing_note": false
+  },
+  {
+    "name": "For2Fi",
+    "slug": "for2fi",
+    "categories": [
+      "Network"
+    ],
+    "description": "For2Fi provides managed wireless WAN solutions with wireless connectivity through 98% of the United States.",
+    "offerings": [],
+    "source": "loc8",
+    "logo": "logos/for2fi.png",
+    "primary": false,
+    "pax8_billing_note": false
+  },
+  {
+    "name": "Lightpath Fiber",
+    "slug": "lightpath-fiber",
+    "categories": [
+      "Network"
+    ],
+    "description": "Lightpath builds and operates all fiber infrastructure designed for the AI era. With connectivity to more than 17,500 locations, 185+ data centers and eight subsea landing stations, our dense network supports cloud, AI and mission critical workloads with low latency and scalable capacity. We approach network expansion fearlessly owning, building and operating our fiber end to end to reach complex, high demand environments. Backed by unwavering service and human accountability, Lightpath delivers infrastructure built boldly and supported by the engineers who stand behind it every day. Experience the Lightpath Difference.",
+    "offerings": [],
+    "source": "loc8",
+    "logo": "logos/lightpath-fiber.png",
+    "primary": false,
+    "pax8_billing_note": false
+  },
+  {
+    "name": "Lumen",
+    "slug": "lumen",
+    "categories": [
+      "Network"
+    ],
+    "description": "Lumen provides enterprise technology and telecommunications enabling businesses to capitalize on emerging apps and next-gen technology. For MSPs reselling to SMB clients, Lumen offers comprehensive enterprise networking and cloud solutions.",
+    "offerings": [
+      "Internet Services: High-speed business internet with guaranteed speeds",
+      "Ethernet Services: Dedicated ethernet connectivity for enterprise applications",
+      "SD-WAN Solutions: Software-defined wide area networking for multi-location businesses",
+      "Cloud Connect: Direct connections to major cloud providers",
+      "Voice Services: Enterprise voice and unified communications solutions",
+      "Security Services: Comprehensive cybersecurity and threat protection",
+      "Managed Services: Fully managed IT infrastructure and support"
+    ],
+    "source": "loc8",
+    "logo": "logos/lumen.png",
+    "primary": false,
+    "pax8_billing_note": false
+  },
+  {
+    "name": "Optimum",
+    "slug": "optimum",
+    "categories": [
+      "Network"
+    ],
+    "description": "Optimum provides high-speed fiber internet, TV, and mobile services. For MSPs reselling to SMB clients, Optimum offers reliable connectivity solutions with.",
+    "offerings": [
+      "Fiber Internet: High-speed fiber internet with symmetrical upload and download speeds",
+      "Business Internet: Scalable internet solutions for small to enterprise businesses",
+      "Mobile Services: Nationwide mobile coverage with unlimited data plans",
+      "TV Services: Cable and streaming TV packages for business locations",
+      "WiFi Solutions: Professional WiFi installation and management services",
+      "Phone Services: Business phone systems and unified communications"
+    ],
+    "source": "loc8",
+    "logo": "logos/optimum.png",
+    "primary": false,
+    "pax8_billing_note": false
+  },
+  {
+    "name": "Rise Internet",
+    "slug": "rise-internet",
+    "categories": [
+      "Network"
+    ],
+    "description": "Rise Internet offers fast, reliable internet for homes and businesses with flexible plans.",
+    "offerings": [
+      "Business Internet: High-speed internet with flexible speeds and reliability guarantees",
+      "Ethernet Dedicated Internet: Dedicated fiber-based internet with guaranteed speeds",
+      "Business Voice: VoIP phone solutions with advanced calling features",
+      "Backup Internet: Redundant internet connectivity for business continuity"
+    ],
+    "source": "loc8",
+    "logo": "logos/rise-internet.png",
+    "primary": false,
+    "pax8_billing_note": false
+  },
+  {
+    "name": "Rogers",
+    "slug": "rogers",
+    "categories": [
+      "Network"
+    ],
+    "description": "Rogers provides mobile, internet, TV, home monitoring, and home phone services.",
+    "offerings": [],
+    "source": "loc8",
+    "logo": "logos/rogers.png",
+    "primary": false,
+    "pax8_billing_note": false
+  },
+  {
+    "name": "Verizon",
+    "slug": "verizon",
+    "categories": [
+      "Network"
+    ],
+    "description": "Verizon provides wireless, internet, TV, and phone services.",
+    "offerings": [],
+    "source": "loc8",
+    "logo": "logos/verizon.png",
+    "primary": false,
+    "pax8_billing_note": false
+  },
+  {
+    "name": "Viasat",
+    "slug": "viasat",
+    "categories": [
+      "Network"
+    ],
+    "description": "Viasat is the global communications company that believes everyone and everything in the world can be connected. If you have business customers in challenging locations where cable and fiber is not available, Viasat Business has you covered with broadband internet. They have nationwide coverage and download speeds up to 150 Mbps, so your customers finally have a better option over slow DSL and T1’s. Their satellite-based broadband also provides a resilient secondary connection that is completely separate from standard ground-based infrastructures, keeping your customers connected in even the worst situations.",
+    "offerings": [],
+    "source": "loc8",
+    "logo": "logos/viasat.png",
+    "primary": false,
+    "pax8_billing_note": false
+  },
+  {
+    "name": "WOW! Business",
+    "slug": "wow-business",
+    "categories": [
+      "Network"
+    ],
+    "description": "WOW! provides affordable and reliable business internet, phone, and cable TV.",
+    "offerings": [],
+    "source": "loc8",
+    "logo": "logos/wow-business.png",
+    "primary": false,
+    "pax8_billing_note": false
+  },
+  {
+    "name": "Zayo",
+    "slug": "zayo",
+    "categories": [
+      "Network"
+    ],
+    "description": "Zayo provides bandwidth infrastructure services, fiber, and network solutions.",
+    "offerings": [],
+    "source": "loc8",
+    "logo": "logos/zayo.png",
+    "primary": false,
+    "pax8_billing_note": false
+  },
+  {
+    "name": "Ziply Fiber",
+    "slug": "ziply-fiber",
+    "categories": [
+      "Network"
+    ],
+    "description": "Ziply Fiber provides fast fiber internet with no annual contracts. For MSPs reselling to SMB clients, Ziply offers high-speed connectivity with WiFi optimization.",
+    "offerings": [
+      "Fiber 100/100: 100 Mbps upload/download, free installation, suitable for basic internet needs.",
+      "Fiber 300/300: 300 Mbps upload/download, free installation, supports high-capacity activities.",
+      "Fiber Gig: Gig speed upload/download, free installation, 25x faster upload than cable, ideal for multi-device households.",
+      "2 Gig Fiber: 2 Gig speed upload/download, free installation, no annual contracts, 30-day money-back guarantee, no buffering or peak-time slowdowns.",
+      "Multi-Gig Plans: Options include 2 Gig, 5 Gig, 10 Gig, and 50 Gig internet speeds, perfect for gamers, content creators, and remote workers, supported by WiFi 7 router.",
+      "WiFi 7 Router: Supports up to 10 Gbps wired and 3.5 Gbps wireless speeds, available for all fiber plans up to 10 Gig.",
+      "Streaming TV Support: Customizable streaming solutions, no confusing bundles, with a guide to find suitable streaming services.",
+      "Business Solutions: 24/7 Network Security, IT Solutions, WiFi Equipment."
+    ],
+    "source": "loc8",
+    "logo": "logos/ziply-fiber.png",
+    "primary": false,
+    "pax8_billing_note": false
+  },
+  {
+    "name": "VeloCloud",
+    "slug": "velocloud",
+    "categories": [
+      "SD-WAN"
+    ],
+    "description": "VeloCloud provides SD-WAN solutions for enterprise networks.",
+    "offerings": [],
+    "source": "loc8",
+    "logo": "logos/velocloud.png",
+    "primary": false,
+    "pax8_billing_note": false
+  },
+  {
+    "name": "AireSpring",
+    "slug": "airespring",
+    "categories": [
+      "VARs"
+    ],
+    "description": "AireSpring is a trailblazing global managed services provider spearheading innovation in Managed IT, Network Services, and Unified Communications. Our arsenal of services is vast and versatile, designed to cater to the evolving needs of modern enterprises. From cutting-edge networking and security solutions to advanced communication platforms, we have the tools to propel your business forward.",
+    "offerings": [
+      "Business Internet: High-speed internet with flexible speeds and reliability guarantees.",
+      "Ethernet Dedicated Internet: Dedicated fiber-based internet with guaranteed speeds.",
+      "Managed SD-WAN: Assured application performance, business policy automation and end-to-end management.",
+      "Managed Wireless WAN: Combines 4G and 5G wireless connectivity, reliable equipment & an advanced portal to provide a complete solution.",
+      "Managed SASE: Secure access made simple for the modern workforce.",
+      "Unified Communications: Integrated voice, video, and messaging solutions, including Webex, Teams, SIP trunking & POTS/POTS Replacement",
+      "Contact Center: Omnichannel contact center with intelligent routing and analytics."
+    ],
+    "source": "loc8",
+    "logo": "logos/airespring.png",
+    "primary": false,
+    "pax8_billing_note": false
+  },
+  {
+    "name": "MetTel",
+    "slug": "mettel",
+    "categories": [
+      "VARs"
+    ],
+    "description": "At MetTel, we’ve been helping our clients connect in smarter ways for more than twenty years. Our business connections result in products and services that are the perfect solution for our clients,. We offer a wide range of devices and services from telecom infrastructure planning to consolidated billing to transparent cloud-based management capabilities. MetTel is the simple, smart solution to all your telecom needs.",
+    "offerings": [
+      "POTS Transformation: Replace costly aging copper lines with ease",
+      "Starlink: Provide managed connectivity from anywhere",
+      "Mobility: Simplify mobile device management with added flexibility",
+      "SASE/SD-WAN: Core to Edge network management",
+      "Business Internet: High-speed internet with flexible speeds and reliability guarantees",
+      "Ethernet Dedicated Internet: Dedicated fiber-based internet with guaranteed speeds"
+    ],
+    "source": "loc8",
+    "logo": "logos/mettel.png",
+    "primary": false,
+    "pax8_billing_note": false
+  },
+  {
+    "name": "Nitel",
+    "slug": "nitel",
+    "categories": [
+      "VARs"
+    ],
+    "description": "Nitel simplifies complex technology challenges with seamless managed network solutions.",
+    "offerings": [],
+    "source": "loc8",
+    "logo": null,
+    "primary": false,
+    "pax8_billing_note": false
+  },
+  {
+    "name": "Spectrotel",
+    "slug": "spectrotel",
+    "categories": [
+      "VARs"
+    ],
+    "description": "Spectrotel aggregates telecommunication services including phone, internet, VoIP, and managed services.",
+    "offerings": [],
+    "source": "loc8",
+    "logo": "logos/spectrotel.png",
+    "primary": false,
+    "pax8_billing_note": false
+  }
+]
