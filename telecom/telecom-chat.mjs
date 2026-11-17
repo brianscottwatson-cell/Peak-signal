@@ -4,7 +4,7 @@
  * and does not contact vendors.
  */
 import { createHash, randomBytes } from "node:crypto";
-import { existsSync, mkdirSync, readFileSync, renameSync, writeFileSync } from "node:fs";
+import { existsSync, readFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import {
@@ -29,6 +29,9 @@ import {
   unavailableResponse,
   verifyTurnstile,
 } from "./telecom-security.mjs";
+import { acceptBusinessIntake, buildIntakeNotice } from "./intake/business-quote.mjs";
+import { sendPeakNotice } from "./intake/notify-peak.mjs";
+import { createDurableQueue } from "./queue/durable-queue.mjs";
 
 export { PUBLIC_MESSAGE, SYSTEM_PROMPT };
 export const INTAKE_MESSAGE = PUBLIC_MESSAGE;
@@ -132,33 +135,6 @@ function loadCatalog(path) {
   return parseVendorHtml(readFileSync(path, "utf8"));
 }
 
-function emptyStore() {
-  return { version: 1, updatedAt: new Date().toISOString(), requests: [], rates: {} };
-}
-
-function readStore(file) {
-  if (!existsSync(file)) return emptyStore();
-  try {
-    const raw = JSON.parse(readFileSync(file, "utf8"));
-    return {
-      version: 1,
-      updatedAt: String(raw?.updatedAt || new Date().toISOString()),
-      requests: Array.isArray(raw?.requests) ? raw.requests : [],
-      rates: raw?.rates && typeof raw.rates === "object" ? raw.rates : {},
-    };
-  } catch {
-    return emptyStore();
-  }
-}
-
-function writeStore(file, store) {
-  mkdirSync(dirname(file), { recursive: true });
-  store.updatedAt = new Date().toISOString();
-  const tmp = `${file}.${process.pid}.tmp`;
-  writeFileSync(tmp, JSON.stringify(store, null, 2), "utf8");
-  renameSync(tmp, file);
-}
-
 function clientIp(req) {
   const fwd = String(req?.headers?.["x-forwarded-for"] || "").split(",")[0].trim();
   return fwd || req?.ip || req?.socket?.remoteAddress || "unknown";
@@ -183,6 +159,9 @@ function fingerprint(value) {
     address: String(value.formatted || "").toLowerCase(),
     vendorId: value.vendorId || "",
     offering: value.offering || "",
+    path: value.path || "",
+    speeds: String(value.desiredSpeeds || "").toLowerCase(),
+    budget: value.budget == null ? "" : String(value.budget),
     bandwidth: String(value.bandwidth || "").toLowerCase(),
     seats: value.seats || "",
     needs: String(value.needs || "").toLowerCase(),
@@ -306,6 +285,15 @@ function publicRequest(record) {
     timeline: record.timeline || "",
     notes: record.notes || "",
     pricing: record.kind === "intake" ? INTAKE_MESSAGE : record.pricing,
+    path: record.path || "",
+    prefilledVendor: record.prefilledVendor || null,
+    desiredSpeeds: record.desiredSpeeds || "",
+    accessType: record.accessType || "",
+    budget: record.budget == null ? null : record.budget,
+    humanFollowUp: record.humanFollowUp === true,
+    opportunity: record.opportunity || null,
+    opportunityError: record.opportunityError || "",
+    returnedPricing: record.returnedPricing || null,
   };
 }
 
@@ -320,6 +308,7 @@ export function createTelecomChat(options = {}) {
   const rateLimit = Number.isFinite(options.rateLimit) ? options.rateLimit : RATE_LIMIT;
   const rateWindowMs = Number.isFinite(options.rateWindowMs) ? options.rateWindowMs : RATE_WINDOW_MS;
   const persist = options.persist;
+  const queue = options.queue || createDurableQueue({ file, env, fetch: fetchImpl });
 
   function enabled() {
     return telecomChatEnabled(env);
@@ -338,11 +327,27 @@ export function createTelecomChat(options = {}) {
   }
 
   function save(store) {
-    if (persist) persist(store);
-    else writeStore(file, store);
+    if (persist) {
+      persist(store);
+      return;
+    }
+    queue.writeLocal(store);
+    queue.track(queue.mirror(store));
+  }
+
+  function loadStore() {
+    return queue.read();
   }
 
   async function notifyBrian(record) {
+    if (record.notice) {
+      const sent = await sendPeakNotice({ notice: record.notice, env, fetch: fetchImpl });
+      const urls = sent.url ? [sent.url] : [];
+      let github = false;
+      const token = String(env.GITHUB_TOKEN || "").trim();
+      if (token) github = await writeGithub(storeForGithub(), token, fetchImpl, urls);
+      return { ok: sent.ok, urls, github, channel: sent.channel };
+    }
     const url = brianFormspreeUrl(env);
     const payload = notifyPayload(record);
     const urls = [url];
@@ -363,7 +368,7 @@ export function createTelecomChat(options = {}) {
   }
 
   function storeForGithub() {
-    const store = readStore(file);
+    const store = loadStore();
     return { version: 1, updatedAt: store.updatedAt, requests: store.requests };
   }
 
@@ -382,7 +387,7 @@ export function createTelecomChat(options = {}) {
 
   function address(input, req) {
     if (!enabled()) return disabled();
-    const store = readStore(file);
+    const store = loadStore();
     const now = nowFn().getTime();
     if (limited(store, clientIp(req), now, rateLimit, rateWindowMs)) {
       save(store);
@@ -478,6 +483,8 @@ export function createTelecomChat(options = {}) {
   async function submit(body, req) {
     if (killed(env)) return { status: 503, body: unavailableResponse() };
     if (!enabled()) return disabled();
+    await queue.hydrate();
+    if (body?.flow === "business") return takeBusiness(body, req, { turnstile: true });
     const guarded = await gateRequest(body, req, Date.now());
     if (guarded.status) return guarded;
     const key = String(body?.idempotencyKey || "").trim();
@@ -485,7 +492,7 @@ export function createTelecomChat(options = {}) {
       return { status: 400, body: { ok: false, errors: [COPY.validation.submitOnce] } };
     }
 
-    const store = readStore(file);
+    const store = loadStore();
     const nowDate = nowFn();
     const now = nowDate.getTime();
     if (limited(store, clientIp(req), now, rateLimit, rateWindowMs)) {
@@ -573,7 +580,9 @@ export function createTelecomChat(options = {}) {
   async function quoteRequest(body, req) {
     if (killed(env)) return { status: 503, body: unavailableResponse() };
     if (!formAvailable(env)) return { status: 404, body: { ok: false, error: "disabled" } };
-    const store = readStore(file);
+    await queue.hydrate();
+    if (body?.flow === "business") return takeBusiness(body, req, { honeypotStatus: 400 });
+    const store = loadStore();
     const nowDate = nowFn();
     const now = nowDate.getTime();
     if (limited(store, clientIp(req), now, rateLimit, rateWindowMs)) {
@@ -664,20 +673,103 @@ export function createTelecomChat(options = {}) {
 
   function list() {
     if (!reviewEnabled()) return disabled();
-    const store = readStore(file);
+    const store = loadStore();
     return {
       status: 200,
       body: { ok: true, requests: store.requests.map(publicRequest) },
     };
   }
 
+  async function takeBusiness(body, req, options = {}) {
+    if (options.turnstile) {
+      const guarded = await gateRequest(body, req, Date.now());
+      if (guarded.status) return guarded;
+    }
+    const key = String(body?.idempotencyKey || "").trim();
+    if (key && !validKey(key)) {
+      return { status: 400, body: { ok: false, errors: [COPY.validation.submitOnce] } };
+    }
+    const store = loadStore();
+    const nowDate = nowFn();
+    const now = nowDate.getTime();
+    if (limited(store, clientIp(req), now, rateLimit, rateWindowMs)) {
+      save(store);
+      await queue.flush();
+      return { status: 429, body: { ok: false, errors: [COPY.validation.rate] } };
+    }
+    if (honeypotTripped(body)) {
+      save(store);
+      await queue.flush();
+      if (options.honeypotStatus === 400) {
+        return { status: 400, body: { ok: false, errors: [INTAKE_ERRORS.honeypot] } };
+      }
+      return { status: 200, body: { ok: true, received: true } };
+    }
+    const checked = acceptBusinessIntake(body, { catalog, env, now: nowDate });
+    if (!checked.ok) {
+      save(store);
+      await queue.flush();
+      return { status: 400, body: { ok: false, errors: checked.errors } };
+    }
+    const record = {
+      id: `tq_${randomBytes(8).toString("hex")}`,
+      idempotencyKey: key,
+      fingerprint: checked.value.fingerprint,
+      status: "queued",
+      createdAt: nowDate.toISOString(),
+      decidedAt: "",
+      decisionNote: "",
+      fraudFlags: detectFraud(checked.value),
+      ...checked.value,
+    };
+    record.notice = buildIntakeNotice(record);
+    const existing = findDuplicate(store, record, now);
+    if (existing) {
+      save(store);
+      await queue.flush();
+      return { status: 200, body: { ok: true, id: existing.id, message: INTAKE_MESSAGE, duplicate: true } };
+    }
+    store.requests.unshift(record);
+    store.requests = store.requests.slice(0, MAX_REQUESTS);
+    try {
+      save(store);
+    } catch {
+      return { status: 503, body: { ok: false, errors: [COPY.validation.saveFailed] } };
+    }
+    await queue.flush();
+    try {
+      await notifyBrian(record);
+    } catch (err) {
+      console.error("telecom intake notify failed", record.id, err?.message || err);
+    }
+    logTelecom("telecom.request", {
+      id: record.id,
+      kind: record.kind,
+      path: record.path,
+      email: record.contactEmail,
+      phone: record.contactPhone,
+      flags: record.fraudFlags || [],
+      ip: clientIp(req),
+    }, log);
+    return { status: 200, body: { ok: true, id: record.id, message: INTAKE_MESSAGE } };
+  }
+
   function decide(id, body) {
     if (!reviewEnabled()) return disabled();
-    const action = body?.action === "approve" || body?.action === "decline" ? body.action : "";
+    const action = body?.action === "approve" || body?.action === "decline" || body?.action === "attach-pricing"
+      ? body.action
+      : "";
     if (!action) return { status: 400, body: { ok: false, error: "bad_action" } };
-    const store = readStore(file);
+    const store = loadStore();
     const record = store.requests.find((item) => item.id === id);
     if (!record) return { status: 404, body: { ok: false, error: "not_found" } };
+    if (action === "attach-pricing") {
+      const text = String(body?.note || "").replace(/\u0000/g, "").trim();
+      if (!text) return { status: 400, body: { ok: false, error: "bad_action" } };
+      record.returnedPricing = { text: text.slice(0, 8000), attachedAt: nowFn().toISOString() };
+      save(store);
+      return { status: 200, body: { ok: true, request: publicRequest(record) } };
+    }
     record.status = action === "approve" ? "approved" : "declined";
     record.decidedAt = nowFn().toISOString();
     record.decisionNote = oneLine(body?.note || "").slice(0, 500);
@@ -696,6 +788,8 @@ export function createTelecomChat(options = {}) {
     quoteRequest,
     list,
     decide,
+    flush: () => queue.flush(),
+    hydrate: () => queue.hydrate(),
     file,
     catalog,
   };

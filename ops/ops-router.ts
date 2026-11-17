@@ -234,14 +234,18 @@ opsRouter.get("/telecom", (_req, res) => {
   res.type("html").send(loadHtml("telecom.html"));
 });
 
-opsRouter.get("/api/telecom/requests", (req, res) => {
-  handleOpsHttp(req, res, sharedTelecomChat(), { authed: authed(req), op: "list" });
+opsRouter.get("/api/telecom/requests", async (req, res) => {
+  const service = sharedTelecomChat();
+  if (typeof service.hydrate === "function") await service.hydrate();
+  handleOpsHttp(req, res, service, { authed: authed(req), op: "list" });
 });
 
-opsRouter.post("/api/telecom/requests/:id", (req, res) => {
+opsRouter.post("/api/telecom/requests/:id", async (req, res) => {
   const raw = req.params.id;
   const id = Array.isArray(raw) ? raw[0] : raw;
-  handleOpsHttp(req, res, sharedTelecomChat(), { authed: authed(req), op: "decide", id: String(id || "") });
+  const service = sharedTelecomChat();
+  if (typeof service.hydrate === "function") await service.hydrate();
+  handleOpsHttp(req, res, service, { authed: authed(req), op: "decide", id: String(id || "") });
 });
 
 opsRouter.post("/api/login", (req, res) => {

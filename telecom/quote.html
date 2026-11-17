@@ -35,7 +35,7 @@
   <main class="max-w-3xl mx-auto px-4 sm:px-6 py-16">
     <p class="text-sm font-medium tracking-[3px] text-[#3B82F6] mb-4">TELECOM</p>
     <h1 class="font-display text-4xl sm:text-5xl font-semibold tracking-tighter leading-none mb-6">Request a quote</h1>
-    <p class="text-lg text-zinc-300 leading-relaxed mb-10">Tell Peak Signal what you need. Every request is reviewed before anything is submitted. Nothing is ordered from this form.</p>
+    <p class="text-lg text-zinc-300 leading-relaxed mb-10">Business services only. Request a quote in minutes. Every request is reviewed before anything is submitted. Nothing is ordered from this form.</p>
 
     <form id="quote-form" class="space-y-6" novalidate>
       <input class="hp" type="text" name="_gotcha" id="gotcha" tabindex="-1" autocomplete="off" aria-hidden="true">
@@ -45,9 +45,16 @@
         <input class="w-full bg-zinc-900 border border-zinc-700 rounded-xl px-4 py-3" id="business" name="business" type="text" autocomplete="organization" maxlength="120" required>
       </div>
 
-      <div>
-        <label class="block text-sm font-medium mb-2" for="contact_name">Contact name</label>
-        <input class="w-full bg-zinc-900 border border-zinc-700 rounded-xl px-4 py-3" id="contact_name" name="contact_name" type="text" autocomplete="name" maxlength="80" required>
+      <p class="block text-sm font-medium mb-2">Contact name</p>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div>
+          <label class="block text-sm font-medium mb-2" for="first_name">First name</label>
+          <input class="w-full bg-zinc-900 border border-zinc-700 rounded-xl px-4 py-3" id="first_name" name="first_name" type="text" autocomplete="given-name" maxlength="60" required>
+        </div>
+        <div>
+          <label class="block text-sm font-medium mb-2" for="last_name">Last name</label>
+          <input class="w-full bg-zinc-900 border border-zinc-700 rounded-xl px-4 py-3" id="last_name" name="last_name" type="text" autocomplete="family-name" maxlength="60" required>
+        </div>
       </div>
 
       <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -66,6 +73,29 @@
         <label class="block text-sm font-medium mb-2" for="service_address">Service address</label>
         <input class="w-full bg-zinc-900 border border-zinc-700 rounded-xl px-4 py-3" id="service_address" name="service_address" type="text" autocomplete="street-address" maxlength="200" required>
       </div>
+      <div id="vendor-line" class="text-sm text-zinc-300" hidden></div>
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div>
+          <label class="block text-sm font-medium mb-2" for="city">City</label>
+          <input class="w-full bg-zinc-900 border border-zinc-700 rounded-xl px-4 py-3" id="city" name="city" type="text" autocomplete="address-level2" maxlength="80" required>
+        </div>
+        <div>
+          <label class="block text-sm font-medium mb-2" for="region">State</label>
+          <input class="w-full bg-zinc-900 border border-zinc-700 rounded-xl px-4 py-3" id="region" name="region" type="text" autocomplete="address-level1" maxlength="40" required>
+        </div>
+        <div>
+          <label class="block text-sm font-medium mb-2" for="postal">ZIP code</label>
+          <input class="w-full bg-zinc-900 border border-zinc-700 rounded-xl px-4 py-3" id="postal" name="postal" type="text" autocomplete="postal-code" maxlength="12" required>
+        </div>
+      </div>
+      <div>
+        <label class="block text-sm font-medium mb-2" for="suite">Suite</label>
+        <input class="w-full bg-zinc-900 border border-zinc-700 rounded-xl px-4 py-3" id="suite" name="suite" type="text" autocomplete="address-line2" maxlength="80">
+      </div>
+      <label class="flex items-start gap-x-3 text-sm text-zinc-300" for="suite_not_needed">
+        <input class="mt-1" id="suite_not_needed" name="suite_not_needed" type="checkbox">
+        <span>Suite not needed</span>
+      </label>
 
       <div>
         <label class="block text-sm font-medium mb-2" for="country">Country</label>
@@ -77,19 +107,117 @@
       </div>
 
       <div>
-        <label class="block text-sm font-medium mb-2" for="services">Services wanted</label>
-        <input class="w-full bg-zinc-900 border border-zinc-700 rounded-xl px-4 py-3" id="services" name="services" type="text" maxlength="500" placeholder="Internet, phone, or both" required>
+        <label class="block text-sm font-medium mb-2" for="path">Services wanted</label>
+        <select class="w-full bg-zinc-900 border border-zinc-700 rounded-xl px-4 py-3" id="path" name="path" required>
+          <option value="">Choose</option>
+          <option value="internet">Internet</option>
+          <option value="voice">Voice</option>
+          <option value="both">Both</option>
+          <option value="sdwan">SD-WAN</option>
+        </select>
       </div>
-
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <div>
-          <label class="block text-sm font-medium mb-2" for="lines_seats">Lines or seats</label>
-          <input class="w-full bg-zinc-900 border border-zinc-700 rounded-xl px-4 py-3" id="lines_seats" name="lines_seats" type="text" maxlength="80" placeholder="For example, 12 seats" required>
+      <div>
+        <label class="block text-sm font-medium mb-2" for="speeds">Desired speeds</label>
+        <input class="w-full bg-zinc-900 border border-zinc-700 rounded-xl px-4 py-3" id="speeds" name="speeds" type="text" maxlength="120" required>
+      </div>
+      <div>
+        <label class="block text-sm font-medium mb-2" for="access_type">Fiber or broadband</label>
+        <select class="w-full bg-zinc-900 border border-zinc-700 rounded-xl px-4 py-3" id="access_type" name="access_type" required>
+          <option value="">Choose</option>
+          <option value="fiber">Fiber</option>
+          <option value="broadband">Broadband</option>
+        </select>
+      </div>
+      <div>
+        <label class="block text-sm font-medium mb-2" for="budget">Budget (optional)</label>
+        <input class="w-full bg-zinc-900 border border-zinc-700 rounded-xl px-4 py-3" id="budget" name="budget" type="text" inputmode="decimal" maxlength="20" placeholder="Optional" autocomplete="off">
+      </div>
+      <div id="long-path" hidden>
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm text-zinc-300">
+          <label class="flex gap-x-2"><input id="svc_network" type="checkbox"> Network</label>
+          <label class="flex gap-x-2"><input id="svc_sdwan" type="checkbox"> SD-WAN</label>
+          <label class="flex gap-x-2"><input id="svc_voice" type="checkbox"> Voice</label>
+          <label class="flex gap-x-2"><input id="svc_tv" type="checkbox"> TV</label>
         </div>
-        <div>
-          <label class="block text-sm font-medium mb-2" for="timeline">Timeline</label>
-          <input class="w-full bg-zinc-900 border border-zinc-700 rounded-xl px-4 py-3" id="timeline" name="timeline" type="text" maxlength="120" placeholder="For example, this month" required>
+        <p class="block text-sm font-medium mt-6 mb-2">Term</p>
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm text-zinc-300">
+          <label class="flex gap-x-2"><input id="term_mtm" type="checkbox"> Month to month</label>
+          <label class="flex gap-x-2"><input id="term_y1" type="checkbox"> 1 year</label>
+          <label class="flex gap-x-2"><input id="term_y2" type="checkbox"> 2 years</label>
+          <label class="flex gap-x-2"><input id="term_y3" type="checkbox"> 3 years</label>
         </div>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
+          <div>
+            <label class="block text-sm font-medium mb-2" for="lines_seats">Lines or seats</label>
+            <input class="w-full bg-zinc-900 border border-zinc-700 rounded-xl px-4 py-3" id="lines_seats" name="lines_seats" type="text" inputmode="numeric" maxlength="8" placeholder="Number of seats">
+          </div>
+          <div>
+            <label class="block text-sm font-medium mb-2" for="timeline">Timeline</label>
+            <input class="w-full bg-zinc-900 border border-zinc-700 rounded-xl px-4 py-3" id="timeline" name="timeline" type="date">
+          </div>
+        </div>
+        <div class="mt-6">
+          <label class="block text-sm font-medium mb-2" for="price_point">Price point (optional)</label>
+          <input class="w-full bg-zinc-900 border border-zinc-700 rounded-xl px-4 py-3" id="price_point" name="price_point" type="text" inputmode="decimal" maxlength="20" placeholder="Optional" autocomplete="off">
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
+          <div>
+            <label class="block text-sm font-medium mb-2" for="voice_type">Voice type</label>
+            <select class="w-full bg-zinc-900 border border-zinc-700 rounded-xl px-4 py-3" id="voice_type">
+              <option value="">Choose</option>
+              <option>UCaaS</option>
+              <option>SIP</option>
+              <option>CCaaS</option>
+              <option>Direct Routing</option>
+              <option>POTS</option>
+              <option>Collaboration/Meeting</option>
+              <option>I don't know</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-sm font-medium mb-2" for="employees">Employees</label>
+            <input class="w-full bg-zinc-900 border border-zinc-700 rounded-xl px-4 py-3" id="employees" type="text" inputmode="numeric" maxlength="8">
+          </div>
+        </div>
+        <div class="mt-6">
+          <label class="block text-sm font-medium mb-2" for="website">Website</label>
+          <input class="w-full bg-zinc-900 border border-zinc-700 rounded-xl px-4 py-3" id="website" type="text" maxlength="200">
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
+          <div>
+            <label class="block text-sm font-medium mb-2" for="connection_type">Connection type</label>
+            <select class="w-full bg-zinc-900 border border-zinc-700 rounded-xl px-4 py-3" id="connection_type">
+              <option value="">Choose</option>
+              <option>Fiber</option>
+              <option>Broadband</option>
+              <option>Coax</option>
+              <option>Fixed</option>
+              <option>Wireless</option>
+              <option>Satellite</option>
+              <option>T-1</option>
+              <option>EOC</option>
+              <option>I don't know</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-sm font-medium mb-2" for="bandwidth">Bandwidth in Mbps</label>
+            <input class="w-full bg-zinc-900 border border-zinc-700 rounded-xl px-4 py-3" id="bandwidth" type="text" inputmode="decimal" maxlength="8">
+          </div>
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
+          <div>
+            <label class="block text-sm font-medium mb-2" for="current_provider">Current provider (optional)</label>
+            <input class="w-full bg-zinc-900 border border-zinc-700 rounded-xl px-4 py-3" id="current_provider" type="text" maxlength="120">
+          </div>
+          <div>
+            <label class="block text-sm font-medium mb-2" for="contract_end">Contract end (optional)</label>
+            <input class="w-full bg-zinc-900 border border-zinc-700 rounded-xl px-4 py-3" id="contract_end" type="date">
+          </div>
+        </div>
+        <label class="flex items-start gap-x-3 text-sm text-zinc-300 mt-6" for="roe">
+          <input class="mt-1" id="roe" type="checkbox">
+          <span>I understand Peak Signal reviews this request before anything is submitted, and that this form does not reserve service.</span>
+        </label>
       </div>
 
       <div>
@@ -132,10 +260,29 @@
       var button = document.getElementById("quote-submit");
       var key = (window.crypto && crypto.randomUUID) ? crypto.randomUUID() : "idem-" + Date.now();
       var sending = false;
+      var vendor = "";
+      try {
+        vendor = new URLSearchParams(location.search).get("vendor") || "";
+      } catch (err) {
+        vendor = "";
+      }
+      if (vendor) {
+        var vendorLine = document.getElementById("vendor-line");
+        vendorLine.hidden = false;
+        vendorLine.textContent = "Vendor included: " + vendor;
+      }
+      document.getElementById("path").addEventListener("change", function () {
+        document.getElementById("long-path").hidden = !value("path") || value("path") === "internet";
+      });
 
       function value(id) {
         var el = document.getElementById(id);
         return el ? el.value.trim() : "";
+      }
+
+      function checked(id) {
+        var el = document.getElementById(id);
+        return Boolean(el && el.checked);
       }
 
       function showErrors(list) {
@@ -158,15 +305,43 @@
           method: "POST",
           headers: { Accept: "application/json", "Content-Type": "application/json" },
           body: JSON.stringify({
+            flow: "business",
+            source: "ui",
             business: value("business"),
-            contact_name: value("contact_name"),
+            firstName: value("first_name"),
+            lastName: value("last_name"),
             email: value("email"),
             phone: value("phone"),
-            service_address: value("service_address"),
+            street: value("service_address"),
+            city: value("city"),
+            region: value("region"),
+            postal: value("postal"),
             country: value("country"),
-            services: value("services"),
-            lines_seats: value("lines_seats"),
-            timeline: value("timeline"),
+            suite: value("suite"),
+            suiteNotNeeded: checked("suite_not_needed"),
+            path: value("path"),
+            vendor: vendor,
+            speeds: value("speeds"),
+            accessType: value("access_type"),
+            budget: value("budget"),
+            servicesSelected: [
+              checked("svc_network") ? "network" : "",
+              checked("svc_sdwan") ? "sdwan" : "",
+              checked("svc_voice") ? "voice" : "",
+              checked("svc_tv") ? "tv" : ""
+            ].filter(Boolean),
+            term: { mtm: checked("term_mtm"), y1: checked("term_y1"), y2: checked("term_y2"), y3: checked("term_y3") },
+            seats: value("lines_seats"),
+            dateNeeded: value("timeline"),
+            pricePoint: value("price_point"),
+            voiceType: value("voice_type"),
+            employees: value("employees"),
+            website: value("website"),
+            connectionType: value("connection_type"),
+            bandwidthMbps: value("bandwidth"),
+            currentProvider: value("current_provider"),
+            contractEnd: value("contract_end"),
+            roe: checked("roe"),
             notes: value("notes"),
             consent: document.getElementById("consent").checked,
             _gotcha: value("gotcha"),

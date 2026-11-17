@@ -112,6 +112,12 @@
           ["Services", item.services],
           ["Lines or seats", item.linesSeats],
           ["Timeline", item.timeline],
+          ["Path", item.path],
+          ["Speeds", item.desiredSpeeds],
+          ["Fiber or broadband", item.accessType],
+          ["Budget", item.budget == null ? "" : String(item.budget)],
+          ["Follow-up", item.humanFollowUp ? "Human follow-up" : ""],
+          ["Vendor results", item.returnedPricing && item.returnedPricing.text],
           ["Notes", item.notes],
           ["Pricing", item.pricing || "Brian will confirm pricing"],
           ["Note", item.decisionNote],
@@ -123,6 +129,9 @@
         const note = document.createElement("textarea");
         note.rows = 2;
         note.placeholder = "Note for this request";
+        const results = document.createElement("textarea");
+        results.rows = 4;
+        results.placeholder = "Paste vendor results";
         const actions = document.createElement("div");
         actions.className = "row";
         const approve = document.createElement("button");
@@ -132,10 +141,15 @@
         decline.type = "button";
         decline.className = "btn danger";
         decline.textContent = "Decline";
+        const saveResults = document.createElement("button");
+        saveResults.type = "button";
+        saveResults.className = "btn ghost";
+        saveResults.textContent = "Save vendor results";
         approve.addEventListener("click", () => decide(item.id, "approve", note.value));
         decline.addEventListener("click", () => decide(item.id, "decline", note.value));
-        actions.append(approve, decline);
-        card.append(pill, title, dl, note, actions);
+        saveResults.addEventListener("click", () => decide(item.id, "attach-pricing", results.value));
+        actions.append(approve, decline, saveResults);
+        card.append(pill, title, dl, results, note, actions);
         list.appendChild(card);
       }
     }

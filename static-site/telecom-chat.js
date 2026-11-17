@@ -29,7 +29,7 @@ function start() {
     gate.reset();
     const vendor = state.answers.vendor;
     const vendorLocked = state.answers.vendorLocked;
-    state.step = vendor ? "address" : "vendor";
+    state.step = "path";
     state.errors = [];
     state.outcome = "";
     state.answers = blank();
@@ -67,50 +67,23 @@ function start() {
       state.answers.vendor = vendor;
       state.answers.vendorId = vendorId(vendor);
       state.answers.vendorLocked = true;
-      state.step = "address";
-    } else {
-      state.step = "vendor";
     }
+    state.step = "path";
     input.value = "";
     render();
   }
 
   function onSend(text) {
-    if (!text) return;
-    if (state.step === "vendor") state.answers.vendor = text;
-    if (state.step === "services") state.answers.services = text;
-    if (state.step === "counts") state.answers.seatsLocations = text;
-    if (state.step === "provider") state.answers.currentProvider = text;
-    if (state.step === "timeline") state.answers.timeline = text;
-    if (!["vendor", "services", "counts", "provider", "timeline"].includes(state.step)) return;
+    if (state.step !== "speeds") return;
+    state.answers.speeds = text;
     input.value = "";
-    advance();
-  }
-
-  function advance() {
-    state.errors = [];
-    const order = ["vendor", "address", "services", "counts", "provider", "timeline", "contact", "review"];
-    const checks = {
-      vendor: () => state.answers.vendor.trim().length >= 2 || state.answers.vendor === COPY.vendor.notSure,
-      services: () => state.answers.services.trim().length >= 2,
-      counts: () => state.answers.seatsLocations.trim().length >= 1,
-      provider: () => state.answers.currentProvider.trim().length >= 2,
-      timeline: () => state.answers.timeline.trim().length >= 2,
-    };
-    const messages = {
-      vendor: COPY.validation.vendor,
-      services: COPY.validation.services,
-      counts: COPY.validation.counts,
-      provider: COPY.validation.provider,
-      timeline: COPY.validation.timeline,
-    };
-    if (checks[state.step] && !checks[state.step]()) {
-      state.errors = [messages[state.step]];
+    if (state.answers.speeds.trim().length < 2) {
+      state.errors = [COPY.speeds.ask];
       render();
       return;
     }
-    const index = order.indexOf(state.step);
-    if (index >= 0 && index < order.length - 1) state.step = order[index + 1];
+    state.errors = [];
+    state.step = "access";
     render();
   }
 
@@ -124,16 +97,60 @@ function start() {
     }
     Object.assign(state.answers, checked.address);
     state.errors = [];
-    state.step = "services";
+    state.step = "speeds";
     render();
   }
 
-  function continueContact() {
-    readContact();
+  function choosePath(path) {
+    state.answers.path = path;
+    state.errors = [];
+    state.step = "address";
+    render();
+  }
+
+  function chooseAccess(access) {
+    state.answers.accessType = access;
+    state.errors = [];
+    state.step = "budget";
+    render();
+  }
+
+  function continueBudget() {
+    const node = document.getElementById("tc-budget");
+    state.answers.budget = node ? node.value.trim() : "";
+    if (state.answers.budget && !/^\d+(\.\d+)?$/.test(state.answers.budget)) {
+      state.errors = [COPY.budget.ask];
+      render();
+      return;
+    }
+    state.errors = [];
+    state.step = "details";
+    render();
+  }
+
+  function continueDetails() {
+    readDetails();
     const errors = [];
-    if (state.answers.contactName.trim().length < 2) errors.push(COPY.validation.contactName);
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(state.answers.contactEmail.trim())) errors.push(COPY.validation.email);
-    if (state.answers.contactPhone.replace(/\D/g, "").length < 10) errors.push(COPY.validation.phone);
+    const answers = state.answers;
+    if (answers.business.trim().length < 2) errors.push(COPY.validation.company);
+    if (answers.firstName.trim().length < 1) errors.push(COPY.details.first);
+    if (answers.lastName.trim().length < 1) errors.push(COPY.details.last);
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(answers.contactEmail.trim())) errors.push(COPY.validation.email);
+    if (answers.contactPhone.replace(/\D/g, "").length < 10) errors.push(COPY.validation.phone);
+    if (longPath(answers.path)) {
+      if (!answers.suite.trim() && !answers.suiteNotNeeded) errors.push(COPY.details.suite);
+      if (!answers.dateNeeded) errors.push(COPY.details.date);
+      if (!answers.term.mtm && !answers.term.y1 && !answers.term.y2 && !answers.term.y3) errors.push(COPY.details.term);
+      if (answers.pricePoint && !/^\d+(\.\d+)?$/.test(answers.pricePoint)) errors.push(COPY.details.price);
+      if (!answers.roe) errors.push(COPY.details.roe);
+      if (needsVoice(answers)) {
+        if (!answers.voiceType) errors.push(COPY.details.voiceType);
+        if (!/^\d+$/.test(answers.seats)) errors.push(COPY.details.seats);
+        if (!/^\d+$/.test(answers.employees)) errors.push(COPY.details.employees);
+        if (!answers.website.trim()) errors.push(COPY.details.website);
+      }
+      if (needsNetwork(answers) && !/^\d+(\.\d+)?$/.test(answers.bandwidthMbps)) errors.push(COPY.details.bandwidth);
+    }
     if (errors.length) {
       state.errors = errors;
       render();
@@ -152,26 +169,45 @@ function start() {
     if (!key) return;
     const button = document.getElementById("tc-submit");
     if (button) button.disabled = true;
+    const answers = state.answers;
     const payload = {
+      flow: "business",
+      source: "chat",
       kind: "quote",
       idempotencyKey: key,
       sessionId,
       _gotcha: gotcha ? gotcha.value : "",
-      consent: state.answers.consent === true,
-      vendor: state.answers.vendor,
-      country: state.answers.country,
-      street: state.answers.street,
-      city: state.answers.city,
-      region: state.answers.region,
-      postal: state.answers.postal,
-      services: state.answers.services,
-      seatsLocations: state.answers.seatsLocations,
-      currentProvider: state.answers.currentProvider,
-      timeline: state.answers.timeline,
-      contactName: state.answers.contactName,
-      contactEmail: state.answers.contactEmail,
-      contactPhone: state.answers.contactPhone,
-      business: state.answers.contactName,
+      consent: answers.consent === true,
+      path: answers.path,
+      vendor: answers.vendorLocked ? answers.vendor : "",
+      country: answers.country,
+      street: answers.street,
+      city: answers.city,
+      region: answers.region,
+      postal: answers.postal,
+      suite: answers.suite,
+      suiteNotNeeded: answers.suiteNotNeeded === true,
+      speeds: answers.speeds,
+      accessType: answers.accessType,
+      budget: answers.budget,
+      business: answers.business,
+      firstName: answers.firstName,
+      lastName: answers.lastName,
+      email: answers.contactEmail,
+      phone: answers.contactPhone,
+      servicesSelected: answers.servicesSelected,
+      term: answers.term,
+      dateNeeded: answers.dateNeeded,
+      pricePoint: answers.pricePoint,
+      voiceType: answers.voiceType,
+      seats: answers.seats,
+      employees: answers.employees,
+      website: answers.website,
+      connectionType: answers.connectionType,
+      bandwidthMbps: answers.bandwidthMbps,
+      currentProvider: answers.currentProvider,
+      contractEnd: answers.contractEnd,
+      roe: answers.roe === true,
     };
     try {
       const response = await fetch("/api/telecom/requests", {
@@ -222,31 +258,43 @@ function start() {
       return;
     }
     if (state.answers.vendorLocked) addUser(COPY.welcome.chip);
-    if (state.answers.vendorLocked) {
-      addAgent([fill(COPY.vendor.prefilled, { vendor: state.answers.vendor })]);
-    } else {
-      addAgent([COPY.vendor.ask], state.step === "vendor" ? chips([[COPY.vendor.notSure, () => { state.answers.vendor = COPY.vendor.notSure; advance(); }]]) : null);
-      if (state.step === "vendor") return showErrors();
-      addUser(state.answers.vendor);
-    }
+    if (state.answers.vendorLocked) addAgent([fill(COPY.vendor.prefilled, { vendor: state.answers.vendor })]);
+    addAgent(
+      [COPY.path.ask],
+      state.step === "path"
+        ? chips([
+          [COPY.path.internet, () => choosePath("internet")],
+          [COPY.path.voice, () => choosePath("voice")],
+          [COPY.path.both, () => choosePath("both")],
+          [COPY.path.sdwan, () => choosePath("sdwan")],
+        ])
+        : null,
+    );
+    if (state.step === "path") return showErrors();
+    addUser(pathLabel(state.answers.path));
     addAgent([COPY.address.ask], null, state.step === "address" ? addressForm() : null);
     if (state.step === "address") return showErrors();
     addUser(state.answers.formatted);
-    addAgent([COPY.services.ask]);
-    if (state.step === "services") return showErrors();
-    addUser(state.answers.services);
-    addAgent([COPY.counts.ask]);
-    if (state.step === "counts") return showErrors();
-    addUser(state.answers.seatsLocations);
-    addAgent([COPY.provider.ask], state.step === "provider" ? chips([[COPY.provider.chip, () => { state.answers.currentProvider = COPY.provider.chip; advance(); }]]) : null);
-    if (state.step === "provider") return showErrors();
-    addUser(state.answers.currentProvider);
-    addAgent([COPY.timeline.ask]);
-    if (state.step === "timeline") return showErrors();
-    addUser(state.answers.timeline);
-    addAgent([COPY.contact.ask], null, state.step === "contact" ? contactForm() : null);
-    if (state.step === "contact") return showErrors();
-    addUser([state.answers.contactName, state.answers.contactEmail, state.answers.contactPhone].filter(Boolean).join(" · "));
+    addAgent([COPY.speeds.ask]);
+    if (state.step === "speeds") return showErrors();
+    addUser(state.answers.speeds);
+    addAgent(
+      [COPY.access.ask],
+      state.step === "access"
+        ? chips([
+          [COPY.access.fiber, () => chooseAccess("fiber")],
+          [COPY.access.broadband, () => chooseAccess("broadband")],
+        ])
+        : null,
+    );
+    if (state.step === "access") return showErrors();
+    addUser(state.answers.accessType === "fiber" ? COPY.access.fiber : COPY.access.broadband);
+    addAgent([COPY.budget.ask], null, state.step === "budget" ? budgetForm() : null);
+    if (state.step === "budget") return showErrors();
+    addUser(state.answers.budget || COPY.budget.skip);
+    addAgent([COPY.details.ask], null, state.step === "details" ? detailsForm() : null);
+    if (state.step === "details") return showErrors();
+    addUser([state.answers.business, state.answers.firstName, state.answers.lastName].filter(Boolean).join(" "));
     if (state.step === "review") {
       addAgent([COPY.review.ask], null, reviewCard());
       return showErrors();
@@ -292,27 +340,123 @@ function start() {
     return box;
   }
 
-  function contactForm() {
+  function budgetForm() {
     const box = el("div", "tc-form");
-    box.appendChild(field(COPY.contact.name, "tc-name", state.answers.contactName, "name"));
-    box.appendChild(field(COPY.contact.email, "tc-email", state.answers.contactEmail, "email", "email"));
-    box.appendChild(field(COPY.contact.phone, "tc-phone", state.answers.contactPhone, "tel", "tel"));
-    box.appendChild(action(COPY.address.continue, "tc-contact-continue", continueContact));
+    const wrap = el("label", "tc-label", COPY.budget.label);
+    const control = document.createElement("input");
+    control.id = "tc-budget";
+    control.type = "text";
+    control.inputMode = "decimal";
+    control.autocomplete = "off";
+    control.placeholder = COPY.budget.placeholder;
+    control.maxLength = 20;
+    wrap.appendChild(control);
+    box.appendChild(wrap);
+    const row = el("div", "tc-actions");
+    row.appendChild(action(COPY.budget.skip, "tc-budget-skip", () => {
+      state.answers.budget = "";
+      state.errors = [];
+      state.step = "details";
+      render();
+    }, "tc-ghost"));
+    row.appendChild(action(COPY.budget.continue, "tc-budget-continue", continueBudget));
+    box.appendChild(row);
     return box;
+  }
+
+  function detailsForm() {
+    const box = el("div", "tc-form");
+    const answers = state.answers;
+    box.appendChild(field(COPY.details.business, "tc-business", answers.business, "organization"));
+    box.appendChild(field(COPY.details.first, "tc-first", answers.firstName, "given-name"));
+    box.appendChild(field(COPY.details.last, "tc-last", answers.lastName, "family-name"));
+    box.appendChild(field(COPY.contact.email, "tc-email", answers.contactEmail, "email", "email"));
+    box.appendChild(field(COPY.contact.phone, "tc-phone", answers.contactPhone, "tel", "tel"));
+    if (longPath(answers.path)) {
+      box.appendChild(field(COPY.details.suite, "tc-suite", answers.suite, "address-line2"));
+      box.appendChild(checkField("tc-suite-none", COPY.details.suiteNone, answers.suiteNotNeeded));
+      box.appendChild(checkField("tc-svc-network", COPY.details.network, answers.servicesSelected.includes("network")));
+      box.appendChild(checkField("tc-svc-sdwan", COPY.details.sdwan, answers.servicesSelected.includes("sdwan")));
+      box.appendChild(checkField("tc-svc-voice", COPY.details.voice, answers.servicesSelected.includes("voice")));
+      box.appendChild(checkField("tc-svc-tv", COPY.details.tv, answers.servicesSelected.includes("tv")));
+      box.appendChild(checkField("tc-term-mtm", COPY.details.mtm, answers.term.mtm));
+      box.appendChild(checkField("tc-term-y1", COPY.details.y1, answers.term.y1));
+      box.appendChild(checkField("tc-term-y2", COPY.details.y2, answers.term.y2));
+      box.appendChild(checkField("tc-term-y3", COPY.details.y3, answers.term.y3));
+      box.appendChild(field(COPY.details.date, "tc-date", answers.dateNeeded, "off", "date"));
+      const price = field(COPY.details.price, "tc-price", answers.pricePoint, "off");
+      const priceInput = price.querySelector("input");
+      priceInput.placeholder = COPY.details.pricePlaceholder;
+      priceInput.inputMode = "decimal";
+      box.appendChild(price);
+      if (needsVoice(answers)) {
+        box.appendChild(selectField(COPY.details.voiceType, "tc-voice-type", answers.voiceType, ["", "UCaaS", "SIP", "CCaaS", "Direct Routing", "POTS", "Collaboration/Meeting", "I don't know"]));
+        box.appendChild(field(COPY.details.seats, "tc-seats", answers.seats, "off"));
+        box.appendChild(field(COPY.details.employees, "tc-employees", answers.employees, "off"));
+        box.appendChild(field(COPY.details.website, "tc-website", answers.website, "url"));
+      }
+      if (needsNetwork(answers)) {
+        box.appendChild(selectField(COPY.details.connection, "tc-connection", answers.connectionType, ["", "Fiber", "Broadband", "Coax", "Fixed", "Wireless", "Satellite", "T-1", "EOC", "I don't know"]));
+        box.appendChild(field(COPY.details.bandwidth, "tc-bandwidth", answers.bandwidthMbps, "off"));
+      }
+      box.appendChild(field(COPY.details.provider, "tc-provider", answers.currentProvider, "off"));
+      box.appendChild(field(COPY.details.contractEnd, "tc-contract-end", answers.contractEnd, "off", "date"));
+      box.appendChild(checkField("tc-roe", COPY.details.roe, answers.roe));
+    }
+    box.appendChild(action(COPY.address.continue, "tc-details-continue", continueDetails));
+    return box;
+  }
+
+  function readDetails() {
+    const value = (id) => {
+      const node = document.getElementById(id);
+      return node ? node.value : "";
+    };
+    const checked = (id) => Boolean(document.getElementById(id)?.checked);
+    state.answers.business = value("tc-business");
+    state.answers.firstName = value("tc-first");
+    state.answers.lastName = value("tc-last");
+    state.answers.contactEmail = value("tc-email");
+    state.answers.contactPhone = value("tc-phone");
+    if (!longPath(state.answers.path)) return;
+    state.answers.suite = value("tc-suite");
+    state.answers.suiteNotNeeded = checked("tc-suite-none");
+    state.answers.servicesSelected = [
+      checked("tc-svc-network") ? "network" : "",
+      checked("tc-svc-sdwan") ? "sdwan" : "",
+      checked("tc-svc-voice") ? "voice" : "",
+      checked("tc-svc-tv") ? "tv" : "",
+    ].filter(Boolean);
+    state.answers.term = {
+      mtm: checked("tc-term-mtm"),
+      y1: checked("tc-term-y1"),
+      y2: checked("tc-term-y2"),
+      y3: checked("tc-term-y3"),
+    };
+    state.answers.dateNeeded = value("tc-date");
+    state.answers.pricePoint = value("tc-price");
+    state.answers.voiceType = value("tc-voice-type");
+    state.answers.seats = value("tc-seats");
+    state.answers.employees = value("tc-employees");
+    state.answers.website = value("tc-website");
+    state.answers.connectionType = value("tc-connection");
+    state.answers.bandwidthMbps = value("tc-bandwidth");
+    state.answers.currentProvider = value("tc-provider");
+    state.answers.contractEnd = value("tc-contract-end");
+    state.answers.roe = checked("tc-roe");
   }
 
   function reviewCard() {
     const card = el("div", "tc-panel");
     card.appendChild(el("h3", "tc-card-name", COPY.review.title));
     card.appendChild(recap([
-      [COPY.summary.vendor, state.answers.vendor],
-      [COPY.summary.country, state.answers.country === "CA" ? COPY.address.canada : COPY.address.unitedStates],
+      [COPY.summary.vendor, state.answers.vendorLocked ? state.answers.vendor : COPY.vendor.notSure],
+      [COPY.path.ask, pathLabel(state.answers.path)],
       [COPY.summary.address, state.answers.formatted],
-      [COPY.summary.services, state.answers.services],
-      [COPY.summary.counts, state.answers.seatsLocations],
-      [COPY.summary.provider, state.answers.currentProvider],
-      [COPY.summary.timeline, state.answers.timeline],
-      [COPY.summary.contact, [state.answers.contactName, state.answers.contactEmail, state.answers.contactPhone].filter(Boolean).join(" · ")],
+      [COPY.speeds.label, state.answers.speeds],
+      [COPY.access.ask, state.answers.accessType === "fiber" ? COPY.access.fiber : COPY.access.broadband],
+      [COPY.budget.label, state.answers.budget || COPY.budget.skip],
+      [COPY.summary.contact, [state.answers.firstName, state.answers.lastName, state.answers.contactEmail].filter(Boolean).join(" · ")],
     ]));
     card.appendChild(consentBlock());
     const row = el("div", "tc-actions");
@@ -364,13 +508,6 @@ function start() {
     }
   }
 
-  function readContact() {
-    for (const [id, key] of [["tc-name", "contactName"], ["tc-email", "contactEmail"], ["tc-phone", "contactPhone"]]) {
-      const node = document.getElementById(id);
-      if (node) state.answers[key] = node.value;
-    }
-  }
-
   function addUser(text) {
     const wrap = el("div", "tc-msg tc-user");
     wrap.appendChild(el("div", "tc-who", COPY.chrome.you));
@@ -403,9 +540,36 @@ function start() {
     const control = document.createElement("input");
     control.id = id;
     control.type = type || "text";
-    control.value = value || "";
+    if (type !== "date") control.value = value || "";
+    else if (value) control.value = value;
     control.autocomplete = auto || "on";
     control.maxLength = 200;
+    wrap.appendChild(control);
+    return wrap;
+  }
+
+  function checkField(id, label, checked) {
+    const wrap = el("label", "tc-check");
+    const box = document.createElement("input");
+    box.type = "checkbox";
+    box.id = id;
+    box.checked = checked === true;
+    wrap.appendChild(box);
+    wrap.appendChild(document.createTextNode(` ${label}`));
+    return wrap;
+  }
+
+  function selectField(label, id, value, options) {
+    const wrap = el("label", "tc-label", label);
+    const control = document.createElement("select");
+    control.id = id;
+    for (const option of options) {
+      const node = document.createElement("option");
+      node.value = option;
+      node.textContent = option || "Choose";
+      if (option === value) node.selected = true;
+      control.appendChild(node);
+    }
     wrap.appendChild(control);
     return wrap;
   }
@@ -432,9 +596,38 @@ function blank() {
   return {
     country: "US", street: "", city: "", region: "", postal: "", formatted: "",
     vendor: "", vendorId: "", vendorLocked: false,
-    services: "", seatsLocations: "", currentProvider: "", timeline: "",
+    path: "", speeds: "", accessType: "", budget: "",
+    business: "", firstName: "", lastName: "",
     contactName: "", contactEmail: "", contactPhone: "", consent: false,
+    suite: "", suiteNotNeeded: false,
+    servicesSelected: [],
+    term: { mtm: false, y1: false, y2: false, y3: false },
+    dateNeeded: "", pricePoint: "",
+    voiceType: "", seats: "", employees: "", website: "",
+    connectionType: "", bandwidthMbps: "",
+    currentProvider: "", contractEnd: "", roe: false,
+    services: "", seatsLocations: "", timeline: "",
   };
+}
+
+function longPath(path) {
+  return path === "voice" || path === "both" || path === "sdwan" || path === "ucaas";
+}
+
+function needsVoice(answers) {
+  return longPath(answers.path) && answers.path !== "sdwan";
+}
+
+function needsNetwork(answers) {
+  return answers.path === "both" || answers.path === "sdwan";
+}
+
+function pathLabel(path) {
+  if (path === "internet") return COPY.path.internet;
+  if (path === "voice") return COPY.path.voice;
+  if (path === "both") return COPY.path.both;
+  if (path === "sdwan") return COPY.path.sdwan;
+  return path || "";
 }
 
 function sessionKey() {
@@ -451,12 +644,8 @@ function sessionKey() {
 }
 
 function placeholder(step) {
+  if (step === "speeds") return COPY.speeds.placeholder;
   if (step === "address") return COPY.address.placeholder;
-  if (step === "services") return COPY.services.placeholder;
-  if (step === "counts") return COPY.counts.placeholder;
-  if (step === "provider") return COPY.provider.placeholder;
-  if (step === "timeline") return COPY.timeline.placeholder;
-  if (step === "contact") return COPY.contact.placeholder;
   return COPY.chrome.inputPlaceholder;
 }
 
@@ -542,7 +731,7 @@ function injectStyle() {
     .tc-text { border: 0; background: transparent; color: #a1a1aa; }
     .tc-panel, .tc-confirm { margin-top: 12px; padding: 16px; background: #18181b; border: 1px solid #27272a; border-radius: 16px; }
     .tc-label { display: grid; gap: 6px; margin-top: 10px; font-size: 0.75rem; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; color: #a1a1aa; }
-    .tc-form input, #tc-input { width: 100%; box-sizing: border-box; background: #09090b; color: #fff; border: 1px solid #3f3f46; border-radius: 12px; min-height: 44px; padding: 10px 12px; font: 16px/1.4 Inter, system-ui, sans-serif; }
+    .tc-form input, .tc-form select, #tc-input { width: 100%; box-sizing: border-box; background: #09090b; color: #fff; border: 1px solid #3f3f46; border-radius: 12px; min-height: 44px; padding: 10px 12px; font: 16px/1.4 Inter, system-ui, sans-serif; }
     #telecom-chat-form { display: flex; gap: 8px; align-items: center; margin-top: 12px; }
     #tc-input { flex: 1; }
     .tc-gotcha { position: absolute; left: -9999px; }

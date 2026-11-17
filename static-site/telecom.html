@@ -322,7 +322,7 @@
         </div>
         <aside class="bg-zinc-900 border border-zinc-800 rounded-3xl px-6 py-6 sm:px-8 min-w-0">
           <h2 class="font-display text-2xl font-semibold tracking-tighter mb-3">How this catalog works</h2>
-          <p class="text-zinc-400 leading-relaxed mb-3">Request a quote. Peak Signal reviews it.</p>
+          <p class="text-zinc-400 leading-relaxed mb-3">Business services only. Request a quote in minutes. Peak Signal reviews it.</p>
           <p class="text-zinc-400 leading-relaxed">Licenses and services are sourced through partners and billed separately from Peak’s studio work.</p>
         </aside>
       </div>
@@ -1187,7 +1187,7 @@
     <section id="quote" class="border-t border-zinc-800 py-16">
       <div class="max-w-screen-xl mx-auto px-4 sm:px-6">
         <h2 class="font-display text-3xl sm:text-4xl font-semibold tracking-tighter mb-4">Want a quote or information?</h2>
-        <p class="text-zinc-400 leading-relaxed max-w-xl mb-6">Request a quote. Peak Signal reviews it.</p>
+        <p class="text-zinc-400 leading-relaxed max-w-xl mb-6">Business services only. Request a quote in minutes. Peak Signal reviews it.</p>
         <a href="/contact" class="quote-btn px-8 py-4 text-lg rounded-2xl">Request a quote</a>
       </div>
     </section>
@@ -1283,6 +1283,16 @@
       script.src = "/telecom-chat.js";
       document.body.appendChild(script);
     }
+    document.addEventListener("click", function (event) {
+      var link = event.target && event.target.closest ? event.target.closest("a") : null;
+      if (!link || link.getAttribute("href") !== "/telecom/quote") return;
+      var card = link.closest(".vendor-card");
+      var title = card && card.querySelector(".card-title");
+      if (!title) return;
+      var vendor = title.textContent.replace(/\s+/g, " ").trim();
+      if (!vendor) return;
+      link.setAttribute("href", "/telecom/quote?vendor=" + encodeURIComponent(vendor));
+    });
     fetch("/api/telecom/config", { headers: { Accept: "application/json" } })
       .then(function (response) { return response.ok ? response.json() : null; })
       .then(function (cfg) {
