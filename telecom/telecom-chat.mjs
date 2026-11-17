@@ -343,14 +343,10 @@ export function createTelecomChat(options = {}) {
     if (record.notice) {
       const sent = await sendPeakNotice({ notice: record.notice, env, fetch: fetchImpl });
       const urls = sent.url ? [sent.url] : [];
-      let github = false;
-      const token = String(env.GITHUB_TOKEN || "").trim();
-      if (token) github = await writeGithub(storeForGithub(), token, fetchImpl, urls);
-      return { ok: sent.ok, urls, github, channel: sent.channel };
+      return { ok: sent.ok, urls, channel: sent.channel };
     }
     const url = brianFormspreeUrl(env);
     const payload = notifyPayload(record);
-    const urls = [url];
     const response = await fetchImpl(url, {
       method: "POST",
       headers: {
@@ -359,17 +355,7 @@ export function createTelecomChat(options = {}) {
       },
       body: JSON.stringify(payload),
     });
-    let github = false;
-    const token = String(env.GITHUB_TOKEN || "").trim();
-    if (token) {
-      github = await writeGithub(storeForGithub(), token, fetchImpl, urls);
-    }
-    return { ok: Boolean(response && response.ok), urls, github };
-  }
-
-  function storeForGithub() {
-    const store = loadStore();
-    return { version: 1, updatedAt: store.updatedAt, requests: store.requests };
+    return { ok: Boolean(response && response.ok), urls: [url] };
   }
 
   function disabled() {
@@ -793,43 +779,6 @@ export function createTelecomChat(options = {}) {
     file,
     catalog,
   };
-}
-
-async function writeGithub(snapshot, token, fetchImpl, urls) {
-  const path = "clients/peak-signal/telecom-queue.json";
-  const url = `https://api.github.com/repos/brianscottwatson-cell/brain/contents/${path}`;
-  urls.push(url);
-  const headers = {
-    Authorization: `Bearer ${token}`,
-    Accept: "application/vnd.github+json",
-    "User-Agent": "peak-signal-telecom",
-    "X-GitHub-Api-Version": "2022-11-28",
-    "Content-Type": "application/json",
-  };
-  let sha = "";
-  try {
-    const get = await fetchImpl(url, { headers });
-    if (get && get.ok && typeof get.json === "function") {
-      const body = await get.json();
-      sha = body?.sha || "";
-    } else if (!get || get.status !== 404) {
-      return false;
-    }
-  } catch {
-    return false;
-  }
-  const payload = {
-    message: "Peak Signal telecom request queue",
-    content: Buffer.from(JSON.stringify(snapshot), "utf8").toString("base64"),
-    branch: "main",
-  };
-  if (sha) payload.sha = sha;
-  try {
-    const put = await fetchImpl(url, { method: "PUT", headers, body: JSON.stringify(payload) });
-    return Boolean(put && put.ok);
-  } catch {
-    return false;
-  }
 }
 
 function routePath(req) {

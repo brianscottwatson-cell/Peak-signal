@@ -147,7 +147,7 @@
           <label class="flex gap-x-2"><input id="term_y3" type="checkbox"> 3 years</label>
         </div>
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
-          <div>
+          <div data-voice-only>
             <label class="block text-sm font-medium mb-2" for="lines_seats">Lines or seats</label>
             <input class="w-full bg-zinc-900 border border-zinc-700 rounded-xl px-4 py-3" id="lines_seats" name="lines_seats" type="text" inputmode="numeric" maxlength="8" placeholder="Number of seats">
           </div>
@@ -160,6 +160,7 @@
           <label class="block text-sm font-medium mb-2" for="price_point">Price point (optional)</label>
           <input class="w-full bg-zinc-900 border border-zinc-700 rounded-xl px-4 py-3" id="price_point" name="price_point" type="text" inputmode="decimal" maxlength="20" placeholder="Optional" autocomplete="off">
         </div>
+        <div data-voice-only>
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
           <div>
             <label class="block text-sm font-medium mb-2" for="voice_type">Voice type</label>
@@ -182,6 +183,7 @@
         <div class="mt-6">
           <label class="block text-sm font-medium mb-2" for="website">Website</label>
           <input class="w-full bg-zinc-900 border border-zinc-700 rounded-xl px-4 py-3" id="website" type="text" maxlength="200">
+        </div>
         </div>
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
           <div>
@@ -271,9 +273,19 @@
         vendorLine.hidden = false;
         vendorLine.textContent = "Vendor included: " + vendor;
       }
-      document.getElementById("path").addEventListener("change", function () {
-        document.getElementById("long-path").hidden = !value("path") || value("path") === "internet";
-      });
+      // Every path collects the opportunity must-haves (term, timeline, connection,
+      // bandwidth, review box). Voice-only fields show only when voice is selected.
+      function syncPath() {
+        var path = value("path");
+        var voice = path === "voice" || path === "both" || checked("svc_voice");
+        document.getElementById("long-path").hidden = !path;
+        document.querySelectorAll("[data-voice-only]").forEach(function (el) {
+          el.hidden = !voice;
+        });
+      }
+      document.getElementById("path").addEventListener("change", syncPath);
+      document.getElementById("svc_voice").addEventListener("change", syncPath);
+      syncPath();
 
       function value(id) {
         var el = document.getElementById(id);

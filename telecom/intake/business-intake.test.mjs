@@ -54,6 +54,10 @@ function internet(extra = {}) {
     speeds: "500 Mbps",
     accessType: "fiber",
     budget: "",
+    suiteNotNeeded: true,
+    term: { mtm: false, y1: false, y2: false, y3: true },
+    dateNeeded: "2026-12-01",
+    roe: true,
     idempotencyKey: "idem-net-01",
     ...extra,
   });
@@ -136,19 +140,116 @@ test("internet intake leaves budget null and does not invent a price", () => {
   assert.equal(blank.value.budget, null);
   assert.equal(blank.value.path, "internet");
   assert.equal(blank.value.humanFollowUp, false);
-  assert.equal(blank.value.opportunity, null);
   assert.equal(blank.value.prefilledVendor, null);
+  assert.equal(blank.value.opportunity.services.desiredPricePoint, null);
+  assert.doesNotMatch(JSON.stringify(blank.value.opportunity), /\$\d/);
 
   const stated = acceptBusinessIntake(internet({ budget: "400", vendor: "Comcast" }), { catalog, env: partnerEnv });
   assert.equal(stated.ok, true, JSON.stringify(stated.errors));
   assert.equal(stated.value.budget, "400");
   assert.equal(stated.value.prefilledVendor, "Comcast");
+  assert.equal(stated.value.opportunity.services.desiredPricePoint, "400");
 
   const invented = acceptBusinessIntake(internet({ budget: "about 400" }), { catalog, env: partnerEnv });
   assert.equal(invented.ok, false);
   assert.ok(invented.errors.includes(INTAKE_FIELDS.budget));
   assert.equal(acceptBusinessIntake(internet({ speeds: "" }), { catalog }).ok, false);
   assert.equal(acceptBusinessIntake(internet({ accessType: "" }), { catalog }).ok, false);
+});
+
+test("internet requests build a sandbox loc8 draft with network and no voice", () => {
+  const now = new Date("2026-11-17T18:00:00Z");
+  const result = acceptBusinessIntake(internet({
+    currentProvider: "Current internet vendor",
+    contractEnd: "2026-08-01",
+  }), { catalog, env: partnerEnv, now });
+  assert.equal(result.ok, true, JSON.stringify(result.errors));
+  const draft = result.value.opportunity;
+  assert.equal(result.value.opportunityError, "");
+  assert.equal(result.value.humanFollowUp, false);
+  assert.equal(draft.metadata.status, "draft");
+  assert.equal(draft.metadata.environment, "https://loc8.dev.cablefinder.net");
+  assert.ok(draft.services.selected.includes("network"));
+  assert.equal(draft.services.selected.includes("voice"), false);
+  assert.deepEqual(draft.networkConnectivity, { connectivityType: "Fiber", bandwidthMbps: 500 });
+  assert.equal(Object.hasOwn(draft, "voice"), false);
+  assert.equal(Object.hasOwn(draft, "externalOpportunityId"), false);
+  assert.equal(draft.customer.address.line2NotNeeded, true);
+  assert.equal(Object.hasOwn(draft.customer.address, "line2"), false);
+  assert.equal(draft.services.desiredPricePoint, null);
+  assert.equal(draft.services.dateServicesNeeded, "2026-12-01");
+  assert.equal(draft.services.term.y3, true);
+  assert.equal(draft.partner.fullName, "Partner Name");
+  assert.match(draft.notes.opportunityNotes, /Current provider: Current internet vendor\./);
+  assert.match(draft.notes.opportunityNotes, /Contract end: 2026-08-01\./);
+  assert.match(draft.notes.opportunityNotes, /SANDBOX$/);
+  const checked = validateOpportunityDraft(draft, schema);
+  assert.equal(checked.ok, true, JSON.stringify(checked.errors));
+
+  const suite = acceptBusinessIntake(internet({ suiteNotNeeded: false, suite: "Suite 400" }), { catalog, env: partnerEnv, now });
+  assert.equal(suite.ok, true, JSON.stringify(suite.errors));
+  assert.equal(suite.value.opportunity.customer.address.line2, "Suite 400");
+  assert.equal(Object.hasOwn(suite.value.opportunity.customer.address, "line2NotNeeded"), false);
+  assert.equal(validateOpportunityDraft(suite.value.opportunity, schema).ok, true);
+
+  const broadband = acceptBusinessIntake(internet({ accessType: "broadband", speeds: "Fast", bandwidthMbps: "300" }), { catalog, env: partnerEnv, now });
+  assert.equal(broadband.ok, true, JSON.stringify(broadband.errors));
+  assert.deepEqual(broadband.value.opportunity.networkConnectivity, { connectivityType: "Broadband", bandwidthMbps: 300 });
+
+  const picked = acceptBusinessIntake(internet({ connectionType: "Coax" }), { catalog, env: partnerEnv, now });
+  assert.equal(picked.ok, true, JSON.stringify(picked.errors));
+  assert.equal(picked.value.opportunity.networkConnectivity.connectivityType, "Coax");
+});
+
+test("internet requests without partner env are queued with no draft", async () => {
+  const result = acceptBusinessIntake(internet(), { catalog, env: {} });
+  assert.equal(result.ok, true, JSON.stringify(result.errors));
+  assert.equal(result.value.opportunity, null);
+  assert.equal(result.value.opportunityError, "partner_not_configured");
+  assert.equal(result.value.budget, null);
+  const notice = buildIntakeNotice({ ...result.value, id: "tq_netnopartner" });
+  assert.equal(parseIntakeEmail(notice).json.opportunity, null);
+
+  const env = {
+    PEAK_TELECOM_INTAKE_ENABLED: "1",
+    RESEND_API_KEY: "re_test_key",
+    PEAK_INTAKE_TO: "intake@peaksignal.example",
+  };
+  const { service, calls, cleanup } = harness(env);
+  try {
+    const saved = await service.quoteRequest(internet({ idempotencyKey: "idem-net-np-01" }), {});
+    assert.equal(saved.status, 200, JSON.stringify(saved.body));
+    assert.equal(calls.length, 1);
+    const payload = JSON.parse(calls[0].init.body);
+    assert.match(payload.text, /Opportunity draft: partner_not_configured/);
+  } finally {
+    cleanup();
+  }
+});
+
+test("incomplete internet must-haves are rejected with the field messages", () => {
+  const now = new Date("2026-11-17T18:00:00Z");
+  const cases = [
+    [{ term: { mtm: false, y1: false, y2: false, y3: false } }, INTAKE_FIELDS.term],
+    [{ term: undefined }, INTAKE_FIELDS.term],
+    [{ dateNeeded: "" }, INTAKE_FIELDS.date],
+    [{ dateNeeded: "next month" }, INTAKE_FIELDS.date],
+    [{ suiteNotNeeded: false, suite: "" }, INTAKE_FIELDS.suite],
+    [{ roe: false }, INTAKE_FIELDS.roe],
+    [{ speeds: "As fast as possible" }, INTAKE_FIELDS.bandwidth],
+    [{ speeds: "1 Gig" }, INTAKE_FIELDS.bandwidth],
+    [{ bandwidthMbps: "fast" }, INTAKE_FIELDS.bandwidth],
+  ];
+  for (const [extra, message] of cases) {
+    const result = acceptBusinessIntake(internet(extra), { catalog, env: partnerEnv, now });
+    assert.equal(result.ok, false, JSON.stringify(extra));
+    assert.ok(result.errors.includes(message), `${JSON.stringify(extra)} -> ${JSON.stringify(result.errors)}`);
+  }
+
+  const noVoiceAsks = acceptBusinessIntake(internet({ roe: false }), { catalog, env: partnerEnv, now });
+  for (const field of ["voiceType", "seats", "employees", "website"]) {
+    assert.equal(noVoiceAsks.errors.includes(INTAKE_FIELDS[field]), false, field);
+  }
 });
 
 test("UCaaS and SD-WAN drafts validate, and a missing partner is not invented", () => {
@@ -210,6 +311,8 @@ test("the Peak notice parses back into the schema object and is not sent to the 
     PEAK_TELECOM_INTAKE_ENABLED: "1",
     RESEND_API_KEY: "re_test_key",
     PEAK_INTAKE_TO: "intake@peaksignal.example",
+    // A token in the env must not back up the queue to GitHub.
+    GITHUB_TOKEN: "test-token",
     ...partnerEnv,
   };
   const { service, calls, cleanup } = harness(env);
