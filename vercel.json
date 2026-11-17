@@ -1,12 +1,6 @@
 {
   "cleanUrls": false,
   "trailingSlash": false,
-  "headers": [
-    {
-      "source": "/(.*)",
-      "headers": [{ "key": "X-Robots-Tag", "value": "noindex" }]
-    }
-  ],
   "redirects": [
     { "source": "/index.html", "destination": "/", "statusCode": 301 },
     { "source": "/about.html", "destination": "/about", "statusCode": 301 },
@@ -43,10 +37,31 @@
     { "source": "/tailwind.css", "destination": "/static-site/tailwind.css" },
     { "source": "/images/cht-before-after.webp", "destination": "/static-site/images/cht-before-after.webp" },
     { "source": "/images/telecom/:file", "destination": "/static-site/images/telecom/:file" },
+    { "source": "/telecom-chat.js", "destination": "/static-site/telecom-chat.js" },
+    { "source": "/telecom-visitor-copy.mjs", "destination": "/static-site/telecom-visitor-copy.mjs" },
+    { "source": "/telecom-carrier-rules.mjs", "destination": "/static-site/telecom-carrier-rules.mjs" },
     { "source": "/sitemap.xml", "destination": "/seo/sitemap.xml" },
     { "source": "/ai-websites-evergreen-co", "destination": "/seo/landers/ai-websites-evergreen-co.html" },
     { "source": "/ai-automation-evergreen-colorado", "destination": "/seo/landers/ai-automation-evergreen-colorado.html" },
     { "source": "/ai-agents-small-business-evergreen", "destination": "/seo/landers/ai-agents-small-business-evergreen.html" },
     { "source": "/api/(.*)", "destination": "https://peak-signal.replit.app/api/$1" }
+  ],
+  "headers": [
+    {
+      "source": "/(.*)",
+      "headers": [{ "key": "X-Robots-Tag", "value": "noindex" }]
+    },
+    {
+      "source": "/telecom-visitor-copy.mjs",
+      "headers": [{ "key": "Content-Type", "value": "text/javascript; charset=utf-8" }]
+    },
+    {
+      "source": "/telecom-carrier-rules.mjs",
+      "headers": [{ "key": "Content-Type", "value": "text/javascript; charset=utf-8" }]
+    },
+    {
+      "source": "/telecom-chat.js",
+      "headers": [{ "key": "Content-Type", "value": "text/javascript; charset=utf-8" }]
+    }
   ]
 }

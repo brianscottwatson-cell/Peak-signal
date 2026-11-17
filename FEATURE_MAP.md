@@ -91,7 +91,7 @@ Nav links are the anchors in the header `<nav>` (or the lander header nav). CTAs
 
 - Route: /about
 - Source file: static-site/about.html
-- Purpose: About Brian at Peak Signal, the studio in Evergreen, Colorado.
+- Purpose: About Peak Signal, the studio in Evergreen, Colorado.
 - H1: About Peak Signal
 - Key sections: none
 - CTAs:
@@ -169,13 +169,15 @@ Nav links are the anchors in the header `<nav>` (or the lander header nav). CTAs
 
 - Route: /telecom
 - Source file: static-site/telecom.html
-- Purpose: Catalog of business phone, UCaaS, and connectivity vendors. A quote request goes to the contact page for Brian at Peak Signal to review.
+- Purpose: Catalog of business phone, UCaaS, and connectivity vendors. Business services only. A quote request takes minutes and goes to the contact page for Peak Signal to review while the intake flags are off. With PEAK_TELECOM_CHAT=1, the page opens an in-page quote chat that asks internet, voice, or both, plus address, speeds, fiber or broadband, and an optional budget. Vendor cards prefill the vendor. With PEAK_TELECOM_INTAKE_ENABLED=1, the quote buttons go to /telecom/quote. That form, POST /api/telecom/quote-request, and /openapi.json stay off unless the intake flag is set. The two flags are independent and share one queue. No customer quote email is sent.
 - H1: Telecom & Connectivity
 - Key sections:
   - How this catalog works
   - Telecom catalog
   - More vendors
   - Want a quote or information?
+  - Quote and opportunity chat (off unless PEAK_TELECOM_CHAT=1)
+  - Quote form at /telecom/quote (off unless PEAK_TELECOM_INTAKE_ENABLED=1)
 - CTAs:
   - Book a call → https://calendly.com/hello-peaksignal/30min
   - Request a quote → /contact

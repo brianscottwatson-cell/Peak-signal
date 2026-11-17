@@ -43,3 +43,36 @@ No Skimmer dollars. No send-as-shop.
 4. Refresh the dashboard — the call row and recording link should appear. Wait a minute if recording still says Processing.
 
 No Skimmer dollars. Read-only. From-line Brian at Peak Signal.
+
+## Telecom intake queue
+
+`/ops/telecom` lists quote requests. Flags stay off until set to exactly `1`: `PEAK_TELECOM_CHAT`, `PEAK_TELECOM_INTAKE_ENABLED`. Approving a row does not email the customer and does not order service. Paste vendor or pricing results into a row with “Save vendor results” (`action: "attach-pricing"`). Those results stay on the queued request. This repo does not run a pricing lookup.
+
+### Durable store
+
+Replit Autoscale disk is ephemeral, and this app does not already have Postgres. When `REPLIT_DB_URL` is present, the queue is stored in Replit DB under `peak-telecom-requests`. Dev and tests use `TELECOM_REQUESTS_PATH` or `data/telecom-requests.json` when `REPLIT_DB_URL` is unset. A local file is still written as a cache. If that write fails and Replit DB is configured, the remote copy is the record.
+
+### Email to Peak
+
+On submit, Peak gets one machine-readable notice. The customer is not a recipient. There is no customer quote email in this change. A branded customer quote is deferred.
+
+The mailer follows the Colorado Hot Tub service-request pattern: Resend’s HTTP API, `RESEND_API_KEY`, and a single business recipient. `PEAK_INTAKE_TO` is the recipient. `PEAK_INTAKE_FROM` is optional and defaults to `Peak Signal <onboarding@resend.dev>`. `reply_to` is the visitor so Peak can answer. If Resend is not configured, the same text is posted to `PEAK_FORMSPREE` without an attachment. The JSON is always in a fenced block in the body.
+
+Subject:
+
+`[PEAK-TELECOM-INTAKE v1] <requestId> <path> <businessName>`
+
+`path` is `internet`, `voice`, `both`, `ucaas`, or `sdwan`.
+
+The plain-text body has labeled lines (`Request ID`, `Path`, `Business`, `Prefilled vendor`, `Desired speeds`, `Fiber or broadband`, `Budget`, `Human follow-up`) and a fenced JSON block. Budget is `(not stated)` and JSON `null` unless the visitor typed a number. It is never filled in as 0. `Human follow-up` is `yes` for voice, both, UCaaS, and SD-WAN.
+
+The fenced JSON is:
+
+- `requestId`, `path`, `prefilledVendor`, `desiredSpeeds`, `accessType`, `budget`, `humanFollowUp`
+- `opportunity`: a draft that validates against `data/loc8/opportunity.schema.json`, or `null`
+
+UCaaS, SD-WAN, voice, and both include that draft when partner settings are present. `metadata.status` is `draft`. `metadata.environment` is `https://loc8.dev.cablefinder.net`. The draft has no opportunity id. The partner block is `LOC8_PARTNER_NAME`, `LOC8_PARTNER_EMAIL`, and `LOC8_PARTNER_PHONE`. Those values are not hardcoded. If they are missing, the request is still queued and `opportunity` is null.
+
+Resend also attaches `telecom-intake.json` with the same JSON. `data/loc8/` is internal reference data and is not copied onto the public site.
+
+Current provider and contract end, when the visitor supplies them, are written into `notes.opportunityNotes`. There is no separate new-install field.
