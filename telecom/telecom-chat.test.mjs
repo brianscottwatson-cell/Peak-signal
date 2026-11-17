@@ -39,9 +39,6 @@ function harness(env, options = {}) {
   const calls = [];
   const fetchImpl = options.fetch || (async (url, init) => {
     calls.push({ url: String(url), init });
-    if (String(url).includes("api.github.com") && (!init?.method || init.method === "GET")) {
-      return { ok: false, status: 404, json: async () => ({}), text: async () => "" };
-    }
     return { ok: true, status: 200, json: async () => ({}), text: async () => "" };
   });
   const service = createTelecomChat({
@@ -290,7 +287,7 @@ test("an opportunity is queued, and a needs URL is not fetched", async () => {
   }
 });
 
-test("GitHub backup stays on the brain repo and ops approval sends nothing", async () => {
+test("a GITHUB_TOKEN does not back up the queue to GitHub, and ops approval sends nothing", async () => {
   const env = {
     PEAK_TELECOM_CHAT: "1",
     PEAK_FORMSPREE: "https://formspree.test/f/brian",
@@ -301,17 +298,17 @@ test("GitHub backup stays on the brain repo and ops approval sends nothing", asy
     const saved = await service.submit(quoteBody({ idempotencyKey: "idem-key-31" }), {});
     assert.equal(saved.status, 200);
     const hosts = calls.map((call) => new URL(call.url).host);
-    assert.deepEqual(hosts, ["formspree.test", "api.github.com", "api.github.com"]);
-    const put = calls.find((call) => call.init?.method === "PUT");
-    const decoded = JSON.parse(Buffer.from(JSON.parse(put.init.body).content, "base64").toString("utf8"));
-    assert.equal(decoded.requests[0].company, "North Line Co");
-    assert.doesNotMatch(JSON.stringify(decoded), /\$\d/);
-    assert.match(put.url, /brianscottwatson-cell\/brain\/contents\/clients\/peak-signal\/telecom-queue\.json$/);
+    assert.deepEqual(hosts, ["formspree.test"]);
+    assert.equal(calls.some((call) => call.url.includes("api.github.com")), false);
+    assert.equal(calls.some((call) => /telecom-queue\.json/.test(call.url)), false);
+    assert.equal(calls.some((call) => JSON.stringify(call.init?.headers || {}).includes("test-token")), false);
+    assert.equal(calls.some((call) => String(call.init?.body || "").includes("test-token")), false);
 
     const before = calls.length;
-    const decided = service.decide(saved.body.id, { action: "approve", note: "Reviewed by Brian at Peak Signal" });
+    const decided = service.decide(saved.body.id, { action: "approve", note: "Reviewed at Peak Signal" });
     assert.equal(decided.status, 200);
     assert.equal(decided.body.request.status, "approved");
+    // Approval sends nothing: no visitor email, no vendor contact, no GitHub write.
     assert.equal(calls.length, before);
 
     const open = mockRes();

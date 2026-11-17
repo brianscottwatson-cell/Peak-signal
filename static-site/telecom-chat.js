@@ -149,7 +149,7 @@ function start() {
         if (!/^\d+$/.test(answers.employees)) errors.push(COPY.details.employees);
         if (!answers.website.trim()) errors.push(COPY.details.website);
       }
-      if (needsNetwork(answers) && !/^\d+(\.\d+)?$/.test(answers.bandwidthMbps)) errors.push(COPY.details.bandwidth);
+      if (needsNetwork(answers) && !hasBandwidth(answers)) errors.push(COPY.details.bandwidth);
     }
     if (errors.length) {
       state.errors = errors;
@@ -610,16 +610,30 @@ function blank() {
   };
 }
 
+// Every path, internet included, collects the same request must-haves:
+// term, date, suite, review box, and network connection / bandwidth.
 function longPath(path) {
-  return path === "voice" || path === "both" || path === "sdwan" || path === "ucaas";
+  return path === "internet" || path === "voice" || path === "both" || path === "sdwan" || path === "ucaas";
 }
 
+// Voice questions only when voice is actually part of the request.
 function needsVoice(answers) {
-  return longPath(answers.path) && answers.path !== "sdwan";
+  if (!longPath(answers.path)) return false;
+  if (answers.path === "voice" || answers.path === "both" || answers.path === "ucaas") return true;
+  return (answers.servicesSelected || []).includes("voice");
 }
 
 function needsNetwork(answers) {
-  return answers.path === "both" || answers.path === "sdwan";
+  if (answers.path === "internet" || answers.path === "both" || answers.path === "sdwan") return true;
+  const selected = answers.servicesSelected || [];
+  return longPath(answers.path) && (selected.includes("network") || selected.includes("sdwan"));
+}
+
+// Bandwidth from the field, or an explicit "<number> Mbps" in the speeds.
+function hasBandwidth(answers) {
+  const typed = String(answers.bandwidthMbps || "").trim();
+  if (typed) return /^\d+(\.\d+)?$/.test(typed);
+  return /(?:^|[^\d.])\d+(?:\.\d+)?\s*(?:mbps|mb\/s|megabits?)(?![a-z])/i.test(String(answers.speeds || ""));
 }
 
 function pathLabel(path) {

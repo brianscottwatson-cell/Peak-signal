@@ -1,9 +1,13 @@
 /**
  * Business-only telecom intake.
  * Internet, voice, both, UCaaS, and SD-WAN.
- * UCaaS / SD-WAN / voice / both drafts use the opportunity schema.
+ * Every path builds an internal loc8 opportunity draft against the opportunity
+ * schema when the partner env values are set. Internet drafts select "network".
+ * Human follow-up stays on UCaaS / SD-WAN / voice / both.
  * Partner values come from the environment. Nothing here is hardcoded.
  * Budget and price point stay null unless the visitor typed a number.
+ * Bandwidth is never invented: it comes from the bandwidth field, or from an
+ * explicit "<number> Mbps" in the desired speeds.
  */
 import { createHash } from "node:crypto";
 import { validateAddress } from "../../static-site/telecom-carrier-rules.mjs";
@@ -14,7 +18,10 @@ export const SUBJECT_TAG = "[PEAK-TELECOM-INTAKE v1]";
 export const SANDBOX_ENVIRONMENT = "https://loc8.dev.cablefinder.net";
 
 const PATHS = new Set(["internet", "voice", "both", "ucaas", "sdwan"]);
+// Paths that get a human follow-up flag.
 const LONG_PATHS = new Set(["voice", "both", "ucaas", "sdwan"]);
+// Paths that collect the opportunity must-haves and build a loc8 draft.
+const DRAFT_PATHS = new Set(["internet", "voice", "both", "ucaas", "sdwan"]);
 const SERVICES = ["network", "sdwan", "voice", "tv"];
 
 export const INTAKE_FIELDS = {
@@ -99,7 +106,8 @@ export function acceptBusinessIntake(body, options = {}) {
   const consent = body?.consent === true || body?.consent === "yes";
   if (!consent) errors.push(COPY.validation.consent);
 
-  const long = LONG_PATHS.has(path);
+  // Every known path, internet included, collects the draft must-haves.
+  const long = DRAFT_PATHS.has(path);
   const selected = normalizeServices(body, path);
   const term = normalizeTerm(body?.term);
   const suite = clip(body?.suite ?? body?.line2, 80);
@@ -109,7 +117,7 @@ export function acceptBusinessIntake(body, options = {}) {
   const employees = integerField(body?.employees);
   const website = clip(body?.website, 200);
   const connectionType = clip(body?.connectionType, 40);
-  const bandwidth = numberField(body?.bandwidthMbps ?? body?.bandwidth);
+  const bandwidth = bandwidthField(body?.bandwidthMbps ?? body?.bandwidth, speeds);
   const dateNeeded = clip(body?.dateNeeded ?? body?.dateServicesNeeded, 20);
   const currentProvider = clip(body?.currentProvider, 120);
   const contractEnd = clip(body?.contractEnd, 40);
@@ -386,10 +394,11 @@ function normalizeServices(body, path) {
     const normal = key === "sd-wan" ? "sdwan" : key;
     if (allowed.has(normal) && !selected.includes(normal)) selected.push(normal);
   }
-  if (!LONG_PATHS.has(path)) return selected;
+  if (!DRAFT_PATHS.has(path)) return selected;
   const ensure = (name) => {
     if (!selected.includes(name)) selected.push(name);
   };
+  if (path === "internet") ensure("network");
   if (path === "sdwan") ensure("sdwan");
   if (path === "voice" || path === "ucaas") ensure("voice");
   if (path === "both") {
@@ -435,6 +444,15 @@ function numberField(value) {
   const number = Number(value);
   if (!Number.isFinite(number) || number < 0) return { ok: false };
   return { ok: true, value: number };
+}
+
+// Bandwidth field first. When it is blank, accept only an explicit
+// "<number> Mbps" in the desired speeds. Never guess a number.
+function bandwidthField(value, speeds) {
+  if (value != null && String(value).trim() !== "") return numberField(value);
+  const match = String(speeds || "").match(/(?:^|[^\d.])(\d+(?:\.\d+)?)\s*(?:mbps|mb\/s|megabits?)(?![a-z])/i);
+  if (!match) return { ok: false };
+  return numberField(match[1]);
 }
 
 function noteText({ currentProvider, contractEnd, extra }) {

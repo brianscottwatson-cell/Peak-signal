@@ -123,7 +123,7 @@ Expect `301` and `Location: https://getpeaksignal.com/telecom`. The same request
 
 ## Telecom chat (`PEAK_TELECOM_CHAT`)
 
-The in-page quote and opportunity chat is off unless `PEAK_TELECOM_CHAT` is exactly `1`. Leave it unset in production until Brian turns it on. With the flag off, `/telecom` keeps the catalog and every "Request a quote" link goes to `/contact`. These routes stay inert (404):
+The in-page quote and opportunity chat is off unless `PEAK_TELECOM_CHAT` is exactly `1`. Leave it unset in production until Peak Signal turns it on. With the flag off, `/telecom` keeps the catalog and every "Request a quote" link goes to `/contact`. These routes stay inert (404):
 
 - `GET /api/telecom/config`
 - `POST /api/telecom/address`
@@ -151,12 +151,11 @@ app.use("/api/telecom", telecomChatRouter);
 | Name | Required | Purpose |
 |---|---|---|
 | `PEAK_TELECOM_CHAT` | To turn the chat on | Exactly `1`. Any other value, including unset, keeps the chat and the routes off. |
-| `PEAK_FORMSPREE` | No | Where Brian's notification is posted. Defaults to the contact form endpoint `https://formspree.io/f/mgobgrlr`. One post, to that URL only. No visitor reply, no copy to anyone else. |
-| `GITHUB_TOKEN` | No | Same secret the voice hangup uses. When set, the queue file is also written to `brianscottwatson-cell/brain` at `clients/peak-signal/telecom-queue.json`. |
+| `PEAK_FORMSPREE` | No | Where the Peak Signal notification is posted. Defaults to the contact form endpoint `https://formspree.io/f/mgobgrlr`. One post, to that URL only. No visitor reply, no copy to anyone else. |
 | `TELECOM_REQUESTS_PATH` | No | Queue file. Default `<cwd>/data/telecom-requests.json`. |
 | `OPS_PASSWORD` | To open the review page | Existing ops login. `HARNESS_PASSWORD` still works. |
 
-The queue is the JSON file above. Brian reviews it at `/ops/telecom` after logging in. Approve and decline only update that file. They do not email the visitor, order service, or contact a vendor.
+The queue is the JSON file above (or Replit DB when configured). It is not copied to GitHub. The reviewer opens it at `/ops/telecom` after logging in. Approve and decline only update that file. They do not email the visitor, order service, or contact a vendor.
 
 Nothing on this path calls a carrier, a vendor portal, or an ordering API. The visitor's only confirmation is the message on the page.
 
@@ -174,16 +173,16 @@ Then open `http://127.0.0.1:4173/telecom`. Omit `PEAK_TELECOM_CHAT` and open `ht
 
 ## Telecom intake form (`PEAK_TELECOM_INTAKE_ENABLED`)
 
-This flag is separate from `PEAK_TELECOM_CHAT`. Either one can be on while the other is off. Both default to off. They write the same queue file and use the same Brian notification. Neither one emails the visitor or contacts a vendor.
+This flag is separate from `PEAK_TELECOM_CHAT`. Either one can be on while the other is off. Both default to off. They write the same queue file and use the same Peak Signal notification. Neither one emails the visitor or contacts a vendor.
 
 | Flag | What it opens |
 |---|---|
 | `PEAK_TELECOM_CHAT=1` | In-page chat, `GET /api/telecom/config`, `POST /api/telecom/address`, `POST /api/telecom/requests` |
 | `PEAK_TELECOM_INTAKE_ENABLED=1` | `GET /telecom/quote`, `POST /api/telecom/quote-request`, `GET /openapi.json`. Quote buttons on `/telecom` point at `/telecom/quote`. |
-| Either flag | `/ops/telecom` after the existing ops login, so Brian can review the shared queue |
+| Either flag | `/ops/telecom` after the existing ops login, so an operator can review the shared queue |
 
 With both unset, `/telecom` is the catalog and every "Request a quote" link still goes to `/contact`. The quote form, the quote-request endpoint, and `/openapi.json` answer `404` with a disabled message. A filled honeypot on the quote request is rejected and is not stored or emailed.
 
-`POST /api/telecom/quote-request` accepts JSON only. A saved request returns a reference ID and the message `Brian at Peak Signal reviews every request; no automated pricing.` The response has no prices. Notification is one post to `PEAK_FORMSPREE` (or the contact form endpoint) for Brian only.
+`POST /api/telecom/quote-request` accepts JSON only. A saved request returns a reference ID and the message `Peak Signal has the request. Our team will review it before anything is submitted. Nothing is ordered automatically.` The response has no prices. Notification is one post to `PEAK_FORMSPREE` (or the contact form endpoint) for Peak Signal only.
 
 Copy `telecom/quote.html`, `telecom/openapi.json`, `telecom/telecom-chat.mjs`, and `static-site/static-site-router.ts` with the chat files above. The router serves the form and the OpenAPI document. The build lines in the diff copy those two static files into `dist/telecom/`.
