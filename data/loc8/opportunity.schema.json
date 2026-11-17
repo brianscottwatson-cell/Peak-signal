@@ -1,0 +1,251 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://loc8.dev.cablefinder.net/schemas/opportunity.schema.json",
+  "title": "Loc8 Opportunity Draft",
+  "description": "Durable file-layer draft for one Loc8 / Cable Finder opportunity. Mirrors the sandbox Submit Opportunity form (~61 fields, inventoried 2026-09-19 at loc8.dev.cablefinder.net/opportunity) so chat, MCP, and UI automation fill the same fields. The JSON file is the source of truth; MCP / UI / chat are front doors into it. Sandbox only until Brian approves production use.",
+  "$comment": "North star: durable deal workspace as files. Property names use plain-language keys; the $comment on each section names the exact DOM control it fills at submit time. Never invent dollar amounts: desiredPricePoint is null unless the customer stated a number.",
+  "type": "object",
+  "required": ["schemaVersion", "partner", "customer", "services", "metadata"],
+  "properties": {
+    "schemaVersion": {
+      "type": "string",
+      "const": "1.0.0",
+      "$comment": "Bump on any breaking change to required fields or enums."
+    },
+    "partner": {
+      "type": "object",
+      "description": "Partner Information step (3 fields).",
+      "required": ["fullName", "email", "phone"],
+      "properties": {
+        "fullName": { "type": "string", "minLength": 1, "$comment": "DOM: partnerFullName. Prefilled in sandbox." },
+        "email": { "type": "string", "format": "email", "$comment": "DOM: partnerEmail. Browser email validation." },
+        "phone": {
+          "type": "string",
+          "pattern": "^([0-9]-)?[0-9]{3}-[0-9]{3}-[0-9]{4}$",
+          "$comment": "DOM: partnerPhone. UI pattern expects 303-333-3333 style."
+        }
+      },
+      "additionalProperties": false
+    },
+    "customer": {
+      "type": "object",
+      "description": "Customer Information step (13 controls). Used for serviceability and contract generation; customer is not contacted directly by Pax8.",
+      "required": ["businessName", "contactFirstName", "contactLastName", "contactEmail", "contactPhone", "address"],
+      "properties": {
+        "businessName": { "type": "string", "minLength": 1, "$comment": "DOM: custBusinessName." },
+        "contactFirstName": { "type": "string", "minLength": 1, "$comment": "DOM: custContactFirstName." },
+        "contactLastName": { "type": "string", "minLength": 1, "$comment": "DOM: custContactLastName." },
+        "contactEmail": { "type": "string", "format": "email", "$comment": "DOM: custContactEmail." },
+        "contactPhone": {
+          "type": "string",
+          "pattern": "^([0-9])?[0-9]{3}[0-9]{3}[0-9]{4}$",
+          "$comment": "DOM: custContactPhone. UI pattern is digits-style (no dashes required)."
+        },
+        "locationCount": {
+          "type": "integer",
+          "minimum": 1,
+          "default": 1,
+          "$comment": "DOM: numberOfLocationServices. UI QUIRK: the form has a location COUNT field but no repeating address editor. Put site 2..N addresses as free text in notes.opportunityNotes."
+        },
+        "address": {
+          "type": "object",
+          "description": "Primary service address. One structured address only — the form has no second address block.",
+          "required": ["line1", "city", "state", "zip"],
+          "properties": {
+            "line1": { "type": "string", "minLength": 1, "$comment": "DOM: serviceAddress." },
+            "line2": { "type": "string", "$comment": "DOM: serviceAddress2. Unit/suite; omit or empty when none." },
+            "line2NotNeeded": {
+              "type": "boolean",
+              "$comment": "DOM: serviceAddress2NotNeeded. UI QUIRK: when line2 is blank you must check 'I confirm that there is no Unit or Suite number for this location.' instead of filling line2."
+            },
+            "city": { "type": "string", "minLength": 1, "$comment": "DOM: serviceAddressCity." },
+            "state": { "type": "string", "minLength": 1, "$comment": "DOM: serviceAddressState. e.g. FL, CO." },
+            "zip": { "type": "string", "minLength": 1, "$comment": "DOM: serviceAddressZip. US ZIP entered as five digits." },
+            "country": {
+              "type": "string",
+              "enum": ["United States", "Canada"],
+              "default": "United States",
+              "$comment": "DOM: serviceAddressCountry. Not marked required in the DOM; United States used in tests."
+            }
+          },
+          "if": { "properties": { "line2": { "type": "string", "minLength": 1 } }, "required": ["line2"] },
+          "then": {},
+          "else": {
+            "required": ["line2NotNeeded"],
+            "properties": { "line2NotNeeded": { "const": true } }
+          },
+          "additionalProperties": false
+        }
+      },
+      "additionalProperties": false
+    },
+    "services": {
+      "type": "object",
+      "description": "Service(s) Needed step (11 controls).",
+      "required": ["selected", "term", "desiredPricePoint", "dateServicesNeeded", "roeDisclaimerConfirmed"],
+      "properties": {
+        "selected": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": { "type": "string", "enum": ["network", "sdwan", "voice", "tv"] },
+          "$comment": "Maps to networkNeeded / sdWanNeeded / phoneVoiceNeeded / tvNeeded. UI QUIRK: individual checkboxes are not marked required in the DOM, but the flow needs at least one service to unlock the sub-steps."
+        },
+        "term": {
+          "type": "object",
+          "description": "Contract term. At least one must be true for the flow to advance.",
+          "properties": {
+            "mtm": { "type": "boolean", "default": false },
+            "y1": { "type": "boolean", "default": false },
+            "y2": { "type": "boolean", "default": false },
+            "y3": { "type": "boolean", "default": false }
+          },
+          "$comment": "UI QUIRK: checkboxes named mtmTerm, 1yTerm, 2yTerm, 3yTerm. Represented here as mtm/y1/y2/y3 booleans and mapped at fill time."
+        },
+        "desiredPricePoint": {
+          "type": ["string", "null"],
+          "$comment": "HONESTY RULE: never invent a dollar amount. DOM: desiredPricePoint (number input, min 0, default 0). Store null when the customer has not stated a price — the filler leaves the UI default. A numeric string (e.g. \"250\") fills the input only when the customer actually stated it."
+        },
+        "dateServicesNeeded": {
+          "type": "string",
+          "format": "date",
+          "$comment": "DOM: dateServicesNeeded. e.g. 2026-10-19."
+        },
+        "roeDisclaimerConfirmed": {
+          "type": "boolean",
+          "const": true,
+          "$comment": "DOM: servicesDisclaimerConfirmation. REQUIRED checkbox: registering an opportunity does not supersede vendor rules of engagement — the account may already be registered/locked by another channel and may be deemed non-commissionable. Must be true to submit."
+        }
+      },
+      "additionalProperties": false
+    },
+    "networkConnectivity": {
+      "type": "object",
+      "description": "Network Connectivity sub-step (22 controls). Required when 'network' is in services.selected.",
+      "required": ["connectivityType", "bandwidthMbps"],
+      "properties": {
+        "connectivityType": {
+          "type": "string",
+          "enum": ["Broadband", "T-1", "Coax", "EOC", "Satellite", "Fiber", "Fixed", "Wireless", "I don't know"],
+          "$comment": "DOM: connectivityType."
+        },
+        "bandwidthMbps": {
+          "type": "number",
+          "minimum": 0,
+          "$comment": "DOM: bandwidthSpeed. Entered Mbps-style numeric value, e.g. 1000."
+        },
+        "existingProvider": {
+          "type": "string",
+          "enum": ["Altice", "AT&T", "Bigleaf", "Broadsky", "Cato Networks", "Comcast", "Frontier", "Lumen", "Mediacom", "Spectrotel", "Spectrum", "VeloCloud", "Verizon", "Viasat", "Zayo", "Other", "Cox"],
+          "$comment": "DOM: existingService."
+        },
+        "preferredVendors": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "enum": ["I don't know", "All Stream", "Altice", "AT&T", "Bigleaf", "Broadsky", "Cato Networks", "Comcast", "Cox", "Frontier", "Lumen", "Medicom", "SpectroTel", "Spectrum", "VeloCloud", "Verizon", "Viasat", "Zayo", "Other"]
+          },
+          "$comment": "Maps to the internetVendor* checkboxes. UI QUIRK: the UI spells 'Medicom' (one m) in this list."
+        }
+      },
+      "additionalProperties": false
+    },
+    "voice": {
+      "type": "object",
+      "description": "Voice sub-step / UCaaS path (11 controls). Required when 'voice' is in services.selected.",
+      "required": ["voiceType", "seats", "employees", "website"],
+      "properties": {
+        "voiceType": {
+          "type": "string",
+          "enum": ["Direct Routing", "CCaaS", "Collaboration/Meeting", "POTS", "UCaaS", "SIP", "I don't know"],
+          "$comment": "DOM: voiceType. UCaaS path verified in sandbox; Zoom available as preferred vendor."
+        },
+        "seats": {
+          "type": "integer",
+          "minimum": 0,
+          "$comment": "DOM: numSeats ('Number of Seats/Licenses/Lines'). 100 accepted in the sandbox UCaaS/Zoom test."
+        },
+        "currentProvider": {
+          "type": "string",
+          "enum": ["Dont know", "8x8", "Nextiva", "RingCentral", "Zoom", "Altice", "AT&T", "Comcast", "Cox", "Frontier", "Lumen", "Medicom", "Spectrum", "Verizon", "Other"],
+          "$comment": "DOM: currentVoiceProvider."
+        },
+        "preferredVendors": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": { "type": "string", "enum": ["I don't know", "8x8", "Nextiva", "RingCentral", "Zoom", "Other"] },
+          "$comment": "Maps to the voiceVendor* checkboxes. DOM QUIRK: the Other checkbox is named VoiceVendorOther (capital V)."
+        },
+        "employees": {
+          "type": "integer",
+          "minimum": 0,
+          "$comment": "DOM: numEmployees."
+        },
+        "website": {
+          "type": "string",
+          "minLength": 1,
+          "$comment": "DOM: customerWebsite. URL-like free text."
+        }
+      },
+      "additionalProperties": false
+    },
+    "notes": {
+      "type": "object",
+      "description": "Notes step (1 control).",
+      "properties": {
+        "opportunityNotes": {
+          "type": "string",
+          "$comment": "DOM: confirmationNotes (textarea). UI QUIRK: no review page appears between Notes and final submission — Notes is the last screen before SUBMIT. Put site 2..N addresses here for multi-location, plus a SANDBOX marker on test drafts."
+        }
+      },
+      "additionalProperties": false
+    },
+    "metadata": {
+      "type": "object",
+      "description": "File-layer bookkeeping. Not submitted to the form.",
+      "required": ["source", "status", "createdAt", "updatedAt"],
+      "properties": {
+        "source": {
+          "type": "string",
+          "enum": ["chat", "mcp", "ui"],
+          "$comment": "Which front door created or last owns this draft. The file stays the source of truth."
+        },
+        "status": {
+          "type": "string",
+          "enum": ["draft", "dry-run", "submitted-sandbox"],
+          "$comment": "draft = being assembled; dry-run = filled in sandbox UI but not submitted; submitted-sandbox = SUBMIT pressed on loc8.dev.cablefinder.net."
+        },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" },
+        "environment": {
+          "type": "string",
+          "const": "https://loc8.dev.cablefinder.net",
+          "$comment": "Sandbox only until Brian approves production use. Production was never exercised."
+        },
+        "submittedAt": {
+          "type": "string",
+          "format": "date-time",
+          "$comment": "Set when status becomes submitted-sandbox. UI QUIRK: the sandbox confirmation shows a success toast with NO opportunity ID, so there is no cfOpportunityId field — record what the confirmation showed in notes instead."
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": { "services": { "properties": { "selected": { "contains": { "const": "network" } } } } },
+        "required": ["services"]
+      },
+      "then": { "required": ["networkConnectivity"] }
+    },
+    {
+      "if": {
+        "properties": { "services": { "properties": { "selected": { "contains": { "const": "voice" } } } } },
+        "required": ["services"]
+      },
+      "then": { "required": ["voice"] }
+    }
+  ]
+}
