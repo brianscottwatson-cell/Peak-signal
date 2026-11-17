@@ -1,0 +1,15 @@
+{
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test": "node --experimental-strip-types cht-metrics.test.ts",
+    "typecheck": "tsc --noEmit -p tsconfig.json",
+    "build": "tsc --noEmit -p tsconfig.json"
+  },
+  "devDependencies": {
+    "@types/express": "^5.0.6",
+    "@types/node": "^26.6.3",
+    "express": "^5.2.1",
+    "typescript": "~5.9.3"
+  }
+}

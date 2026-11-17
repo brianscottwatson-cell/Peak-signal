@@ -1,0 +1,16 @@
+{
+  "source": "Skimmer, read 2026-11-11",
+  "captured_on": "2026-11-11",
+  "months": [
+    {"month":"2026-08","partial":false,"quotes_created":6,"quotes_approved":2,"quotes_rejected":3,"quotes_sent_pending":1,"finished_work_orders":17,"invoices_issued":48},
+    {"month":"2026-09","partial":false,"quotes_created":27,"quotes_approved":14,"quotes_rejected":9,"quotes_sent_pending":4,"finished_work_orders":12,"invoices_issued":56},
+    {"month":"2026-10","partial":false,"quotes_created":12,"quotes_approved":9,"quotes_rejected":0,"quotes_sent_pending":3,"finished_work_orders":25,"invoices_issued":58},
+    {"month":"2026-11","partial":true,"partial_note":"Nov 1-11","quotes_created":6,"quotes_approved":1,"quotes_rejected":1,"quotes_sent_pending":4,"finished_work_orders":9,"invoices_issued":44}
+  ],
+  "snapshot": {
+    "open_work_orders": 5,
+    "active_customers": 131,
+    "customers_on_routes": 36,
+    "outstanding_invoices": 9
+  }
+}
