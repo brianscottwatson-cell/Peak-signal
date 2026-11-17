@@ -313,6 +313,243 @@ test("an H1 that does not match the map fails with h1-mismatch", () => {
   }
 });
 
+test("a public Brian fails, including JSON-LD, llms, and the catalog", () => {
+  const cases = [
+    {
+      label: "html",
+      files: { "static-site/index.html": page({ body: "<p>Ask Brian.</p>" }) },
+      file: "static-site/index.html",
+    },
+    {
+      label: "jsonld",
+      files: {
+        "static-site/index.html": page({
+          head: '<script type="application/ld+json">{ "founder": { "@type": "Person", "name": "Brian" } }</script>',
+        }),
+      },
+      file: "static-site/index.html",
+    },
+    {
+      label: "llms",
+      files: {
+        "static-site/index.html": page(),
+        "static-site/llms.txt": "Brian at Peak Signal reviews every quote.\n",
+      },
+      file: "static-site/llms.txt",
+    },
+    {
+      label: "catalog",
+      files: {
+        "static-site/index.html": page(),
+        "static-site/telecom/catalog.json": '{ "summary": "Brian reviews it" }\n',
+      },
+      file: "static-site/telecom/catalog.json",
+    },
+  ];
+  for (const item of cases) {
+    const root = writeFixture({ files: item.files });
+    try {
+      const guard = run("check-guardrails.mjs", root);
+      assert.notEqual(guard.status, 0, item.label);
+      assert.match(guard.output, new RegExp(`${item.file.replaceAll(".", "\\.")}:\\d+ \\[brian\\] personal name is not public copy`), item.label);
+    } finally {
+      cleanup(root);
+    }
+  }
+});
+
+test("the from-line allowlist is one exact string in privacy and terms", () => {
+  const allowed = writeFixture({
+    files: {
+      "static-site/index.html": page(),
+      "static-site/privacy.html": page({ body: "<p>The from-line is Brian at Peak Signal.</p><p>From-line on texts: Brian at Peak Signal.</p>" }),
+      "static-site/terms.html": page({ body: "<p>From-line: Brian at Peak Signal.</p>" }),
+      "seo/README.md": "Voice: Brian at Peak Signal.\n",
+    },
+  });
+  const wrongCase = writeFixture({
+    files: {
+      "static-site/index.html": page(),
+      "static-site/privacy.html": page({ body: "<p>The from-line is brian at Peak Signal.</p>" }),
+    },
+  });
+  const otherName = writeFixture({
+    files: {
+      "static-site/index.html": page(),
+      "static-site/terms.html": page({ body: "<p>Ask Brian.</p>" }),
+    },
+  });
+  const home = writeFixture({
+    files: { "static-site/index.html": page({ body: "<p>Brian at Peak Signal</p>" }) },
+  });
+  const extended = writeFixture({
+    files: {
+      "static-site/index.html": page(),
+      "static-site/privacy.html": page({ body: "<p>Brian at Peak Signal reviews it.</p>" }),
+    },
+  });
+  try {
+    const pass = run("check-guardrails.mjs", allowed);
+    assert.equal(pass.status, 0, pass.output);
+    assert.doesNotMatch(pass.output, /\[brian\]/);
+
+    for (const [label, root, file] of [
+      ["case", wrongCase, "static-site/privacy.html"],
+      ["other", otherName, "static-site/terms.html"],
+      ["home", home, "static-site/index.html"],
+      ["extended", extended, "static-site/privacy.html"],
+    ]) {
+      const guard = run("check-guardrails.mjs", root);
+      assert.notEqual(guard.status, 0, label);
+      assert.match(guard.output, new RegExp(`${file.replaceAll(".", "\\.")}:\\d+ \\[brian\\]`), label);
+    }
+  } finally {
+    cleanup(allowed);
+    cleanup(wrongCase);
+    cleanup(otherName);
+    cleanup(home);
+    cleanup(extended);
+  }
+});
+
+test("the public site has no Brian outside the texting from-line", () => {
+  const guard = run("check-guardrails.mjs", join(scriptsDir, ".."));
+  assert.equal(guard.status, 0, guard.output);
+  assert.doesNotMatch(guard.output, /\[brian\]/);
+});
+
+test("absent agent URLs and unpublished notes fail in public copy", () => {
+  const seeds = [
+    ["openapi", "See https://getpeaksignal.com/openapi.json.\n", "absent-url", "/openapi.json"],
+    ["quote", "Form: https://getpeaksignal.com/telecom/quote\n", "absent-url", "/telecom/quote"],
+    ["post", "POST https://getpeaksignal.com/api/telecom/quote-request\n", "absent-url", "/api/telecom/quote-request"],
+    ["live", "Those pages may not be live yet.\n", "writer-note", "may not be live yet"],
+    ["change", "They come in a Separate Change.\n", "writer-note", "separate change"],
+  ];
+  const hosts = [
+    ["llms", "static-site/llms.txt", (seed) => seed],
+    ["llms-full", "static-site/llms-full.txt", (seed) => seed],
+    ["seo-llms", "seo/llms.txt", (seed) => seed],
+    ["catalog", "static-site/telecom/catalog.json", (seed) => seed],
+    ["sitemap", "seo/sitemap.xml", (seed) => seed],
+    ["html", "static-site/index.html", (seed) => page({ body: `<p>${seed.trim()}</p>` })],
+    ["jsonld", "static-site/telecom.html", (seed) => page({
+      head: `<script type="application/ld+json">{ "urlTemplate": ${JSON.stringify(seed.trim())} }</script>`,
+    })],
+  ];
+  for (const [seedLabel, seed, rule, shown] of seeds) {
+    for (const [hostLabel, file, render] of hosts) {
+      const label = `${seedLabel} in ${hostLabel}`;
+      const root = writeFixture({
+        files: {
+          "static-site/index.html": file === "static-site/index.html" ? render(seed) : page(),
+          [file]: render(seed),
+        },
+      });
+      try {
+        const guard = run("check-guardrails.mjs", root);
+        assert.notEqual(guard.status, 0, label);
+        const escaped = file.replaceAll(".", "\\.");
+        assert.match(guard.output, new RegExp(`${escaped}:\\d+ \\[${rule}\\] '${shown.replaceAll("/", "\\/")}'`), label);
+      } finally {
+        cleanup(root);
+      }
+    }
+  }
+});
+
+test("a quote API path is not the quote page, and the catalog path is live copy", () => {
+  const api = writeFixture({
+    files: {
+      "static-site/index.html": page(),
+      "static-site/llms.txt": "POST https://getpeaksignal.com/api/telecom/quote-request\n",
+    },
+  });
+  const catalog = writeFixture({
+    files: {
+      "static-site/index.html": page(),
+      "static-site/llms.txt": "Catalog: https://getpeaksignal.com/telecom/catalog.json\n",
+      "seo/sitemap.xml": "<url><loc>https://getpeaksignal.com/telecom</loc></url>\n",
+    },
+  });
+  try {
+    const apiGuard = run("check-guardrails.mjs", api);
+    assert.notEqual(apiGuard.status, 0);
+    assert.match(apiGuard.output, /static-site\/llms\.txt:1 \[absent-url\] '\/api\/telecom\/quote-request' is not a live route/);
+    assert.doesNotMatch(apiGuard.output, /'\/telecom\/quote' is not a live route/);
+
+    const catalogGuard = run("check-guardrails.mjs", catalog);
+    assert.equal(catalogGuard.status, 0, catalogGuard.output);
+    assert.doesNotMatch(catalogGuard.output, /\[absent-url\]|\[writer-note\]/);
+  } finally {
+    cleanup(api);
+    cleanup(catalog);
+  }
+});
+
+test("an exact served route may be named, and a catch-all API proxy may not", () => {
+  const served = writeFixture({
+    files: {
+      "static-site/index.html": page(),
+      "static-site/openapi.json": "{}\n",
+      "static-site/llms.txt": "API description: https://getpeaksignal.com/openapi.json\n",
+      "vercel.json": JSON.stringify({
+        rewrites: [{ source: "/openapi.json", destination: "/static-site/openapi.json" }],
+      }),
+    },
+  });
+  const routed = writeFixture({
+    files: {
+      "static-site/index.html": page(),
+      "static-site/llms.txt": "Form: https://getpeaksignal.com/telecom/quote\n",
+      "static-site/static-site-router.ts": 'staticSiteRouter.get("/telecom/quote", handler);\n',
+    },
+  });
+  const noted = writeFixture({
+    files: {
+      "static-site/index.html": page(),
+      "static-site/llms-full.txt": "The form may not be live yet.\n",
+      "static-site/static-site-router.ts": 'staticSiteRouter.get("/telecom/quote", handler);\n',
+    },
+  });
+  const catchAll = writeFixture({
+    files: {
+      "static-site/index.html": page(),
+      "static-site/telecom/catalog.json": '{ "post": "https://getpeaksignal.com/api/telecom/quote-request" }\n',
+      "vercel.json": JSON.stringify({
+        rewrites: [{ source: "/api/(.*)", destination: "https://peak-signal.replit.app/api/$1" }],
+      }),
+    },
+  });
+  try {
+    const servedGuard = run("check-guardrails.mjs", served);
+    assert.equal(servedGuard.status, 0, servedGuard.output);
+
+    const routedGuard = run("check-guardrails.mjs", routed);
+    assert.equal(routedGuard.status, 0, routedGuard.output);
+
+    const notedGuard = run("check-guardrails.mjs", noted);
+    assert.notEqual(notedGuard.status, 0);
+    assert.match(notedGuard.output, /static-site\/llms-full\.txt:1 \[writer-note\] 'may not be live yet' is not public copy/);
+    assert.doesNotMatch(notedGuard.output, /\[absent-url\]/);
+
+    const catchGuard = run("check-guardrails.mjs", catchAll);
+    assert.notEqual(catchGuard.status, 0);
+    assert.match(catchGuard.output, /catalog\.json:1 \[absent-url\] '\/api\/telecom\/quote-request' is not a live route/);
+  } finally {
+    cleanup(served);
+    cleanup(routed);
+    cleanup(noted);
+    cleanup(catchAll);
+  }
+});
+
+test("public agent files do not name absent routes or unpublished notes", () => {
+  const guard = run("check-guardrails.mjs", join(scriptsDir, ".."));
+  assert.equal(guard.status, 0, guard.output);
+  assert.doesNotMatch(guard.output, /\[absent-url\]|\[writer-note\]/);
+});
+
 test("a form endpoint that does not match the map fails with form-action-mismatch", () => {
   const html = page({ body: '<form action="https://example.com/post"></form>' });
   const root = writeFixture({
