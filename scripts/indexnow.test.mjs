@@ -27,7 +27,8 @@ test("the payload is the sitemap and is not sent unless --publish is passed", as
   assert.equal(body.keyLocation, `https://getpeaksignal.com/${body.key}.txt`);
   assert.ok(body.urlList.includes("https://getpeaksignal.com/"));
   assert.ok(body.urlList.includes("https://getpeaksignal.com/telecom"));
-  assert.equal(body.urlList.length, 10);
+  assert.ok(body.urlList.includes("https://getpeaksignal.com/guides/how-a-telecom-agent-gets-paid"));
+  assert.equal(body.urlList.length, 14);
 
   let called = false;
   const dry = await main(["node", "indexnow-ping.mjs"], {

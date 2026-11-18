@@ -130,6 +130,25 @@ staticSiteRouter.get("/telecom", (_req: Request, res: Response) => {
 
 staticSiteRouter.get("/telecom.html", redirectClean("/telecom"));
 
+// Buyer guides. Replit build.mjs must copy static-site/guides/*.html into
+// dist/static-site/guides/ (the top-level HTML list does not include them).
+export const GUIDE_SLUGS = [
+  "rural-mountain-business-internet-colorado",
+  "ucaas-vs-traditional-business-phone-line",
+  "how-a-telecom-agent-gets-paid",
+  "what-an-ai-deployment-looks-like",
+] as const;
+
+for (const slug of GUIDE_SLUGS) {
+  staticSiteRouter.get(`/guides/${slug}`, (_req: Request, res: Response) => {
+    const html = load(`guides/${slug}.html`);
+    if (!html) return res.status(404).type("text").send("guide missing");
+    res.type("html").send(html);
+  });
+
+  staticSiteRouter.get(`/guides/${slug}.html`, redirectClean(`/guides/${slug}`));
+}
+
 // The quote form is on /telecom (#quote). Old links keep their ?vendor= query.
 staticSiteRouter.get("/telecom/quote", (req: Request, res: Response) => {
   res.redirect(301, quoteRedirectTarget(req.originalUrl));

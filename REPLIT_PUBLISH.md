@@ -13,6 +13,33 @@ Copy the router files into the Replit app when you publish. The HTML files are n
 
 The router looks in `dist/static-site/` (among other candidates). An HTML-only copy leaves the image 404 on Autoscale.
 
+## Buyer guides (`static-site/guides/`)
+
+Four guide pages live in `static-site/guides/`. The router serves each one at a clean URL and 301s the `.html` URL to it, keeping the query string:
+
+- `GET /guides/rural-mountain-business-internet-colorado` reads `guides/rural-mountain-business-internet-colorado.html`
+- `GET /guides/ucaas-vs-traditional-business-phone-line` reads `guides/ucaas-vs-traditional-business-phone-line.html`
+- `GET /guides/how-a-telecom-agent-gets-paid` reads `guides/how-a-telecom-agent-gets-paid.html`
+- `GET /guides/what-an-ai-deployment-looks-like` reads `guides/what-an-ai-deployment-looks-like.html`
+
+`build.mjs` must copy `static-site/guides/*.html` into `dist/static-site/guides/` at publish. The top-level filename list (and a `src/static-site/*.html` glob) does not reach the subdirectory, so without this the guide routes 404 on Autoscale. Add, after the filename loop:
+
+```js
+mkdirSync(join(distStatic, "guides"), { recursive: true });
+for (const name of readdirSync(join(srcStatic, "guides"))) {
+  if (name.endsWith(".html")) copyFileSync(join(srcStatic, "guides", name), join(distStatic, "guides", name));
+}
+```
+
+Add `readdirSync` to the `node:fs` import if it is not already there. Publish the updated `static-site/static-site-router.ts`, `seo/sitemap.xml`, `static-site/llms.txt`, and `static-site/llms-full.txt` with them. After publish, each of these should print `200`:
+
+```
+curl -sS -o /dev/null -w "%{http_code}\n" https://getpeaksignal.com/guides/rural-mountain-business-internet-colorado
+curl -sS -o /dev/null -w "%{http_code}\n" https://getpeaksignal.com/guides/ucaas-vs-traditional-business-phone-line
+curl -sS -o /dev/null -w "%{http_code}\n" https://getpeaksignal.com/guides/how-a-telecom-agent-gets-paid
+curl -sS -o /dev/null -w "%{http_code}\n" https://getpeaksignal.com/guides/what-an-ai-deployment-looks-like
+```
+
 ## IndexNow after each publish
 
 The key file is `static-site/561e3578a4683d5290c4773ae1de5a76.txt`. It is public by design and is served at `/561e3578a4683d5290c4773ae1de5a76.txt`. Add that filename to the copy list in `artifacts/api-server/build.mjs`, next to `robots.txt`:

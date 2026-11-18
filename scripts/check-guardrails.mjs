@@ -197,6 +197,12 @@ function agentPublicFiles(dir) {
       if (name.endsWith(".html") || /^llms/i.test(name)) add(`static-site/${name}`);
     }
   }
+  const guideDir = join(dir, "static-site", "guides");
+  if (existsSync(guideDir)) {
+    for (const name of readdirSync(guideDir).sort()) {
+      if (name.endsWith(".html")) add(`static-site/guides/${name}`);
+    }
+  }
   add("static-site/telecom/catalog.json");
   add("static-site/sitemap.xml");
   add("seo/sitemap.xml");

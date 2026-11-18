@@ -14,6 +14,13 @@ The quote form is https://getpeaksignal.com/telecom. The contact page is https:/
 
 Peak Signal reviews every quote by appointment. The phone line answers 24/7: (970) 660-5088.
 
+## Guides
+
+- [Business internet options for rural and mountain Colorado](https://getpeaksignal.com/guides/rural-mountain-business-internet-colorado)
+- [UCaaS vs. a traditional business phone line: which fits a small business?](https://getpeaksignal.com/guides/ucaas-vs-traditional-business-phone-line)
+- [How does a telecom agent get paid?](https://getpeaksignal.com/guides/how-a-telecom-agent-gets-paid)
+- [What does an AI deployment look like for a small or mid-size business?](https://getpeaksignal.com/guides/what-an-ai-deployment-looks-like)
+
 ## Index
 
 - Full detail: https://getpeaksignal.com/llms-full.txt
