@@ -105,6 +105,7 @@ export function intakeDisabledHtml() {
 export function readTelecomAsset(name) {
   const candidates = [
     join(here, name),
+    join(here, "telecom", name),
     join(process.cwd(), "telecom", name),
     join(process.cwd(), "dist", "telecom", name),
   ];
@@ -122,6 +123,7 @@ export function brianFormspreeUrl(env = process.env) {
 function catalogPath() {
   const candidates = [
     join(here, "../static-site/telecom.html"),
+    join(here, "static-site/telecom.html"),
     join(process.cwd(), "static-site/telecom.html"),
     join(process.cwd(), "dist/static-site/telecom.html"),
   ];
