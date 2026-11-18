@@ -492,7 +492,7 @@ function fakeElement(id) {
   };
 }
 
-function mountForm({ search = "", api }) {
+function mountForm({ search = "", api, key = "idem-page-0001" }) {
   const ids = new Set([...telecomHtml.matchAll(/\bid="([^"]+)"/g)].map((match) => match[1]));
   const els = new Map([...ids].map((id) => [id, fakeElement(id)]));
   const docListeners = {};
@@ -507,7 +507,7 @@ function mountForm({ search = "", api }) {
     inbox.push({ url, body: JSON.parse(init.body) });
     return { ok: true, status: 200, json: async () => ({ ok: true }) };
   };
-  const crypto = { randomUUID: () => "idem-page-0001" };
+  const crypto = { randomUUID: () => key };
   const context = vm.createContext({
     window: { crypto },
     document,
@@ -584,13 +584,13 @@ test("/telecom: every quote control points at the on-page form, flags on or off"
     assert.match(served, /<a href="\/contact" class="hover:text-white transition-colors">Contact<\/a>/);
   }
   for (const label of ["Business", "First name", "Last name", "Email", "Phone", "Service address", "Suite", "Suite not needed",
-    "Country", "Services wanted", "Desired speeds", "Fiber or broadband", "Budget (optional)", "Term", "Timeline",
-    "Connection type", "Bandwidth in Mbps", "Current provider (optional)", "Contract end (optional)", "Lines or seats",
+    "Country", "Services wanted", "Desired speed in Mbps", "Connection type", "Budget (optional)", "Term", "Timeline",
+    "Current provider (optional)", "Contract end (optional)", "Lines or seats",
     "Voice type", "Employees", "Website", "Notes"]) {
     assert.match(telecomHtml, new RegExp(`>${label.replace(/[()]/g, "\\$&")}<`), label);
   }
-  assert.match(telecomHtml, /<div[^>]*data-network-only>[\s\S]*?for="connection_type"/);
-  assert.match(telecomHtml, /<div data-voice-only>[\s\S]*?for="voice_type"/);
+  assert.match(telecomHtml, /<div id="network-fields"[^>]*>[\s\S]*?for="access_type"/);
+  assert.match(telecomHtml, /<div id="voice-fields"[^>]*>[\s\S]*?for="voice_type"/);
   for (const banned of [/loc8/i, /pax8/i, /\bLocate\b/, /\bBrian\b/, /\$\d/]) {
     assert.doesNotMatch(telecomHtml, banned);
   }
@@ -688,6 +688,168 @@ test("/telecom form: server validation errors are shown and nothing goes to the 
   } finally {
     cleanup();
   }
+});
+
+const quoteFormHtml = telecomHtml.match(/<form id="quote-form"[\s\S]*?<\/form>/)[0];
+
+// The HTML of one <div id="..."> block, nested divs included.
+function blockHtml(html, id) {
+  const start = html.indexOf(`<div id="${id}"`);
+  assert.ok(start >= 0, `no #${id}`);
+  const tags = /<\/?div\b[^>]*>/g;
+  tags.lastIndex = start;
+  let depth = 0;
+  for (let match = tags.exec(html); match; match = tags.exec(html)) {
+    depth += match[0].startsWith("</") ? -1 : 1;
+    if (depth === 0) return html.slice(start, tags.lastIndex);
+  }
+  return assert.fail(`#${id} is never closed`);
+}
+
+test("/telecom form: every question is asked exactly once", () => {
+  const text = (html) => html.replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim();
+  const questions = [
+    ...[...quoteFormHtml.matchAll(/<label\b[^>]*>([\s\S]*?)<\/label>/g)].map((match) => text(match[1])),
+    ...[...quoteFormHtml.matchAll(/<p class="block text-sm font-medium[^"]*">([\s\S]*?)<\/p>/g)].map((match) => text(match[1])),
+  ];
+  assert.ok(questions.length > 20, `found ${questions.length}`);
+  const counts = new Map();
+  for (const question of questions) counts.set(question, (counts.get(question) || 0) + 1);
+  for (const [question, count] of counts) assert.equal(count, 1, `"${question}" is asked ${count} times`);
+
+  // One question per topic, whatever it is called.
+  for (const [topic, pattern] of [
+    ["speed", /speed|bandwidth|mbps/i],
+    ["connection", /fiber|broadband|connection|access/i],
+    ["budget", /budget|price/i],
+    ["seats", /seats|lines/i],
+    ["services", /^(services wanted|services|network|internet|sd-wan|voice)$/i],
+  ]) {
+    const hits = questions.filter((question) => pattern.test(question));
+    assert.equal(hits.length, 1, `${topic}: ${JSON.stringify(hits)}`);
+  }
+
+  // Each control is one question: no id or name repeats.
+  const ids = [...quoteFormHtml.matchAll(/<(?:input|select|textarea)\b[^>]*\bid="([^"]+)"/g)].map((match) => match[1]);
+  const names = [...quoteFormHtml.matchAll(/<(?:input|select|textarea)\b[^>]*\bname="([^"]+)"/g)].map((match) => match[1]);
+  assert.equal(new Set(ids).size, ids.length, JSON.stringify(ids));
+  assert.equal(new Set(names).size, names.length, JSON.stringify(names));
+
+  // The merged connection question keeps every draft connection type.
+  const options = [...blockHtml(quoteFormHtml, "network-fields").matchAll(/<option(?: value="([^"]*)")?>([^<]*)<\/option>/g)]
+    .map((match) => (match[1] ?? match[2]).toLowerCase()).filter(Boolean);
+  for (const type of schema.properties.networkConnectivity.properties.connectivityType.enum) {
+    assert.ok(options.includes(type.toLowerCase()), type);
+  }
+});
+
+test("/telecom form: each path shows only the questions it needs, including both", () => {
+  const network = blockHtml(quoteFormHtml, "network-fields");
+  const voiceBlock = blockHtml(quoteFormHtml, "voice-fields");
+  for (const id of ["speeds", "access_type"]) {
+    assert.match(network, new RegExp(`for="${id}"`), id);
+    assert.doesNotMatch(voiceBlock, new RegExp(`for="${id}"`), id);
+  }
+  for (const id of ["lines_seats", "voice_type", "employees", "website"]) {
+    assert.match(voiceBlock, new RegExp(`for="${id}"`), id);
+    assert.doesNotMatch(network, new RegExp(`for="${id}"`), id);
+  }
+  assert.ok(blockHtml(quoteFormHtml, "long-path").includes(voiceBlock));
+
+  const page = mountForm({ api: async () => ({ ok: false, status: 404, json: async () => ({}) }) });
+  const shown = (id) => page.els.get(id).hidden === false;
+  assert.equal(shown("long-path"), false);
+  assert.equal(shown("network-fields"), false);
+  assert.equal(shown("voice-fields"), false);
+  for (const [path, wantsNetwork, wantsVoice] of [
+    ["internet", true, false],
+    ["sdwan", true, false],
+    ["voice", false, true],
+    ["both", true, true],
+    ["", false, false],
+  ]) {
+    page.fill({ path });
+    assert.equal(shown("long-path"), path !== "", `${path}: long path`);
+    assert.equal(shown("network-fields"), wantsNetwork, `${path}: speed and connection`);
+    assert.equal(shown("voice-fields"), wantsVoice, `${path}: voice questions`);
+    assert.equal(page.els.get("speeds").required, wantsNetwork, `${path}: speed required`);
+    assert.equal(page.els.get("access_type").required, wantsNetwork, `${path}: connection required`);
+  }
+});
+
+test("/telecom form: one answer per question still fills the loc8 draft on every path", async () => {
+  const env = {
+    PEAK_TELECOM_INTAKE_ENABLED: "1",
+    RESEND_API_KEY: "re_test_key",
+    PEAK_INTAKE_TO: "intake@peaksignal.example",
+    ...partnerEnv,
+  };
+  const voiceAnswers = { lines_seats: "12", voice_type: "SIP", employees: "20", website: "northline.example" };
+  const voiceBlock = { voiceType: "SIP", seats: 12, employees: 20, website: "northline.example" };
+  const { service, cleanup } = harness(env);
+  try {
+    const submit = async (key, extra) => {
+      const page = mountForm({ api: serviceApi(service), key });
+      page.fill({ ...PAGE_INTERNET, ...extra });
+      await page.submit();
+      assert.equal(page.els.get("quote-result").hidden, false, `${extra.path}: ${JSON.stringify(page.els.get("quote-errors").children)}`);
+      const id = page.els.get("quote-reference").textContent.replace("Reference ID: ", "");
+      const stored = JSON.parse(readFileSync(service.file, "utf8")).requests.find((item) => item.id === id);
+      assert.ok(stored, id);
+      assert.equal(validateOpportunityDraft(stored.opportunity, schema).ok, true, extra.path);
+      return stored;
+    };
+
+    // Internet: a bare Mbps speed fills the bandwidth, the one connection
+    // answer fills both accessType and connectivityType, budget fills the price point.
+    const net = await submit("idem-page-net", { path: "internet", speeds: "500", access_type: "Coax", budget: "450" });
+    assert.equal(net.desiredSpeeds, "500");
+    assert.equal(net.accessType, "coax");
+    assert.equal(net.budget, "450");
+    assert.equal(net.opportunity.services.desiredPricePoint, "450");
+    assert.deepEqual(net.opportunity.networkConnectivity, { connectivityType: "Coax", bandwidthMbps: 500 });
+    assert.equal(Object.hasOwn(net.opportunity, "voice"), false);
+
+    const sdwan = await submit("idem-page-sdwan", { path: "sdwan", speeds: "200 Mbps", access_type: "fiber" });
+    assert.equal(sdwan.accessType, "fiber");
+    assert.ok(sdwan.opportunity.services.selected.includes("sdwan"));
+    assert.deepEqual(sdwan.opportunity.networkConnectivity, { connectivityType: "Fiber", bandwidthMbps: 200 });
+
+    // Voice: the speed typed before switching paths is hidden, so it is not sent.
+    const voiceOnly = await submit("idem-page-voice", { path: "voice", ...voiceAnswers });
+    assert.equal(voiceOnly.path, "voice");
+    assert.equal(voiceOnly.desiredSpeeds, "");
+    assert.equal(voiceOnly.accessType, "");
+    assert.equal(voiceOnly.linesSeats, "12");
+    assert.deepEqual(voiceOnly.opportunity.voice, voiceBlock);
+    assert.equal(Object.hasOwn(voiceOnly.opportunity, "networkConnectivity"), false);
+
+    const both = await submit("idem-page-both", { path: "both", speeds: "1000", access_type: "broadband", ...voiceAnswers });
+    assert.equal(both.desiredSpeeds, "1000");
+    assert.equal(both.accessType, "broadband");
+    assert.ok(both.opportunity.services.selected.includes("network"));
+    assert.ok(both.opportunity.services.selected.includes("voice"));
+    assert.deepEqual(both.opportunity.networkConnectivity, { connectivityType: "Broadband", bandwidthMbps: 1000 });
+    assert.deepEqual(both.opportunity.voice, voiceBlock);
+  } finally {
+    cleanup();
+  }
+});
+
+test("voice-only requests are not asked for a speed or connection type; network paths still are", () => {
+  const now = new Date("2026-11-17T18:00:00Z");
+  const voiceOnly = acceptBusinessIntake(voice({ speeds: "", accessType: "" }), { catalog, env: partnerEnv, now });
+  assert.equal(voiceOnly.ok, true, JSON.stringify(voiceOnly.errors));
+  assert.equal(Object.hasOwn(voiceOnly.value.opportunity, "networkConnectivity"), false);
+  for (const path of ["internet", "sdwan", "both"]) {
+    const missing = acceptBusinessIntake(voice({ path, speeds: "", accessType: "" }), { catalog, env: partnerEnv, now });
+    assert.equal(missing.ok, false, path);
+    assert.ok(missing.errors.includes(INTAKE_FIELDS.speeds), path);
+    assert.ok(missing.errors.includes(INTAKE_FIELDS.access), path);
+  }
+  const unknown = acceptBusinessIntake(internet({ accessType: "dial-up" }), { catalog, env: partnerEnv, now });
+  assert.equal(unknown.ok, false);
+  assert.ok(unknown.errors.includes(INTAKE_FIELDS.access));
 });
 
 test("flags off: a failed Peak notice is reported so the page can fall back, and the kill switch still wins", async () => {

@@ -6,8 +6,13 @@
  * Human follow-up stays on UCaaS / SD-WAN / voice / both.
  * Partner values come from the environment. Nothing here is hardcoded.
  * Budget and price point stay null unless the visitor typed a number.
- * Bandwidth is never invented: it comes from the bandwidth field, or from an
- * explicit "<number> Mbps" in the desired speeds.
+ * Bandwidth is never invented: it comes from the bandwidth field, or from the
+ * desired speed when that is a bare number or an explicit "<number> Mbps".
+ * The /telecom form asks each question once: its speed-in-Mbps answer fills
+ * both desiredSpeeds and the draft bandwidth, its one connection-type answer
+ * fills both accessType and the draft connectivityType, and its budget fills
+ * the draft price point. Speed and connection type are required only on paths
+ * that build a network block.
  */
 import { createHash } from "node:crypto";
 import { validateAddress } from "../../static-site/telecom-carrier-rules.mjs";
@@ -27,7 +32,7 @@ const SERVICES = ["network", "sdwan", "voice", "tv"];
 export const INTAKE_FIELDS = {
   path: "Choose internet, voice, both, or SD-WAN.",
   speeds: "Enter the speeds you want.",
-  access: "Choose fiber or broadband.",
+  access: "Choose a connection type.",
   budget: "Leave budget blank, or enter only a number you decided on.",
   business: "Enter the business name.",
   first: "Enter the contact first name.",
@@ -66,9 +71,10 @@ export function acceptBusinessIntake(body, options = {}) {
   if (!path) errors.push(INTAKE_FIELDS.path);
 
   const speeds = clip(body?.speeds ?? body?.desiredSpeeds, 120);
-  if (speeds.length < 2) errors.push(INTAKE_FIELDS.speeds);
-  const accessType = String(body?.accessType || body?.access || "").trim().toLowerCase();
-  if (accessType !== "fiber" && accessType !== "broadband") errors.push(INTAKE_FIELDS.access);
+  const accessRaw = clip(body?.accessType || body?.access, 40);
+  const connectionTypes = schema.properties.networkConnectivity.properties.connectivityType.enum;
+  const accessConnection = matchConnection(accessRaw, connectionTypes);
+  const accessType = accessConnection ? accessRaw.toLowerCase() : "";
 
   const budget = optionalNumber(body?.budget);
   if (budget.error) errors.push(INTAKE_FIELDS.budget);
@@ -119,15 +125,21 @@ export function acceptBusinessIntake(body, options = {}) {
   const seats = integerField(body?.seats);
   const employees = integerField(body?.employees);
   const website = clip(body?.website, 200);
-  const connectionType = clip(body?.connectionType, 40);
+  const connectionType = matchConnection(body?.connectionType, connectionTypes) || accessConnection;
   const bandwidth = bandwidthField(body?.bandwidthMbps ?? body?.bandwidth, speeds);
   const dateNeeded = clip(body?.dateNeeded ?? body?.dateServicesNeeded, 20);
   const currentProvider = clip(body?.currentProvider, 120);
   const contractEnd = clip(body?.contractEnd, 40);
   const voiceTypes = schema.properties.voice.properties.voiceType.enum;
-  const connectionTypes = schema.properties.networkConnectivity.properties.connectivityType.enum;
   const needsNetwork = long && (selected.includes("network") || selected.includes("sdwan") || path === "both");
   const needsVoice = long && (selected.includes("voice") || path === "voice" || path === "ucaas" || path === "both");
+
+  // Voice-only requests have no network block, so they are not asked for a
+  // speed or connection type. An unknown path still gets every message.
+  if (!long || needsNetwork) {
+    if (speeds.length < 2) errors.push(INTAKE_FIELDS.speeds);
+    if (!accessType) errors.push(INTAKE_FIELDS.access);
+  }
 
   if (long) {
     if (!selected.length) errors.push(INTAKE_FIELDS.services);
@@ -142,8 +154,7 @@ export function acceptBusinessIntake(body, options = {}) {
       if (website.length < 1) errors.push(INTAKE_FIELDS.website);
     }
     if (needsNetwork) {
-      const connection = connectionTypes.includes(connectionType) ? connectionType : accessToConnection(accessType);
-      if (!connectionTypes.includes(connection)) errors.push(INTAKE_FIELDS.connection);
+      if (!connectionType) errors.push(INTAKE_FIELDS.connection);
       if (!bandwidth.ok) errors.push(INTAKE_FIELDS.bandwidth);
     }
   }
@@ -184,7 +195,7 @@ export function acceptBusinessIntake(body, options = {}) {
         seats: seats.value,
         employees: employees.value,
         website,
-        connectionType: connectionTypes.includes(connectionType) ? connectionType : accessToConnection(accessType),
+        connectionType,
         bandwidth: bandwidth.value,
         needsNetwork,
         needsVoice,
@@ -426,10 +437,12 @@ function normalizeTerm(term) {
   };
 }
 
-function accessToConnection(accessType) {
-  if (accessType === "fiber") return "Fiber";
-  if (accessType === "broadband") return "Broadband";
-  return "";
+// One connection-type answer, matched to the draft enum without regard to case
+// ("fiber" -> "Fiber"). Anything else is blank, never guessed.
+function matchConnection(value, allowed) {
+  const text = clip(value, 40).toLowerCase();
+  if (!text) return "";
+  return allowed.find((item) => item.toLowerCase() === text) || "";
 }
 
 function optionalNumber(value) {
@@ -454,10 +467,13 @@ function numberField(value) {
   return { ok: true, value: number };
 }
 
-// Bandwidth field first. When it is blank, accept only an explicit
-// "<number> Mbps" in the desired speeds. Never guess a number.
+// Bandwidth field first. When it is blank, accept the desired speed only when
+// it is a bare number (the form asks for Mbps) or an explicit "<number> Mbps".
+// Never guess a number.
 function bandwidthField(value, speeds) {
   if (value != null && String(value).trim() !== "") return numberField(value);
+  const bare = String(speeds || "").trim();
+  if (/^\d+(\.\d+)?$/.test(bare)) return numberField(bare);
   const match = String(speeds || "").match(/(?:^|[^\d.])(\d+(?:\.\d+)?)\s*(?:mbps|mb\/s|megabits?)(?![a-z])/i);
   if (!match) return { ok: false };
   return numberField(match[1]);
