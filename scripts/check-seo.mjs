@@ -4,6 +4,7 @@
  *
  * Pages:
  *   static-site/index.html, about.html, ai-deployments.html, telecom.html, contact.html, privacy.html, terms.html
+ *   static-site/guides/*.html
  *   seo/landers/*.html
  *
  * Fails when:
@@ -145,6 +146,13 @@ function indexedHtmlFiles(root) {
   for (const name of STATIC_PAGES) {
     const rel = `static-site/${name}`;
     if (existsSync(join(root, rel))) files.push(rel);
+  }
+  const guideDir = join(root, "static-site", "guides");
+  if (existsSync(guideDir)) {
+    for (const name of readdirSync(guideDir).sort()) {
+      if (!name.endsWith(".html")) continue;
+      files.push(`static-site/guides/${name}`);
+    }
   }
   const landerDir = join(root, "seo", "landers");
   if (existsSync(landerDir)) {

@@ -2,6 +2,8 @@
 *
 !static-site/
 !static-site/*.html
+!static-site/guides/
+!static-site/guides/*.html
 !static-site/telecom-chat.js
 !static-site/telecom-visitor-copy.mjs
 !static-site/telecom-carrier-rules.mjs

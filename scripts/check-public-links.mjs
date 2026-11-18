@@ -46,6 +46,10 @@ const routes = {
   "/ai-automation-evergreen-colorado": "seo/landers/ai-automation-evergreen-colorado.html",
   "/ai-agents-small-business-evergreen": "seo/landers/ai-agents-small-business-evergreen.html",
   "/561e3578a4683d5290c4773ae1de5a76.txt": "static-site/561e3578a4683d5290c4773ae1de5a76.txt",
+  "/guides/rural-mountain-business-internet-colorado": "static-site/guides/rural-mountain-business-internet-colorado.html",
+  "/guides/ucaas-vs-traditional-business-phone-line": "static-site/guides/ucaas-vs-traditional-business-phone-line.html",
+  "/guides/how-a-telecom-agent-gets-paid": "static-site/guides/how-a-telecom-agent-gets-paid.html",
+  "/guides/what-an-ai-deployment-looks-like": "static-site/guides/what-an-ai-deployment-looks-like.html",
 };
 
 /** Duplicate .html URLs. 301 to the clean path. Query strings stay on the target. */
@@ -60,6 +64,10 @@ const htmlRedirects = {
   "/ai-websites-evergreen-co.html": "/ai-websites-evergreen-co",
   "/ai-automation-evergreen-colorado.html": "/ai-automation-evergreen-colorado",
   "/ai-agents-small-business-evergreen.html": "/ai-agents-small-business-evergreen",
+  "/guides/rural-mountain-business-internet-colorado.html": "/guides/rural-mountain-business-internet-colorado",
+  "/guides/ucaas-vs-traditional-business-phone-line.html": "/guides/ucaas-vs-traditional-business-phone-line",
+  "/guides/how-a-telecom-agent-gets-paid.html": "/guides/how-a-telecom-agent-gets-paid",
+  "/guides/what-an-ai-deployment-looks-like.html": "/guides/what-an-ai-deployment-looks-like",
 };
 
 const publicPages = [
@@ -73,6 +81,10 @@ const publicPages = [
   "/ai-websites-evergreen-co",
   "/ai-automation-evergreen-colorado",
   "/ai-agents-small-business-evergreen",
+  "/guides/rural-mountain-business-internet-colorado",
+  "/guides/ucaas-vs-traditional-business-phone-line",
+  "/guides/how-a-telecom-agent-gets-paid",
+  "/guides/what-an-ai-deployment-looks-like",
 ];
 
 /** Phrases removed from live copy. Matched case-insensitively. */

@@ -2,7 +2,7 @@
 
 Each `##` heading is one public route. The heading is the route only, so `scripts/check-feature-map.mjs` can parse it.
 
-These routes come from `static-site/*.html`, `seo/landers/*.html`, the Express routers, and `vercel.json`. Vercel rewrites each route to the source file below. `/contact.html` and the other `.html` aliases are the same pages, not extra sections.
+These routes come from `static-site/*.html`, `static-site/guides/*.html` (served at `/guides/<slug>`), `seo/landers/*.html`, the Express routers, and `vercel.json`. Vercel rewrites each route to the source file below. `/contact.html` and the other `.html` aliases are the same pages, not extra sections.
 
 `/sitemap.xml` and `/robots.txt` are not HTML pages. The Google Search Console verification file is served by the routers and is not a page, so it is not listed. Ops pages are not public marketing routes.
 
@@ -391,6 +391,161 @@ Nav links are the anchors in the header `<nav>` (or the lander header nav). CTAs
 - Footer links:
   - getpeaksignal.com → /
   - Telecom → /telecom
+
+## /guides/rural-mountain-business-internet-colorado
+
+- Route: /guides/rural-mountain-business-internet-colorado
+- Source file: static-site/guides/rural-mountain-business-internet-colorado.html
+- Purpose: Buyer guide to business internet for rural and mountain Colorado: fiber, cable, DSL, fixed wireless, 5G/LTE, and satellite, what to check at an address, and a telecom quote. Not linked from other pages; listed in the sitemap and llms files.
+- H1: Business internet options for rural and mountain Colorado
+- Key sections:
+  - The options, from most to least wired
+  - What to check at your address
+  - How Peak Signal helps
+  - FAQ
+  - Get a quote
+- CTAs:
+  - Book a call → https://calendly.com/hello-peaksignal/30min
+- In-page links:
+  - Request a telecom quote → /telecom
+  - book a call → /contact
+- Forms: none
+- JSON-LD @types: Article, FAQPage
+- Nav links:
+  - Peak Signal → /
+  - The System → /#system
+  - Offers → /#offers
+  - AI Deployments → /ai-deployments
+  - Telecom → /telecom
+  - How it Works → /#how
+  - About → /about
+  - Contact → /contact
+  - Book a call → https://calendly.com/hello-peaksignal/30min
+- Footer links:
+  - 970-660-5088 → tel:+19706605088
+  - hello.peaksignal@gmail.com → mailto:hello.peaksignal@gmail.com
+  - AI Deployments → /ai-deployments
+  - Telecom → /telecom
+  - About → /about
+  - Contact → /contact
+  - Privacy → /privacy
+  - Terms → /terms
+
+## /guides/ucaas-vs-traditional-business-phone-line
+
+- Route: /guides/ucaas-vs-traditional-business-phone-line
+- Source file: static-site/guides/ucaas-vs-traditional-business-phone-line.html
+- Purpose: Buyer guide comparing UCaaS with a traditional (POTS) business line, with questions to ask before switching and a telecom quote. Not linked from other pages; listed in the sitemap and llms files.
+- H1: UCaaS vs. a traditional business phone line
+- Key sections:
+  - Side by side
+  - What to ask before you switch
+  - Where Peak Signal fits
+  - FAQ
+  - Compare options for your business
+- CTAs:
+  - Book a call → https://calendly.com/hello-peaksignal/30min
+- In-page links:
+  - Request a telecom quote → /telecom
+  - book a call → /contact
+- Forms: none
+- JSON-LD @types: Article, FAQPage
+- Nav links:
+  - Peak Signal → /
+  - The System → /#system
+  - Offers → /#offers
+  - AI Deployments → /ai-deployments
+  - Telecom → /telecom
+  - How it Works → /#how
+  - About → /about
+  - Contact → /contact
+  - Book a call → https://calendly.com/hello-peaksignal/30min
+- Footer links:
+  - 970-660-5088 → tel:+19706605088
+  - hello.peaksignal@gmail.com → mailto:hello.peaksignal@gmail.com
+  - AI Deployments → /ai-deployments
+  - Telecom → /telecom
+  - About → /about
+  - Contact → /contact
+  - Privacy → /privacy
+  - Terms → /terms
+
+## /guides/how-a-telecom-agent-gets-paid
+
+- Route: /guides/how-a-telecom-agent-gets-paid
+- Source file: static-site/guides/how-a-telecom-agent-gets-paid.html
+- Purpose: Buyer guide to how telecom agents are typically paid, questions to ask any agent, and how Peak Signal handles telecom requests. Not linked from other pages; listed in the sitemap and llms files.
+- H1: How does a telecom agent get paid?
+- Key sections:
+  - How the common model works
+  - Questions to ask any telecom agent
+  - How Peak Signal handles telecom requests
+  - FAQ
+  - Get a quote
+- CTAs:
+  - Book a call → https://calendly.com/hello-peaksignal/30min
+- In-page links:
+  - Request a telecom quote → /telecom
+  - book a call → /contact
+- Forms: none
+- JSON-LD @types: Article, FAQPage
+- Nav links:
+  - Peak Signal → /
+  - The System → /#system
+  - Offers → /#offers
+  - AI Deployments → /ai-deployments
+  - Telecom → /telecom
+  - How it Works → /#how
+  - About → /about
+  - Contact → /contact
+  - Book a call → https://calendly.com/hello-peaksignal/30min
+- Footer links:
+  - 970-660-5088 → tel:+19706605088
+  - hello.peaksignal@gmail.com → mailto:hello.peaksignal@gmail.com
+  - AI Deployments → /ai-deployments
+  - Telecom → /telecom
+  - About → /about
+  - Contact → /contact
+  - Privacy → /privacy
+  - Terms → /terms
+
+## /guides/what-an-ai-deployment-looks-like
+
+- Route: /guides/what-an-ai-deployment-looks-like
+- Source file: static-site/guides/what-an-ai-deployment-looks-like.html
+- Purpose: Buyer guide to an AI deployment for a small or mid-size business: scoping call, assessment, deployment, what gets set up, and what stays the same. Not linked from other pages; listed in the sitemap and llms files.
+- H1: What does an AI deployment look like for a small or mid-size business?
+- Key sections:
+  - The three steps
+  - What gets set up (every client's mix is different)
+  - What stays the same
+  - FAQ
+  - Start with a free scoping call
+- CTAs:
+  - Book a call → https://calendly.com/hello-peaksignal/30min
+- In-page links:
+  - Book a call → /contact
+- Forms: none
+- JSON-LD @types: Article, FAQPage
+- Nav links:
+  - Peak Signal → /
+  - The System → /#system
+  - Offers → /#offers
+  - AI Deployments → /ai-deployments
+  - Telecom → /telecom
+  - How it Works → /#how
+  - About → /about
+  - Contact → /contact
+  - Book a call → https://calendly.com/hello-peaksignal/30min
+- Footer links:
+  - 970-660-5088 → tel:+19706605088
+  - hello.peaksignal@gmail.com → mailto:hello.peaksignal@gmail.com
+  - AI Deployments → /ai-deployments
+  - Telecom → /telecom
+  - About → /about
+  - Contact → /contact
+  - Privacy → /privacy
+  - Terms → /terms
 
 ## /sitemap.xml
 

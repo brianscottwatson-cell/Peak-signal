@@ -24,6 +24,13 @@ Already described on the live site:
 - Email agents: an agent watches the inbox and drafts replies. The owner approves every send. https://getpeaksignal.com/ai-agents-small-business-evergreen
 - Automations: the AI Harness automates lead follow-up, reminders, status updates, and handoffs, and plugs email, drive, CRM, and phone into one system. https://getpeaksignal.com/ai-automation-evergreen-colorado
 
+## Guides
+
+- Business internet options for rural and mountain Colorado: Fiber, cable, fixed wireless, 5G, and satellite for mountain and rural Colorado businesses: what each is good for, what to check at your address, and how to get a quote. https://getpeaksignal.com/guides/rural-mountain-business-internet-colorado
+- UCaaS vs. a traditional business phone line: which fits a small business?: UCaaS runs your business phone in the cloud with video, chat, and mobile apps. A traditional line runs over copper. Here's how they compare and what to ask before you switch. https://getpeaksignal.com/guides/ucaas-vs-traditional-business-phone-line
+- How does a telecom agent get paid?: Telecom agents are usually paid commissions by the providers they sell, not by a separate bill to the buyer. Here's how it typically works and what to ask any agent. https://getpeaksignal.com/guides/how-a-telecom-agent-gets-paid
+- What does an AI deployment look like for a small or mid-size business?: An AI deployment starts with a free scoping call and a paid assessment, then connects your email, phone, website, and tools so AI helpers work from one picture. Here's what to expect. https://getpeaksignal.com/guides/what-an-ai-deployment-looks-like
+
 Home: https://getpeaksignal.com/
 Book a call: https://getpeaksignal.com/contact
 Phone, 24/7: (970) 660-5088

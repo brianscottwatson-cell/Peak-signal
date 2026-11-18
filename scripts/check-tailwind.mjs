@@ -3,7 +3,7 @@
  * The public pages use a committed Tailwind file, not the Play CDN.
  * A class that is not in that file and not a local style hook fails.
  */
-import { readdirSync, readFileSync } from "node:fs";
+import { existsSync, readdirSync, readFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -38,6 +38,10 @@ function styledLocally(html) {
 }
 
 const pages = readdirSync(join(root, "static-site")).filter((name) => name.endsWith(".html") && name !== "google166e848c42566a74.html");
+const guideDir = join(root, "static-site", "guides");
+if (existsSync(guideDir)) {
+  for (const name of readdirSync(guideDir).sort()) if (name.endsWith(".html")) pages.push(`guides/${name}`);
+}
 for (const name of pages) {
   const html = readFileSync(join(root, "static-site", name), "utf8");
   if (html.includes("cdn.tailwindcss.com")) failures.push(`${name} still loads the Tailwind CDN`);

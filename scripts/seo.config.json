@@ -18,6 +18,9 @@
     "static-site/privacy.html": "Privacy Policy · Peak Signal",
 
     // Published title uses a middle dot, not a pipe.
-    "static-site/terms.html": "Terms · Peak Signal"
+    "static-site/terms.html": "Terms · Peak Signal",
+
+    // Guide title is the approved frontmatter title, which adds the "which fits" question the h1 leaves off.
+    "static-site/guides/ucaas-vs-traditional-business-phone-line.html": "UCaaS vs. a traditional business phone line: which fits a small business? | Peak Signal"
   }
 }

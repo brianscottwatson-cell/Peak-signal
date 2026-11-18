@@ -43,6 +43,10 @@ const htmlPages = new Set([
   "/ai-websites-evergreen-co",
   "/ai-automation-evergreen-colorado",
   "/ai-agents-small-business-evergreen",
+  "/guides/rural-mountain-business-internet-colorado",
+  "/guides/ucaas-vs-traditional-business-phone-line",
+  "/guides/how-a-telecom-agent-gets-paid",
+  "/guides/what-an-ai-deployment-looks-like",
 ]);
 
 const apiPath = "/api/voice";
