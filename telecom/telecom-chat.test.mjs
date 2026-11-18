@@ -107,7 +107,9 @@ test("flag off leaves the catalog page and inert endpoints", async () => {
     assert.equal(res.statusCode, 404);
     assert.equal(calls.length, 0);
     assert.equal(existsSync(service.file), false);
-    assert.match(html, /href="\/contact"[^>]*>Request a quote/);
+    assert.match(html, /href="\/telecom#quote"[^>]*>Request a quote/);
+    assert.doesNotMatch(html, /href="\/contact"[^>]*>Request a quote/);
+    assert.match(html, /<form id="quote-form"/);
     assert.doesNotMatch(html, /id="telecom-chat"/);
     assert.equal((html.match(/<h1\b/gi) || []).length, 1);
     assert.match(html, /\/api\/telecom\/config/);
@@ -333,6 +335,7 @@ test("public chat files carry the visitor copy and none of the banned material",
     "telecom/telecom-chat.mjs",
     "telecom/quote.html",
     "telecom/openapi.json",
+    "static-site/contact.html",
   ];
   const banned = [
     /\bloc8\b/i,
@@ -383,7 +386,7 @@ function intakeBody(extra = {}) {
   };
 }
 
-test("intake flag off is disabled, and the catalog links stay on the contact page", async () => {
+test("intake flag off: the old intake body is disabled, and quote links already point at the form", async () => {
   const { service, calls, cleanup } = harness({});
   try {
     const denied = await service.quoteRequest(intakeBody(), {});
@@ -392,6 +395,7 @@ test("intake flag off is disabled, and the catalog links stay on the contact pag
     assert.equal(calls.length, 0);
     assert.equal(existsSync(service.file), false);
     assert.equal(applyIntakeLinks(html, {}), html);
+    assert.equal(applyIntakeLinks(html, { PEAK_TELECOM_INTAKE_ENABLED: "1" }), html);
     assert.match(intakeDisabledHtml(), /This form is disabled\./);
     assert.doesNotMatch(intakeDisabledHtml(), /\$\d/);
   } finally {
@@ -449,19 +453,27 @@ test("an enabled intake request is queued once and only Brian is notified", asyn
   }
 });
 
-test("intake links replace only the quote buttons, and the public spec has no prices", () => {
-  const linked = applyIntakeLinks(html, { PEAK_TELECOM_INTAKE_ENABLED: "1" });
-  assert.match(linked, /href="\/telecom\/quote" class="quote-btn/);
-  assert.match(linked, /<a href="\/telecom\/quote">Request a quote<\/a>/);
-  assert.match(linked, /href="\/contact"/);
-  assert.doesNotMatch(linked, /href="\/contact" class="quote-btn/);
+test("quote links are rewritten to the on-page form with every flag value, and the public spec has no prices", () => {
+  const legacy = [
+    `<a href="/contact" class="quote-btn px-8">Request a quote</a>`,
+    `<p class="card-action"><a href="/contact">Request a quote</a></p>`,
+    `<p class="card-action"><a href="/telecom/quote">Request a quote</a></p>`,
+    `<a href="/contact" class="hover:text-white">Contact</a>`,
+  ].join("\n");
+  for (const env of [{}, { PEAK_TELECOM_INTAKE_ENABLED: "1" }, { PEAK_TELECOM_CHAT: "1" }]) {
+    const linked = applyIntakeLinks(legacy, env);
+    assert.match(linked, /href="\/telecom#quote" class="quote-btn/);
+    assert.equal((linked.match(/<a href="\/telecom#quote">Request a quote<\/a>/g) || []).length, 2);
+    assert.match(linked, /<a href="\/contact" class="hover:text-white">Contact<\/a>/);
+    assert.doesNotMatch(linked, /\/telecom\/quote/);
+  }
   const spec = JSON.parse(readFileSync(join(root, "telecom/openapi.json"), "utf8"));
   assert.equal(spec.openapi, "3.1.0");
   assert.equal(
     spec.paths["/api/telecom/quote-request"].post.responses["200"].content["application/json"].example.message,
     INTAKE_MESSAGE,
   );
-  const form = readFileSync(join(root, "telecom/quote.html"), "utf8");
+  const form = html;
   for (const label of ["Business", "Contact name", "Email", "Phone", "Service address", "Country", "Services wanted", "Lines or seats", "Timeline", "Notes"]) {
     assert.match(form, new RegExp(`>${label}<`));
   }

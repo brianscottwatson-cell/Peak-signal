@@ -544,6 +544,27 @@ test("an exact served route may be named, and a catch-all API proxy may not", ()
   }
 });
 
+test("an API route counts as served only when its router marks it always answered", () => {
+  const fixture = (router) => writeFixture({
+    files: {
+      "static-site/index.html": page(),
+      "static-site/telecom.html": page({ body: '<script>fetch("/api/telecom/quote-request")</script>' }),
+      "telecom/telecom-chat-router.ts": router,
+    },
+  });
+  const always = fixture('// Always answered: the form posts here.\ntelecomChatRouter.post("/quote-request", handler);\n');
+  const gated = fixture('telecomChatRouter.post("/quote-request", (req, res) => { if (!on()) return res.status(404); });\n');
+  try {
+    const ok = run("check-guardrails.mjs", always);
+    assert.doesNotMatch(ok.output, /\[absent-url\]/, ok.output);
+    const flagged = run("check-guardrails.mjs", gated);
+    assert.match(flagged.output, /telecom\.html:\d+ \[absent-url\] '\/api\/telecom\/quote-request' is not a live route/);
+  } finally {
+    cleanup(always);
+    cleanup(gated);
+  }
+});
+
 test("public agent files do not name absent routes or unpublished notes", () => {
   const guard = run("check-guardrails.mjs", join(scriptsDir, ".."));
   assert.equal(guard.status, 0, guard.output);

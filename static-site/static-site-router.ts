@@ -9,7 +9,7 @@ import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { installBrotliMitigation, rejectBrotliContentEncoding } from "../voice/brotli-guard";
 import { wwwApexRedirect } from "./www-apex-redirect";
-import { applyQuoteLinks, formAvailable, intakeDisabledHtml, readTelecomAsset } from "../telecom/telecom-chat.mjs";
+import { applyQuoteLinks, formAvailable, quoteRedirectTarget, readTelecomAsset } from "../telecom/telecom-chat.mjs";
 
 const moduleDir = typeof __dirname === "string" ? __dirname : dirname(fileURLToPath(import.meta.url));
 
@@ -130,17 +130,9 @@ staticSiteRouter.get("/telecom", (_req: Request, res: Response) => {
 
 staticSiteRouter.get("/telecom.html", redirectClean("/telecom"));
 
-staticSiteRouter.get("/telecom/quote", (_req: Request, res: Response) => {
-  if (!formAvailable()) {
-    res.status(404).type("html").send(intakeDisabledHtml());
-    return;
-  }
-  const html = readTelecomAsset("quote.html");
-  if (!html) {
-    res.status(404).type("html").send(intakeDisabledHtml());
-    return;
-  }
-  res.type("html").send(html);
+// The quote form is on /telecom (#quote). Old links keep their ?vendor= query.
+staticSiteRouter.get("/telecom/quote", (req: Request, res: Response) => {
+  res.redirect(301, quoteRedirectTarget(req.originalUrl));
 });
 
 staticSiteRouter.get("/openapi.json", (_req: Request, res: Response) => {

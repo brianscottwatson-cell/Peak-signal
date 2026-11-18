@@ -74,7 +74,7 @@ The block below is the copy this repo's router expects, around the existing copi
 +  copyFileSync(join(srcRoot, "telecom/openapi.json"), join(distRoot, "telecom/openapi.json"));
 ```
 
-`telecom/quote.html` and `telecom/openapi.json` are copied into `dist/telecom/` for the router. Do not add a public rewrite that serves those files without the intake flag. The router returns 404 for `/telecom/quote` and `/openapi.json` until `PEAK_TELECOM_INTAKE_ENABLED` is exactly `1`.
+`telecom/openapi.json` is copied into `dist/telecom/` for the router. Do not add a public rewrite that serves it without the intake flag. The router returns 404 for `/openapi.json` until `PEAK_TELECOM_INTAKE_ENABLED` is exactly `1`. The quote form now lives in `static-site/telecom.html`. `telecom/quote.html` is only a redirect stub; the router no longer reads it, and the `quote.html` copy line can be dropped. Leaving it in is harmless. `GET /telecom/quote` always answers 301 to `/telecom#quote` and keeps the query string. Vercel 301s it to `/telecom`, and the page scrolls to the form when `?vendor=` is present.
 
 `cpSync` copies the whole `images/` directory, including `cht-before-after.webp`, `images/peak-signal-logo.svg`, `images/telecom/*.png`, and `images/telecom/*.webp`, into `dist/static-site/images/`. `telecom.html`, `tailwind.css`, `llms.txt`, `llms-full.txt`, and `561e3578a4683d5290c4773ae1de5a76.txt` have to be in the filename list. `telecom/catalog.json` is not in that list: the `mkdirSync` and `copyFileSync` lines above are what publish it. A `*.html` glob does not copy `.txt`, `.css`, `.json`, or images. If the build copies images one file at a time instead of `cpSync`, add every `static-site/images/telecom/*.png`, every `static-site/images/telecom/*.webp`, and `static-site/images/peak-signal-logo.svg`. Do not add `loc8.png`.
 
@@ -123,7 +123,7 @@ Expect `301` and `Location: https://getpeaksignal.com/telecom`. The same request
 
 ## Telecom chat (`PEAK_TELECOM_CHAT`)
 
-The in-page quote and opportunity chat is off unless `PEAK_TELECOM_CHAT` is exactly `1`. Leave it unset in production until Peak Signal turns it on. With the flag off, `/telecom` keeps the catalog and every "Request a quote" link goes to `/contact`. These routes stay inert (404):
+The in-page quote and opportunity chat is off unless `PEAK_TELECOM_CHAT` is exactly `1`. Leave it unset in production until Peak Signal turns it on. With the flag off, `/telecom` keeps the catalog and the quote form, and every "Request a quote" control scrolls to that form (`/telecom#quote`). The chat routes below stay inert (404). With the flag on, the chat mounts above the form, and the form stays on the page.
 
 - `GET /api/telecom/config`
 - `POST /api/telecom/address`
@@ -178,11 +178,11 @@ This flag is separate from `PEAK_TELECOM_CHAT`. Either one can be on while the o
 | Flag | What it opens |
 |---|---|
 | `PEAK_TELECOM_CHAT=1` | In-page chat, `GET /api/telecom/config`, `POST /api/telecom/address`, `POST /api/telecom/requests` |
-| `PEAK_TELECOM_INTAKE_ENABLED=1` | `GET /telecom/quote`, `POST /api/telecom/quote-request`, `GET /openapi.json`. Quote buttons on `/telecom` point at `/telecom/quote`. |
+| `PEAK_TELECOM_INTAKE_ENABLED=1` | `POST /api/telecom/quote-request` queues the request (shared queue, loc8 draft when the partner env is set, Peak intake notice). `GET /openapi.json`. |
 | Either flag | `/ops/telecom` after the existing ops login, so an operator can review the shared queue |
 
-With both unset, `/telecom` is the catalog and every "Request a quote" link still goes to `/contact`. The quote form, the quote-request endpoint, and `/openapi.json` answer `404` with a disabled message. A filled honeypot on the quote request is rejected and is not stored or emailed.
+With both unset, `/telecom` is the catalog plus the quote form, and every "Request a quote" control scrolls to that form. `POST /api/telecom/quote-request` still answers a business request. It runs the same `acceptBusinessIntake` validation and sends Peak Signal one notice: Resend when `RESEND_API_KEY` and `PEAK_INTAKE_TO` are set, otherwise `PEAK_FORMSPREE` or the contact-form endpoint. Nothing is written to the queue and no loc8 draft is built. The notice says `Opportunity draft: intake_off` and `Queue: not stored`. The visitor gets the same message and a reference ID. If that notice cannot be sent, the endpoint answers `503`. If the API cannot be reached at all (for example an older Replit build that still 404s), the page posts the fields to the contact-form Formspree endpoint and shows the same success message without a reference ID. `PEAK_TELECOM_KILL=1` still answers `503` and nothing is sent. `/openapi.json` answers `404` with a disabled message. A filled honeypot on the quote request is rejected and is not stored or emailed.
 
 `POST /api/telecom/quote-request` accepts JSON only. A saved request returns a reference ID and the message `Peak Signal has the request. Our team will review it before anything is submitted. Nothing is ordered automatically.` The response has no prices. Notification is one post to `PEAK_FORMSPREE` (or the contact form endpoint) for Peak Signal only.
 
-Copy `telecom/quote.html`, `telecom/openapi.json`, `telecom/telecom-chat.mjs`, and `static-site/static-site-router.ts` with the chat files above. The router serves the form and the OpenAPI document. The build lines in the diff copy those two static files into `dist/telecom/`.
+Copy `static-site/telecom.html`, `telecom/openapi.json`, `telecom/telecom-chat.mjs`, `telecom/telecom-chat-router.ts`, `telecom/intake/business-quote.mjs`, and `static-site/static-site-router.ts` with the chat files above. Mount `telecomChatRouter` at `/api/telecom` even while both flags are off: the `/telecom` form posts to it.

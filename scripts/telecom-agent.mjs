@@ -22,7 +22,8 @@ const root = join(dirname(fileURLToPath(import.meta.url)), "..");
 const KNOWLEDGE = "data/telecom-vendor-knowledge.json";
 const PAGE = "static-site/telecom.html";
 const CATALOG = "static-site/telecom/catalog.json";
-const QUOTE_URL = "https://getpeaksignal.com/contact";
+// Quote links in the catalog open the quote form on /telecom.
+const QUOTE_URL = "https://getpeaksignal.com/telecom#quote";
 const FORM_URL = "https://getpeaksignal.com/telecom";
 
 /** Knowledge id -> visible name on /telecom. */
@@ -273,7 +274,7 @@ export function catalogProblems(catalog) {
   const hits = findBanned(JSON.stringify(catalog));
   if (hits.length) problems.push(`catalog contains ${hits.join(", ")}`);
   walkKeys(catalog, "catalog", problems);
-  if (catalog.quote_request_url !== QUOTE_URL) problems.push("catalog quote_request_url is not the contact page");
+  if (catalog.quote_request_url !== QUOTE_URL) problems.push("catalog quote_request_url is not the /telecom quote form");
   if (!Array.isArray(catalog.vendors) || catalog.vendors.length === 0) problems.push("catalog has no vendors");
   const names = new Set();
   for (const vendor of catalog.vendors ?? []) {
@@ -281,7 +282,7 @@ export function catalogProblems(catalog) {
     if (extra.length) problems.push(`${vendor.name || "vendor"} has extra fields ${extra.join(", ")}`);
     if (!vendor.name) problems.push("vendor is missing a name");
     if (!vendor.category) problems.push(`${vendor.name || "vendor"} is missing a category`);
-    if (vendor.quote_request_url !== QUOTE_URL) problems.push(`${vendor.name} quote_request_url is not the contact page`);
+    if (vendor.quote_request_url !== QUOTE_URL) problems.push(`${vendor.name} quote_request_url is not the /telecom quote form`);
     if (names.has(vendor.name)) problems.push(`duplicate vendor ${vendor.name}`);
     names.add(vendor.name);
     if (vendor.countries) {

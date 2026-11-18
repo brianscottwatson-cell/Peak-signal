@@ -6,7 +6,7 @@
     "CA"
   ],
   "availability": "Availability is checked per service address.",
-  "quote_request_url": "https://getpeaksignal.com/contact",
+  "quote_request_url": "https://getpeaksignal.com/telecom#quote",
   "vendors": [
     {
       "name": "RingCentral",
@@ -16,7 +16,7 @@
         "CA"
       ],
       "summary": "RingCentral offers cloud phone, video, messaging, and contact center services.",
-      "quote_request_url": "https://getpeaksignal.com/contact"
+      "quote_request_url": "https://getpeaksignal.com/telecom#quote"
     },
     {
       "name": "Zoom",
@@ -26,7 +26,7 @@
         "CA"
       ],
       "summary": "Zoom offers cloud phone, meetings, chat, and contact center services.",
-      "quote_request_url": "https://getpeaksignal.com/contact"
+      "quote_request_url": "https://getpeaksignal.com/telecom#quote"
     },
     {
       "name": "Comcast",
@@ -35,7 +35,7 @@
         "US"
       ],
       "summary": "Comcast offers business internet and dedicated fiber, voice, and mobile.",
-      "quote_request_url": "https://getpeaksignal.com/contact"
+      "quote_request_url": "https://getpeaksignal.com/telecom#quote"
     },
     {
       "name": "AT&T",
@@ -44,7 +44,7 @@
         "US"
       ],
       "summary": "AT&T offers business fiber, fixed wireless internet, dedicated internet, and cloud phone.",
-      "quote_request_url": "https://getpeaksignal.com/contact"
+      "quote_request_url": "https://getpeaksignal.com/telecom#quote"
     },
     {
       "name": "Spectrum",
@@ -53,7 +53,7 @@
         "US"
       ],
       "summary": "Spectrum offers business internet, voice, cloud phone, and mobile.",
-      "quote_request_url": "https://getpeaksignal.com/contact"
+      "quote_request_url": "https://getpeaksignal.com/telecom#quote"
     },
     {
       "name": "Cox",
@@ -62,7 +62,7 @@
         "US"
       ],
       "summary": "Cox offers business internet, dedicated connectivity, and voice.",
-      "quote_request_url": "https://getpeaksignal.com/contact"
+      "quote_request_url": "https://getpeaksignal.com/telecom#quote"
     },
     {
       "name": "Starlink",
@@ -72,7 +72,7 @@
         "CA"
       ],
       "summary": "Starlink offers satellite internet.",
-      "quote_request_url": "https://getpeaksignal.com/contact"
+      "quote_request_url": "https://getpeaksignal.com/telecom#quote"
     },
     {
       "name": "T-Mobile for Business",
@@ -81,211 +81,211 @@
         "US"
       ],
       "summary": "T-Mobile for Business offers business wireless and 5G business internet.",
-      "quote_request_url": "https://getpeaksignal.com/contact"
+      "quote_request_url": "https://getpeaksignal.com/telecom#quote"
     },
     {
       "name": "8x8",
       "category": "Communications",
       "summary": "8x8 offers cloud voice, video, and contact center.",
-      "quote_request_url": "https://getpeaksignal.com/contact"
+      "quote_request_url": "https://getpeaksignal.com/telecom#quote"
     },
     {
       "name": "Dialpad",
       "category": "Communications",
       "summary": "Dialpad offers cloud calling, messaging, meetings, and contact center.",
-      "quote_request_url": "https://getpeaksignal.com/contact"
+      "quote_request_url": "https://getpeaksignal.com/telecom#quote"
     },
     {
       "name": "Five9",
       "category": "Communications",
       "summary": "Five9 offers cloud contact center software.",
-      "quote_request_url": "https://getpeaksignal.com/contact"
+      "quote_request_url": "https://getpeaksignal.com/telecom#quote"
     },
     {
       "name": "GoTo",
       "category": "Communications",
       "summary": "GoTo offers video meetings, screen sharing, and webinars.",
-      "quote_request_url": "https://getpeaksignal.com/contact"
+      "quote_request_url": "https://getpeaksignal.com/telecom#quote"
     },
     {
       "name": "Net2Phone",
       "category": "Communications",
       "summary": "Net2Phone offers cloud voice, video, chat, and email.",
-      "quote_request_url": "https://getpeaksignal.com/contact"
+      "quote_request_url": "https://getpeaksignal.com/telecom#quote"
     },
     {
       "name": "Nextiva",
       "category": "Communications",
       "summary": "Nextiva offers cloud phone and customer communications.",
-      "quote_request_url": "https://getpeaksignal.com/contact"
+      "quote_request_url": "https://getpeaksignal.com/telecom#quote"
     },
     {
       "name": "Ooma",
       "category": "Communications",
       "summary": "Ooma offers cloud phone service for businesses.",
-      "quote_request_url": "https://getpeaksignal.com/contact"
+      "quote_request_url": "https://getpeaksignal.com/telecom#quote"
     },
     {
       "name": "SpectrumVoIP",
       "category": "Communications",
       "summary": "SpectrumVoIP offers cloud phone and business internet.",
-      "quote_request_url": "https://getpeaksignal.com/contact"
+      "quote_request_url": "https://getpeaksignal.com/telecom#quote"
     },
     {
       "name": "Talkdesk",
       "category": "Communications",
       "summary": "Talkdesk offers a cloud contact center.",
-      "quote_request_url": "https://getpeaksignal.com/contact"
+      "quote_request_url": "https://getpeaksignal.com/telecom#quote"
     },
     {
       "name": "TPx",
       "category": "VARs, Network, Communications, SD-WAN",
       "summary": "TPx offers managed network, security, and cloud communications services.",
-      "quote_request_url": "https://getpeaksignal.com/contact"
+      "quote_request_url": "https://getpeaksignal.com/telecom#quote"
     },
     {
       "name": "Vonage Business",
       "category": "Communications",
       "summary": "Vonage offers cloud voice, messaging, video, and contact center.",
-      "quote_request_url": "https://getpeaksignal.com/contact"
+      "quote_request_url": "https://getpeaksignal.com/telecom#quote"
     },
     {
       "name": "ACC Business",
       "category": "Network",
       "summary": "ACC Business offers networking, data, cloud, and voice services.",
-      "quote_request_url": "https://getpeaksignal.com/contact"
+      "quote_request_url": "https://getpeaksignal.com/telecom#quote"
     },
     {
       "name": "Bigleaf Networks",
       "category": "SD-WAN, Network",
       "summary": "Bigleaf Networks offers managed business internet connectivity.",
-      "quote_request_url": "https://getpeaksignal.com/contact"
+      "quote_request_url": "https://getpeaksignal.com/telecom#quote"
     },
     {
       "name": "Breezeline",
       "category": "Network",
       "summary": "Breezeline offers business internet.",
-      "quote_request_url": "https://getpeaksignal.com/contact"
+      "quote_request_url": "https://getpeaksignal.com/telecom#quote"
     },
     {
       "name": "Brightspeed",
       "category": "Network",
       "summary": "Brightspeed offers business internet.",
-      "quote_request_url": "https://getpeaksignal.com/contact"
+      "quote_request_url": "https://getpeaksignal.com/telecom#quote"
     },
     {
       "name": "Dobson Fiber",
       "category": "Network",
       "summary": "Dobson Fiber offers fiber internet and cloud phone.",
-      "quote_request_url": "https://getpeaksignal.com/contact"
+      "quote_request_url": "https://getpeaksignal.com/telecom#quote"
     },
     {
       "name": "EPIC iO",
       "category": "Network",
       "summary": "EPIC iO offers managed wireless, private cellular, and satellite connectivity.",
-      "quote_request_url": "https://getpeaksignal.com/contact"
+      "quote_request_url": "https://getpeaksignal.com/telecom#quote"
     },
     {
       "name": "FiberLight",
       "category": "Network",
       "summary": "FiberLight offers fiber networking services.",
-      "quote_request_url": "https://getpeaksignal.com/contact"
+      "quote_request_url": "https://getpeaksignal.com/telecom#quote"
     },
     {
       "name": "For2Fi",
       "category": "Network",
       "summary": "For2Fi offers managed wireless wide-area connectivity.",
-      "quote_request_url": "https://getpeaksignal.com/contact"
+      "quote_request_url": "https://getpeaksignal.com/telecom#quote"
     },
     {
       "name": "Lightpath Fiber",
       "category": "Network",
       "summary": "Lightpath Fiber offers business fiber connectivity.",
-      "quote_request_url": "https://getpeaksignal.com/contact"
+      "quote_request_url": "https://getpeaksignal.com/telecom#quote"
     },
     {
       "name": "Lumen",
       "category": "Network",
       "summary": "Lumen offers enterprise network and telecommunications services.",
-      "quote_request_url": "https://getpeaksignal.com/contact"
+      "quote_request_url": "https://getpeaksignal.com/telecom#quote"
     },
     {
       "name": "Optimum",
       "category": "Network",
       "summary": "Optimum offers fiber internet, television, and mobile service.",
-      "quote_request_url": "https://getpeaksignal.com/contact"
+      "quote_request_url": "https://getpeaksignal.com/telecom#quote"
     },
     {
       "name": "Rise Internet",
       "category": "Network",
       "summary": "Rise Internet offers business internet.",
-      "quote_request_url": "https://getpeaksignal.com/contact"
+      "quote_request_url": "https://getpeaksignal.com/telecom#quote"
     },
     {
       "name": "Rogers",
       "category": "Network",
       "summary": "Rogers offers mobile, internet, television, and phone service.",
-      "quote_request_url": "https://getpeaksignal.com/contact"
+      "quote_request_url": "https://getpeaksignal.com/telecom#quote"
     },
     {
       "name": "Verizon",
       "category": "Network",
       "summary": "Verizon offers wireless, internet, television, and phone service.",
-      "quote_request_url": "https://getpeaksignal.com/contact"
+      "quote_request_url": "https://getpeaksignal.com/telecom#quote"
     },
     {
       "name": "Viasat",
       "category": "Network",
       "summary": "Viasat offers satellite internet.",
-      "quote_request_url": "https://getpeaksignal.com/contact"
+      "quote_request_url": "https://getpeaksignal.com/telecom#quote"
     },
     {
       "name": "WOW! Business",
       "category": "Network",
       "summary": "WOW! Business offers business internet, phone, and cable television.",
-      "quote_request_url": "https://getpeaksignal.com/contact"
+      "quote_request_url": "https://getpeaksignal.com/telecom#quote"
     },
     {
       "name": "Zayo",
       "category": "Network",
       "summary": "Zayo offers fiber and bandwidth infrastructure.",
-      "quote_request_url": "https://getpeaksignal.com/contact"
+      "quote_request_url": "https://getpeaksignal.com/telecom#quote"
     },
     {
       "name": "Ziply Fiber",
       "category": "Network",
       "summary": "Ziply Fiber offers fiber internet.",
-      "quote_request_url": "https://getpeaksignal.com/contact"
+      "quote_request_url": "https://getpeaksignal.com/telecom#quote"
     },
     {
       "name": "VeloCloud",
       "category": "SD-WAN",
       "summary": "VeloCloud offers SD-WAN for business networks.",
-      "quote_request_url": "https://getpeaksignal.com/contact"
+      "quote_request_url": "https://getpeaksignal.com/telecom#quote"
     },
     {
       "name": "AireSpring",
       "category": "VARs",
       "summary": "AireSpring offers managed network and unified communications services.",
-      "quote_request_url": "https://getpeaksignal.com/contact"
+      "quote_request_url": "https://getpeaksignal.com/telecom#quote"
     },
     {
       "name": "MetTel",
       "category": "VARs",
       "summary": "MetTel offers managed telecom and network services.",
-      "quote_request_url": "https://getpeaksignal.com/contact"
+      "quote_request_url": "https://getpeaksignal.com/telecom#quote"
     },
     {
       "name": "Nitel",
       "category": "VARs",
       "summary": "Nitel offers managed network services.",
-      "quote_request_url": "https://getpeaksignal.com/contact"
+      "quote_request_url": "https://getpeaksignal.com/telecom#quote"
     },
     {
       "name": "Spectrotel",
       "category": "VARs",
       "summary": "Spectrotel offers phone, internet, and managed network services.",
-      "quote_request_url": "https://getpeaksignal.com/contact"
+      "quote_request_url": "https://getpeaksignal.com/telecom#quote"
     }
   ]
 }
