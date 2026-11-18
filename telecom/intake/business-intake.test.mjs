@@ -738,7 +738,7 @@ test("old /telecom/quote links redirect to the on-page form with the same query"
   const router = readFileSync(join(root, "static-site/static-site-router.ts"), "utf8");
   assert.match(router, /get\("\/telecom\/quote"[\s\S]{0,120}res\.redirect\(301, quoteRedirectTarget\(req\.originalUrl\)\)/);
   const vercel = JSON.parse(readFileSync(join(root, "vercel.json"), "utf8"));
-  assert.ok(vercel.redirects.some((rule) => rule.source === "/telecom/quote" && rule.destination === "/telecom"));
+  assert.ok(vercel.redirects.some((rule) => rule.source === "/telecom/quote" && rule.destination === "/telecom#quote"));
 });
 
 test("the chat mounts only with PEAK_TELECOM_CHAT=1, and the form stays on the page with it", () => {
