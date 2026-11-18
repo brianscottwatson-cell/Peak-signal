@@ -29,7 +29,7 @@ import {
   unavailableResponse,
   verifyTurnstile,
 } from "./telecom-security.mjs";
-import { acceptBusinessIntake, buildIntakeNotice } from "./intake/business-quote.mjs";
+import { INTAKE_FIELDS, acceptBusinessIntake, buildIntakeNotice } from "./intake/business-quote.mjs";
 import { sendPeakNotice } from "./intake/notify-peak.mjs";
 import { createDurableQueue } from "./queue/durable-queue.mjs";
 
@@ -66,15 +66,35 @@ export function formAvailable(env = process.env) {
   return !killed(env) && (telecomChatEnabled(env) || intakeEnabled(env));
 }
 
-export function applyQuoteLinks(html, env = process.env) {
-  if (!formAvailable(env)) return html;
-  return String(html)
-    .replaceAll('href="/contact" class="quote-btn', 'href="/telecom/quote" class="quote-btn')
-    .replaceAll('<a href="/contact">Request a quote</a>', '<a href="/telecom/quote">Request a quote</a>');
+/** The quote form lives on /telecom in the #quote section. */
+export const QUOTE_FORM_HREF = "/telecom#quote";
+
+/**
+ * Point every "Request a quote" control on /telecom at the on-page form.
+ * Same result with every flag value. Older markup that still links quote
+ * buttons to /contact or /telecom/quote is rewritten. Nav "Contact" links
+ * are left alone. The env argument is kept for older callers.
+ */
+export function applyQuoteLinks(html, _env = process.env) {
+  let out = String(html);
+  for (const legacy of ["/contact", "/telecom/quote"]) {
+    out = out
+      .replaceAll(`href="${legacy}" class="quote-btn`, `href="${QUOTE_FORM_HREF}" class="quote-btn`)
+      .replaceAll(`<a href="${legacy}">Request a quote</a>`, `<a href="${QUOTE_FORM_HREF}">Request a quote</a>`);
+  }
+  return out;
 }
 
 export function applyIntakeLinks(html, env = process.env) {
   return applyQuoteLinks(html, env);
+}
+
+/** Old /telecom/quote links land on the on-page form with the same query. */
+export function quoteRedirectTarget(originalUrl = "") {
+  const raw = String(originalUrl || "");
+  const at = raw.indexOf("?");
+  const query = at === -1 ? "" : raw.slice(at).split("#")[0];
+  return `/telecom${query === "?" ? "" : query}#quote`;
 }
 
 export function intakeDisabledHtml() {
@@ -311,6 +331,7 @@ export function createTelecomChat(options = {}) {
   const rateWindowMs = Number.isFinite(options.rateWindowMs) ? options.rateWindowMs : RATE_WINDOW_MS;
   const persist = options.persist;
   const queue = options.queue || createDurableQueue({ file, env, fetch: fetchImpl });
+  const noticeKeys = new Map();
 
   function enabled() {
     return telecomChatEnabled(env);
@@ -567,7 +588,11 @@ export function createTelecomChat(options = {}) {
 
   async function quoteRequest(body, req) {
     if (killed(env)) return { status: 503, body: unavailableResponse() };
-    if (!formAvailable(env)) return { status: 404, body: { ok: false, error: "disabled" } };
+    if (!intakeOn()) {
+      // The /telecom form still reaches Peak with the intake flag off.
+      if (body?.flow === "business") return noticeOnly(body, req);
+      return { status: 404, body: { ok: false, error: "disabled" } };
+    }
     await queue.hydrate();
     if (body?.flow === "business") return takeBusiness(body, req, { honeypotStatus: 400 });
     const store = loadStore();
@@ -737,6 +762,58 @@ export function createTelecomChat(options = {}) {
       email: record.contactEmail,
       phone: record.contactPhone,
       flags: record.fraudFlags || [],
+      ip: clientIp(req),
+    }, log);
+    return { status: 200, body: { ok: true, id: record.id, message: INTAKE_MESSAGE } };
+  }
+
+  /**
+   * Intake flag off: same acceptBusinessIntake validation, then one Peak
+   * notice. Nothing is written to the queue and no opportunity draft is built, so the
+   * notice says so. If the notice cannot be sent the visitor is told, and the
+   * page falls back to the contact-form notification instead of losing it.
+   */
+  async function noticeOnly(body, req) {
+    const nowDate = nowFn();
+    const gate = limiter.check({ ip: clientIp(req), now: nowDate.getTime() });
+    if (gate.limited) return { status: 429, body: { ok: false, errors: [COPY.validation.rate] } };
+    if (honeypotTripped(body)) return { status: 400, body: { ok: false, errors: [INTAKE_ERRORS.honeypot] } };
+    const key = String(body?.idempotencyKey || "").trim();
+    if (key && !validKey(key)) return { status: 400, body: { ok: false, errors: [COPY.validation.submitOnce] } };
+    if (key && noticeKeys.has(key)) {
+      return { status: 200, body: { ok: true, id: noticeKeys.get(key), message: INTAKE_MESSAGE, duplicate: true } };
+    }
+    const checked = acceptBusinessIntake(body, { catalog, env, now: nowDate, partner: null });
+    if (!checked.ok) return { status: 400, body: { ok: false, errors: checked.errors } };
+    const record = {
+      id: `tq_${randomBytes(8).toString("hex")}`,
+      createdAt: nowDate.toISOString(),
+      ...checked.value,
+      opportunity: null,
+      opportunityError: "intake_off",
+      queued: false,
+    };
+    const notice = buildIntakeNotice(record);
+    let sent = { ok: false };
+    try {
+      sent = await sendPeakNotice({
+        notice,
+        env: { ...env, PEAK_FORMSPREE: brianFormspreeUrl(env) },
+        fetch: fetchImpl,
+      });
+    } catch (err) {
+      console.error("telecom notice-only send failed", record.id, err?.message || err);
+    }
+    if (!sent.ok) return { status: 503, body: { ok: false, error: "notify_failed", errors: [INTAKE_FIELDS.save] } };
+    if (key) {
+      noticeKeys.set(key, record.id);
+      if (noticeKeys.size > 500) noticeKeys.delete(noticeKeys.keys().next().value);
+    }
+    logTelecom("telecom.notice_only", {
+      id: record.id,
+      path: record.path,
+      email: record.contactEmail,
+      phone: record.contactPhone,
       ip: clientIp(req),
     }, log);
     return { status: 200, body: { ok: true, id: record.id, message: INTAKE_MESSAGE } };

@@ -55,7 +55,7 @@ Nav links are the anchors in the header `<nav>` (or the lander header nav). CTAs
 
 - Route: /contact
 - Source file: static-site/contact.html
-- Purpose: Assessment request, by a booked call or the contact form.
+- Purpose: General inquiry and assessment request, by a booked call or the contact form. Telecom quote requests are sent to the form on /telecom (link under the phone number). No telecom quote fields here.
 - H1: Book a call
 - Key sections:
   - Booking call
@@ -65,6 +65,7 @@ Nav links are the anchors in the header `<nav>` (or the lander header nav). CTAs
   - Book a 30-min call → https://calendly.com/hello-peaksignal/30min
 - In-page links:
   - 970-660-5088 → tel:+19706605088
+  - telecom quote form → /telecom#quote
   - Privacy Policy → /privacy
   - Terms → /terms
   - hello.peaksignal@gmail.com → mailto:hello.peaksignal@gmail.com
@@ -169,21 +170,20 @@ Nav links are the anchors in the header `<nav>` (or the lander header nav). CTAs
 
 - Route: /telecom
 - Source file: static-site/telecom.html
-- Purpose: Catalog of business phone, UCaaS, and connectivity vendors. Business services only. A quote request takes minutes and goes to the contact page for Peak Signal to review while the intake flags are off. With PEAK_TELECOM_CHAT=1, the page opens an in-page quote chat that asks internet, voice, or both, plus address, speeds, fiber or broadband, and an optional budget. Vendor cards prefill the vendor. With PEAK_TELECOM_INTAKE_ENABLED=1, the quote buttons go to /telecom/quote. That form, POST /api/telecom/quote-request, and /openapi.json stay off unless the intake flag is set. The two flags are independent and share one queue. No customer quote email is sent.
+- Purpose: Catalog of business phone, UCaaS, and connectivity vendors, with the telecom quote form on the page (#quote). Business services only. Every "Request a quote" control (hero, vendor cards) scrolls to that form, with every flag value; vendor cards prefill the vendor. The form posts to POST /api/telecom/quote-request. With PEAK_TELECOM_INTAKE_ENABLED=1 the request is queued, gets a loc8 draft when the partner env is set, and Peak gets the intake notice. With the intake flag off the same validation runs and Peak gets one notice; nothing is queued and no draft is built. If that API cannot be reached, the page sends the fields to the contact-form Formspree inbox instead. The visitor sees the same success message either way. /telecom/quote 301s to /telecom#quote and keeps the query. With PEAK_TELECOM_CHAT=1 the in-page chat also mounts, above the form; the form stays. The two flags are independent and default off. No customer quote email is sent. The form has no action attribute (it posts with fetch), so Forms below reads none.
 - H1: Telecom & Connectivity
 - Key sections:
   - How this catalog works
   - Telecom catalog
   - More vendors
-  - Want a quote or information?
+  - Want a quote or information? (the quote form)
   - Quote and opportunity chat (off unless PEAK_TELECOM_CHAT=1)
-  - Quote form at /telecom/quote (off unless PEAK_TELECOM_INTAKE_ENABLED=1)
 - CTAs:
   - Book a call → https://calendly.com/hello-peaksignal/30min
-  - Request a quote → /contact
+  - Request a quote → /telecom#quote
   - Call 970-660-5088 → tel:+19706605088
 - In-page links:
-  - Request a quote → /contact
+  - Request a quote → /telecom#quote
   - 970-660-5088 → tel:+19706605088
   - hello.peaksignal@gmail.com → mailto:hello.peaksignal@gmail.com
 - Forms: none

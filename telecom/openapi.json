@@ -3,7 +3,7 @@
   "info": {
     "title": "Peak Signal telecom intake",
     "version": "1.0.0",
-    "description": "Quote requests for Peak Signal. Every request is reviewed. Nothing is ordered from the form. The form, this document, and the quote request endpoint answer with disabled until intake is turned on."
+    "description": "Quote requests for Peak Signal. Every request is reviewed. Nothing is ordered from the form. The quote form is on /telecom. This document answers with disabled until intake is turned on."
   },
   "servers": [
     { "url": "https://getpeaksignal.com" }
@@ -12,25 +12,11 @@
     "/telecom/quote": {
       "get": {
         "operationId": "getTelecomQuoteForm",
-        "summary": "Quote request form",
-        "description": "Plain HTML form. When intake is off, the response is 404 and the form is disabled.",
+        "summary": "Old quote form link",
+        "description": "Redirects to the quote form on /telecom (#quote) and keeps the query string.",
         "responses": {
-          "200": {
-            "description": "The quote form.",
-            "content": {
-              "text/html": {
-                "schema": { "type": "string" }
-              }
-            }
-          },
-          "404": {
-            "description": "Intake is off. The form is disabled.",
-            "content": {
-              "text/html": {
-                "schema": { "type": "string" },
-                "example": "This form is disabled."
-              }
-            }
+          "301": {
+            "description": "Redirect to /telecom#quote."
           }
         }
       }
@@ -64,7 +50,7 @@
       "post": {
         "operationId": "createTelecomQuoteRequest",
         "summary": "Store a quote request for Peak Signal",
-        "description": "Validates the JSON body, stores one queue record, and notifies Peak Signal only. A filled honeypot is rejected. The response never includes a price. Repeat submissions of the same request return the same reference ID and do not notify anyone again.",
+        "description": "Validates the JSON body, stores one queue record, and notifies Peak Signal only. A filled honeypot is rejected. The response never includes a price. Repeat submissions of the same request return the same reference ID and do not notify anyone again. When intake is off, a business request is validated the same way and sent to Peak Signal as a notice without being stored.",
         "requestBody": {
           "required": true,
           "content": {

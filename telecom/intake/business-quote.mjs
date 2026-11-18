@@ -273,6 +273,7 @@ export function buildIntakeNotice(record) {
     `Address: ${record.formatted}`,
     `Opportunity draft: ${record.opportunity ? "ready" : record.opportunityError || "not applicable"}`,
     "Customer email: not sent",
+    ...(record.queued === false ? ["Queue: not stored (intake flag off). Follow up from this email."] : []),
     "",
     "```json",
     json,

@@ -6,6 +6,7 @@
     { "source": "/about.html", "destination": "/about", "statusCode": 301 },
     { "source": "/ai-deployments.html", "destination": "/ai-deployments", "statusCode": 301 },
     { "source": "/telecom.html", "destination": "/telecom", "statusCode": 301 },
+    { "source": "/telecom/quote", "destination": "/telecom", "statusCode": 301 },
     { "source": "/contact.html", "destination": "/contact", "statusCode": 301 },
     { "source": "/privacy.html", "destination": "/privacy", "statusCode": 301 },
     { "source": "/terms.html", "destination": "/terms", "statusCode": 301 },

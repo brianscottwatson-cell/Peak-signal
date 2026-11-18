@@ -78,3 +78,29 @@ test("public chat files do not name a partner portal or quote a price", () => {
     for (const pattern of banned) assert.doesNotMatch(text, pattern, file);
   }
 });
+
+test("/contact stays a general inquiry form and sends telecom quotes to /telecom", () => {
+  const html = readFileSync(join(root, "static-site/contact.html"), "utf8");
+  const forms = [...html.matchAll(/<form\b[^>]*>/g)].map((match) => match[0]);
+  assert.equal(forms.length, 1);
+  assert.match(forms[0], /action="https:\/\/formspree\.io\/f\/mgobgrlr" method="POST"/);
+  assert.doesNotMatch(html, /\/api\/telecom/);
+  const names = new Set([...html.matchAll(/<(?:input|select|textarea)\b[^>]*\bname="([^"]+)"/g)].map((match) => match[1]));
+  for (const name of ["name", "business_name", "email", "phone", "interest", "problem", "timeline", "team_size", "source", "message", "consent", "sms_consent"]) {
+    assert.ok(names.has(name), `contact form is missing ${name}`);
+  }
+  for (const interest of ["Website", "Voice", "Email", "Quoting", "Integrations", "Not sure yet"]) {
+    assert.match(html, new RegExp(`name="interest" value="${interest}"`), interest);
+  }
+  for (const name of ["service_address", "street", "suite", "suite_not_needed", "country", "path", "speeds", "access_type",
+    "term", "bandwidth", "connection_type", "contract_end", "budget", "roe"]) {
+    assert.equal(names.has(name), false, `contact form should not collect ${name}`);
+  }
+  assert.doesNotMatch(html, />(Service address|Term|Bandwidth in Mbps|Fiber or broadband)</);
+  assert.match(html, /<h1[^>]*>Book a call<\/h1>/);
+  assert.match(html, /calendly\.com\/hello-peaksignal\/30min/);
+  assert.match(html, /Need a quote for business phone, internet, or connectivity\? Use the <a href="\/telecom#quote"[^>]*>telecom quote form<\/a>\./);
+  for (const banned of [/loc8/i, /pax8/i, /\bLocate\b/, /\bBrian\b/, /\$\d/]) {
+    assert.doesNotMatch(html, banned);
+  }
+});

@@ -257,6 +257,28 @@ function routerServes(dir, routePath) {
     const text = readFileSync(abs, "utf8");
     if (needles.some((needle) => text.includes(needle))) return true;
   }
+  return apiRouterServes(dir, routePath);
+}
+
+/**
+ * API routes are proxied by Vercel ("/api/(.*)"), so vercel.json cannot show
+ * them. A route counts only when its router file defines it with no flag check
+ * in front: the handler line must be marked "Always answered".
+ */
+const API_ROUTERS = [{ file: "telecom/telecom-chat-router.ts", mount: "/api/telecom" }];
+
+function apiRouterServes(dir, routePath) {
+  for (const { file, mount } of API_ROUTERS) {
+    if (!routePath.startsWith(`${mount}/`)) continue;
+    const abs = join(dir, file);
+    if (!existsSync(abs)) continue;
+    const sub = routePath.slice(mount.length);
+    const text = readFileSync(abs, "utf8");
+    const at = text.search(new RegExp(`\\.(?:get|post)\\(["']${sub.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}["']`));
+    if (at === -1) continue;
+    const before = text.slice(Math.max(0, at - 400), at);
+    if (/Always answered/.test(before)) return true;
+  }
   return false;
 }
 
