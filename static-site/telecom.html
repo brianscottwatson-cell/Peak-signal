@@ -1265,33 +1265,39 @@
               <option value="">Choose</option>
               <option value="internet">Internet</option>
               <option value="voice">Voice</option>
-              <option value="both">Both</option>
+              <option value="both">Internet and voice</option>
               <option value="sdwan">SD-WAN</option>
             </select>
           </div>
-          <div>
-            <label class="block text-sm font-medium mb-2" for="speeds">Desired speeds</label>
-            <input class="w-full bg-zinc-900 border border-zinc-700 rounded-xl px-4 py-3" id="speeds" name="speeds" type="text" maxlength="120" required>
-          </div>
-          <div>
-            <label class="block text-sm font-medium mb-2" for="access_type">Fiber or broadband</label>
-            <select class="w-full bg-zinc-900 border border-zinc-700 rounded-xl px-4 py-3" id="access_type" name="access_type" required>
-              <option value="">Choose</option>
-              <option value="fiber">Fiber</option>
-              <option value="broadband">Broadband</option>
-            </select>
+          <div id="network-fields" data-network-only hidden>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div>
+                <label class="block text-sm font-medium mb-2" for="speeds">Desired speed in Mbps</label>
+                <input class="w-full bg-zinc-900 border border-zinc-700 rounded-xl px-4 py-3" id="speeds" name="speeds" type="text" maxlength="120" placeholder="For example, 500">
+              </div>
+              <div>
+                <label class="block text-sm font-medium mb-2" for="access_type">Connection type</label>
+                <select class="w-full bg-zinc-900 border border-zinc-700 rounded-xl px-4 py-3" id="access_type" name="access_type">
+                  <option value="">Choose</option>
+                  <option value="fiber">Fiber</option>
+                  <option value="broadband">Broadband</option>
+                  <option>Coax</option>
+                  <option>Fixed</option>
+                  <option>Wireless</option>
+                  <option>Satellite</option>
+                  <option>T-1</option>
+                  <option>EOC</option>
+                  <option>I don't know</option>
+                </select>
+              </div>
+            </div>
           </div>
           <div>
             <label class="block text-sm font-medium mb-2" for="budget">Budget (optional)</label>
             <input class="w-full bg-zinc-900 border border-zinc-700 rounded-xl px-4 py-3" id="budget" name="budget" type="text" inputmode="decimal" maxlength="20" placeholder="Optional" autocomplete="off">
           </div>
           <div id="long-path" hidden>
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm text-zinc-300">
-              <label class="flex gap-x-2"><input id="svc_network" type="checkbox"> Network</label>
-              <label class="flex gap-x-2"><input id="svc_sdwan" type="checkbox"> SD-WAN</label>
-              <label class="flex gap-x-2"><input id="svc_voice" type="checkbox"> Voice</label>
-              <label class="flex gap-x-2"><input id="svc_tv" type="checkbox"> TV</label>
-            </div>
+            <label class="flex gap-x-2 text-sm text-zinc-300"><input id="svc_tv" type="checkbox"> Add TV service</label>
             <p class="block text-sm font-medium mt-6 mb-2">Term</p>
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm text-zinc-300">
               <label class="flex gap-x-2"><input id="term_mtm" type="checkbox"> Month to month</label>
@@ -1299,22 +1305,16 @@
               <label class="flex gap-x-2"><input id="term_y2" type="checkbox"> 2 years</label>
               <label class="flex gap-x-2"><input id="term_y3" type="checkbox"> 3 years</label>
             </div>
+            <div class="mt-6">
+              <label class="block text-sm font-medium mb-2" for="timeline">Timeline</label>
+              <input class="w-full bg-zinc-900 border border-zinc-700 rounded-xl px-4 py-3" id="timeline" name="timeline" type="date">
+            </div>
+            <div id="voice-fields" data-voice-only hidden>
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
-              <div data-voice-only>
+              <div>
                 <label class="block text-sm font-medium mb-2" for="lines_seats">Lines or seats</label>
                 <input class="w-full bg-zinc-900 border border-zinc-700 rounded-xl px-4 py-3" id="lines_seats" name="lines_seats" type="text" inputmode="numeric" maxlength="8" placeholder="Number of seats">
               </div>
-              <div>
-                <label class="block text-sm font-medium mb-2" for="timeline">Timeline</label>
-                <input class="w-full bg-zinc-900 border border-zinc-700 rounded-xl px-4 py-3" id="timeline" name="timeline" type="date">
-              </div>
-            </div>
-            <div class="mt-6">
-              <label class="block text-sm font-medium mb-2" for="price_point">Price point (optional)</label>
-              <input class="w-full bg-zinc-900 border border-zinc-700 rounded-xl px-4 py-3" id="price_point" name="price_point" type="text" inputmode="decimal" maxlength="20" placeholder="Optional" autocomplete="off">
-            </div>
-            <div data-voice-only>
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
               <div>
                 <label class="block text-sm font-medium mb-2" for="voice_type">Voice type</label>
                 <select class="w-full bg-zinc-900 border border-zinc-700 rounded-xl px-4 py-3" id="voice_type">
@@ -1332,32 +1332,11 @@
                 <label class="block text-sm font-medium mb-2" for="employees">Employees</label>
                 <input class="w-full bg-zinc-900 border border-zinc-700 rounded-xl px-4 py-3" id="employees" type="text" inputmode="numeric" maxlength="8">
               </div>
-            </div>
-            <div class="mt-6">
-              <label class="block text-sm font-medium mb-2" for="website">Website</label>
-              <input class="w-full bg-zinc-900 border border-zinc-700 rounded-xl px-4 py-3" id="website" type="text" maxlength="200">
-            </div>
-            </div>
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6" data-network-only>
               <div>
-                <label class="block text-sm font-medium mb-2" for="connection_type">Connection type</label>
-                <select class="w-full bg-zinc-900 border border-zinc-700 rounded-xl px-4 py-3" id="connection_type">
-                  <option value="">Choose</option>
-                  <option>Fiber</option>
-                  <option>Broadband</option>
-                  <option>Coax</option>
-                  <option>Fixed</option>
-                  <option>Wireless</option>
-                  <option>Satellite</option>
-                  <option>T-1</option>
-                  <option>EOC</option>
-                  <option>I don't know</option>
-                </select>
+                <label class="block text-sm font-medium mb-2" for="website">Website</label>
+                <input class="w-full bg-zinc-900 border border-zinc-700 rounded-xl px-4 py-3" id="website" type="text" maxlength="200">
               </div>
-              <div>
-                <label class="block text-sm font-medium mb-2" for="bandwidth">Bandwidth in Mbps</label>
-                <input class="w-full bg-zinc-900 border border-zinc-700 rounded-xl px-4 py-3" id="bandwidth" type="text" inputmode="decimal" maxlength="8">
-              </div>
+            </div>
             </div>
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
               <div>
@@ -1552,20 +1531,20 @@
       setVendor(title ? title.textContent : "");
     });
 
-    // Every path collects the opportunity must-haves (term, timeline, review box).
-    // Network fields show for internet, SD-WAN, or both. Voice fields show only
-    // when voice is selected.
+    // Each question is asked once. Every path collects the opportunity
+    // must-haves (term, timeline, review box). Speed and connection type show
+    // for internet, SD-WAN, or both. Voice fields show for voice or both.
     function syncPath() {
       var path = value("path");
-      var voice = path === "voice" || path === "both" || checked("svc_voice");
-      var network = path === "internet" || path === "both" || path === "sdwan" || checked("svc_network") || checked("svc_sdwan");
+      var voice = path === "voice" || path === "both";
+      var network = path === "internet" || path === "both" || path === "sdwan";
       document.getElementById("long-path").hidden = !path;
-      form.querySelectorAll("[data-voice-only]").forEach(function (el) { el.hidden = !voice; });
-      form.querySelectorAll("[data-network-only]").forEach(function (el) { el.hidden = !network; });
+      document.getElementById("voice-fields").hidden = !voice;
+      document.getElementById("network-fields").hidden = !network;
+      document.getElementById("speeds").required = network;
+      document.getElementById("access_type").required = network;
     }
-    ["path", "svc_voice", "svc_network", "svc_sdwan"].forEach(function (id) {
-      document.getElementById(id).addEventListener("change", syncPath);
-    });
+    document.getElementById("path").addEventListener("change", syncPath);
     syncPath();
 
     function value(id) {
@@ -1598,7 +1577,14 @@
       result.scrollIntoView({ block: "nearest" });
     }
 
+    // Only questions on screen are sent. Speed in Mbps also fills the draft
+    // bandwidth, connection type also fills the fiber-or-broadband answer, and
+    // budget also fills the price point. The server does that mapping.
     function payload() {
+      var path = value("path");
+      var voice = path === "voice" || path === "both";
+      var network = path === "internet" || path === "both" || path === "sdwan";
+      function shown(on, id) { return on ? value(id) : ""; }
       return {
         flow: "business",
         source: "ui",
@@ -1614,26 +1600,18 @@
         country: value("country"),
         suite: value("suite"),
         suiteNotNeeded: checked("suite_not_needed"),
-        path: value("path"),
+        path: path,
         vendor: vendor,
-        speeds: value("speeds"),
-        accessType: value("access_type"),
+        speeds: shown(network, "speeds"),
+        accessType: shown(network, "access_type"),
         budget: value("budget"),
-        servicesSelected: [
-          checked("svc_network") ? "network" : "",
-          checked("svc_sdwan") ? "sdwan" : "",
-          checked("svc_voice") ? "voice" : "",
-          checked("svc_tv") ? "tv" : ""
-        ].filter(Boolean),
+        servicesSelected: checked("svc_tv") ? ["tv"] : [],
         term: { mtm: checked("term_mtm"), y1: checked("term_y1"), y2: checked("term_y2"), y3: checked("term_y3") },
-        seats: value("lines_seats"),
+        seats: shown(voice, "lines_seats"),
         dateNeeded: value("timeline"),
-        pricePoint: value("price_point"),
-        voiceType: value("voice_type"),
-        employees: value("employees"),
-        website: value("website"),
-        connectionType: value("connection_type"),
-        bandwidthMbps: value("bandwidth"),
+        voiceType: shown(voice, "voice_type"),
+        employees: shown(voice, "employees"),
+        website: shown(voice, "website"),
         currentProvider: value("current_provider"),
         contractEnd: value("contract_end"),
         roe: checked("roe"),
