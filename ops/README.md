@@ -64,7 +64,7 @@ Subject:
 
 `path` is `internet`, `voice`, `both`, `ucaas`, or `sdwan`.
 
-The plain-text body has labeled lines (`Request ID`, `Path`, `Business`, `Prefilled vendor`, `Desired speeds`, `Fiber or broadband`, `Budget`, `Human follow-up`) and a fenced JSON block. Budget is `(not stated)` and JSON `null` unless the visitor typed a number. It is never filled in as 0. `Human follow-up` is `yes` for voice, both, UCaaS, and SD-WAN.
+The plain-text body has labeled lines (`Request ID`, `Path`, `Business`, `Prefilled vendor`, `Desired speeds`, `Connection type`, `Budget`, `Human follow-up`) and a fenced JSON block. Budget is `(not stated)` and JSON `null` unless the visitor typed a number. It is never filled in as 0. `Human follow-up` is `yes` for voice, both, UCaaS, and SD-WAN.
 
 The fenced JSON is:
 

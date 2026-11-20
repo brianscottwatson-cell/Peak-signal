@@ -282,7 +282,7 @@ export function buildIntakeNotice(record) {
     `Business: ${record.company}`,
     `Prefilled vendor: ${record.prefilledVendor || "(none)"}`,
     `Desired speeds: ${record.desiredSpeeds || ""}`,
-    `Fiber or broadband: ${record.accessType || ""}`,
+    `Connection type: ${record.accessType || ""}`,
     `Budget: ${record.budget == null ? "(not stated)" : record.budget}`,
     `Human follow-up: ${record.humanFollowUp ? "yes" : "no"}`,
     `Contact: ${record.contactName}`,
