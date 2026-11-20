@@ -84,8 +84,11 @@ export function acceptBusinessIntake(body, options = {}) {
   if (business.length < 2) errors.push(INTAKE_FIELDS.business);
   if (first.length < 1) errors.push(INTAKE_FIELDS.first);
   if (last.length < 1) errors.push(INTAKE_FIELDS.last);
-  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) errors.push(COPY.validation.email);
-  if (phone.length < 10 || phone.length > 11) errors.push(COPY.validation.phone);
+  if (!email && !phone) errors.push(COPY.validation.contact);
+  else {
+    if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) errors.push(COPY.validation.email);
+    if (phone && (phone.length < 10 || phone.length > 11)) errors.push(COPY.validation.phone);
+  }
 
   const address = validateAddress({
     country: body?.country,
@@ -153,7 +156,11 @@ export function acceptBusinessIntake(body, options = {}) {
   let opportunity = null;
   let opportunityError = "";
   if (long) {
-    if (!partner) {
+    // The opportunity draft requires both a contact email and a phone. A valid
+    // request may have only one, so skip the draft rather than fail it.
+    if (!email || !phone) {
+      opportunityError = "contact_incomplete";
+    } else if (!partner) {
       opportunityError = "partner_not_configured";
     } else {
       opportunity = buildDraft({
@@ -268,8 +275,8 @@ export function buildIntakeNotice(record) {
     `Budget: ${record.budget == null ? "(not stated)" : record.budget}`,
     `Human follow-up: ${record.humanFollowUp ? "yes" : "no"}`,
     `Contact: ${record.contactName}`,
-    `Email: ${record.contactEmail}`,
-    `Phone: ${record.contactPhone}`,
+    `Email: ${record.contactEmail || ""}`,
+    `Phone: ${record.contactPhone || ""}`,
     `Address: ${record.formatted}`,
     `Opportunity draft: ${record.opportunity ? "ready" : record.opportunityError || "not applicable"}`,
     "Customer email: not sent",

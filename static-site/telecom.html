@@ -1507,7 +1507,8 @@
   // On-page quote form. Posts to the quote-request API, which queues it when
   // the intake flag is on and sends Peak a notice when it is off. If the API
   // cannot be reached, the same fields go to the contact-form inbox so the
-  // request is not lost. Validation lives on the server, not here.
+  // request is not lost. Contact (email or phone) is also checked here so it
+  // matches the helper text; other validation lives on the server.
   (function () {
     var form = document.getElementById("quote-form");
     if (!form) return;
@@ -1517,6 +1518,9 @@
     var vendorLine = document.getElementById("vendor-line");
     var RECEIVED = "Peak Signal has the request. Our team will review it before anything is submitted. Nothing is ordered automatically.";
     var FAILED = "We could not save the request. Call 970-660-5088 or use the contact page. Nothing was ordered.";
+    var CONTACT = "Enter an email address or a phone number.";
+    var EMAIL = "Enter an email address.";
+    var PHONE = "Enter a phone number with at least 10 digits.";
     var key = (window.crypto && crypto.randomUUID) ? crypto.randomUUID() : "idem-" + Date.now();
     var sending = false;
     var vendor = "";
@@ -1647,23 +1651,36 @@
       Object.keys(body).forEach(function (name) {
         if (name === "_gotcha" || name === "idempotencyKey") return;
         var v = body[name];
+        if (v == null || v === "") return;
         lines.push(name + ": " + (typeof v === "object" ? JSON.stringify(v) : String(v)));
       });
+      var inboxBody = {
+        _subject: "Peak Signal telecom quote request — " + (body.business || "(no business)"),
+        message: lines.join("\n")
+      };
+      if (body.email) inboxBody.email = body.email;
       return fetch(form.getAttribute("data-inbox"), {
         method: "POST",
         headers: { Accept: "application/json", "Content-Type": "application/json" },
-        body: JSON.stringify({
-          _subject: "Peak Signal telecom quote request — " + (body.business || "(no business)"),
-          email: body.email,
-          message: lines.join("\n")
-        })
+        body: JSON.stringify(inboxBody)
       }).then(function (response) { return response.ok; });
     }
 
+    // Same rule as the server: email, phone, or both. Format-check only the ones given.
+    function contactErrors() {
+      var email = value("email").trim();
+      var digits = value("phone").replace(/\D/g, "");
+      if (!email && !digits) return [CONTACT];
+      var list = [];
+      if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) list.push(EMAIL);
+      if (digits && (digits.length < 10 || digits.length > 11)) list.push(PHONE);
+      return list;
+    }
+
     function fallBack(body) {
-      if (!form.reportValidity()) {
-        sending = false;
-        button.disabled = false;
+      var list = contactErrors();
+      if (list.length || !form.reportValidity()) {
+        showErrors(list.length ? list : [FAILED]);
         return;
       }
       sendToInbox(body).then(function (ok) {
@@ -1679,6 +1696,8 @@
       button.disabled = true;
       errors.hidden = true;
       var body = payload();
+      var local = contactErrors();
+      if (local.length) return showErrors(local);
       fetch("/api/telecom/quote-request", {
         method: "POST",
         headers: { Accept: "application/json", "Content-Type": "application/json" },
