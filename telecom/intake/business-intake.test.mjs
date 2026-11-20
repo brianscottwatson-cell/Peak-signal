@@ -12,6 +12,7 @@ import {
   buildIntakeNotice,
   parseIntakeEmail,
 } from "./business-quote.mjs";
+import { COPY } from "../../static-site/telecom-visitor-copy.mjs";
 import { loadOpportunitySchema, validateOpportunityDraft } from "./opportunity-schema.mjs";
 import { createDurableQueue } from "../queue/durable-queue.mjs";
 
@@ -739,6 +740,100 @@ test("old /telecom/quote links redirect to the on-page form with the same query"
   assert.match(router, /get\("\/telecom\/quote"[\s\S]{0,120}res\.redirect\(301, quoteRedirectTarget\(req\.originalUrl\)\)/);
   const vercel = JSON.parse(readFileSync(join(root, "vercel.json"), "utf8"));
   assert.ok(vercel.redirects.some((rule) => rule.source === "/telecom/quote" && rule.destination === "/telecom#quote"));
+});
+
+test("acceptBusinessIntake: email only or phone only is enough; both blank or a bad value fails", () => {
+  const now = new Date("2026-11-17T12:00:00Z");
+  const emailOnly = acceptBusinessIntake(internet({ phone: "", idempotencyKey: "idem-email-only" }), { catalog, env: partnerEnv, now });
+  assert.equal(emailOnly.ok, true, JSON.stringify(emailOnly.errors));
+  assert.equal(emailOnly.value.contactEmail, "ada@example.com");
+  assert.equal(emailOnly.value.contactPhone, "");
+  assert.equal(emailOnly.value.opportunity, null);
+  assert.equal(emailOnly.value.opportunityError, "contact_incomplete");
+  const notice = buildIntakeNotice({ id: "tq_test", queued: false, ...emailOnly.value });
+  assert.match(notice.text, /^Email: ada@example.com$/m);
+  assert.match(notice.text, /^Phone: $/m);
+  assert.doesNotMatch(notice.text, /undefined/);
+  assert.equal(notice.replyTo, "ada@example.com");
+
+  const phoneOnly = acceptBusinessIntake(internet({ email: "", phone: "312-555-0142", idempotencyKey: "idem-phone-only" }), { catalog, env: partnerEnv, now });
+  assert.equal(phoneOnly.ok, true, JSON.stringify(phoneOnly.errors));
+  assert.equal(phoneOnly.value.contactEmail, "");
+  assert.equal(phoneOnly.value.contactPhone, "3125550142");
+  assert.equal(phoneOnly.value.opportunity, null);
+  assert.equal(phoneOnly.value.opportunityError, "contact_incomplete");
+  const phoneNotice = buildIntakeNotice({ id: "tq_test2", queued: false, ...phoneOnly.value });
+  assert.match(phoneNotice.text, /^Email: $/m);
+  assert.match(phoneNotice.text, /^Phone: 3125550142$/m);
+  assert.doesNotMatch(phoneNotice.text, /undefined/);
+  assert.equal(phoneNotice.replyTo, "");
+
+  const blank = acceptBusinessIntake(internet({ email: "", phone: "" }), { catalog, env: partnerEnv, now });
+  assert.equal(blank.ok, false);
+  assert.deepEqual(blank.errors, [COPY.validation.contact]);
+
+  const badEmail = acceptBusinessIntake(internet({ email: "not-an-email", phone: "3125550142" }), { catalog, env: partnerEnv, now });
+  assert.equal(badEmail.ok, false);
+  assert.ok(badEmail.errors.includes(COPY.validation.email), JSON.stringify(badEmail.errors));
+  assert.equal(badEmail.errors.includes(COPY.validation.contact), false);
+  assert.equal(badEmail.errors.includes(COPY.validation.phone), false);
+
+  const badPhone = acceptBusinessIntake(internet({ email: "ada@example.com", phone: "555" }), { catalog, env: partnerEnv, now });
+  assert.equal(badPhone.ok, false);
+  assert.ok(badPhone.errors.includes(COPY.validation.phone), JSON.stringify(badPhone.errors));
+  assert.equal(badPhone.errors.includes(COPY.validation.contact), false);
+  assert.equal(badPhone.errors.includes(COPY.validation.email), false);
+});
+
+test("/telecom form: email only is accepted, and a missing or bad contact method is shown on the page", async () => {
+  const { service, calls, cleanup } = harness({ PEAK_FORMSPREE: "https://formspree.test/f/peak" });
+  try {
+    const page = mountForm({ api: serviceApi(service) });
+    page.fill({ ...PAGE_INTERNET, phone: "" });
+    await page.submit();
+    assert.equal(page.els.get("quote-result").hidden, false);
+    assert.match(page.els.get("quote-reference").textContent, /^Reference ID: tq_/);
+    const shownOk = page.els.get("quote-errors").children.map((child) => child.textContent);
+    assert.equal(shownOk.includes(COPY.validation.phone), false);
+    assert.equal(calls.length, 1);
+    assert.doesNotMatch(JSON.parse(calls[0].init.body).message, /undefined/);
+
+    const blank = mountForm({ api: async () => assert.fail("blank contact should not reach the API") });
+    blank.fill({ ...PAGE_INTERNET, email: "", phone: "" });
+    await blank.submit();
+    assert.equal(blank.els.get("quote-errors").hidden, false);
+    const shown = blank.els.get("quote-errors").children.map((child) => child.textContent);
+    assert.deepEqual(shown, [COPY.validation.contact]);
+    assert.equal(blank.inbox.length, 0);
+
+    const badEmail = mountForm({ api: async () => assert.fail("bad email should not reach the API") });
+    badEmail.fill({ ...PAGE_INTERNET, email: "not-an-email", phone: "3125550142" });
+    await badEmail.submit();
+    const emailShown = badEmail.els.get("quote-errors").children.map((child) => child.textContent);
+    assert.deepEqual(emailShown, [COPY.validation.email]);
+
+    const badPhone = mountForm({ api: async () => assert.fail("bad phone should not reach the API") });
+    badPhone.fill({ ...PAGE_INTERNET, email: "ada@example.com", phone: "555" });
+    await badPhone.submit();
+    const phoneShown = badPhone.els.get("quote-errors").children.map((child) => child.textContent);
+    assert.deepEqual(phoneShown, [COPY.validation.phone]);
+  } finally {
+    cleanup();
+  }
+});
+
+test("/telecom form, API down: a failed required check shows an error instead of failing silently", async () => {
+  const page = mountForm({
+    api: async () => ({ ok: false, status: 404, json: async () => ({ ok: false, error: "disabled" }) }),
+  });
+  page.fill(PAGE_INTERNET);
+  page.els.get("quote-form").reportValidity = () => false;
+  await page.submit();
+  assert.equal(page.els.get("quote-result").hidden, true);
+  assert.equal(page.els.get("quote-errors").hidden, false);
+  const shown = page.els.get("quote-errors").children.map((child) => child.textContent);
+  assert.ok(shown.length > 0, JSON.stringify(shown));
+  assert.equal(page.inbox.length, 0);
 });
 
 test("the chat mounts only with PEAK_TELECOM_CHAT=1, and the form stays on the page with it", () => {
