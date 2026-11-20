@@ -79,7 +79,7 @@ function copied(payload: Payload): boolean {
 
 const logged = "CAlogged";
 await post("/api/voice", { CallSid: logged, From: CALLER, To: "+15555550100", Called: "+15555550100" });
-const logResult = JSON.parse(applyVoiceTool(logged, "log_qualification", {
+const logResult = JSON.parse(await applyVoiceTool(logged, "log_qualification", {
   name: "Ada",
   business: "Example Shop",
   need: "A new site",
@@ -96,8 +96,8 @@ assert(sent.length === 0, "logged hangup sent twice");
 
 async function unconfirmed(sid: string, tool: string, args: Record<string, unknown>) {
   await post("/api/voice", { CallSid: sid, From: CALLER, To: "+15555550100", Called: "+15555550100" });
-  applyVoiceTool(sid, "log_qualification", { name: "Ada", business: "Example Shop", need: "A new site" });
-  const result = JSON.parse(applyVoiceTool(sid, tool, args));
+  await applyVoiceTool(sid, "log_qualification", { name: "Ada", business: "Example Shop", need: "A new site" });
+  const result = JSON.parse(await applyVoiceTool(sid, tool, args));
   assert(result.ok === true, `${tool} ${JSON.stringify(result)}`);
   assert(result.confirmed === undefined, `${tool} set confirmed`);
   recordCallerUtterance(sid, "Please send that.");
@@ -112,7 +112,7 @@ await unconfirmed("CAlink", "send_booking_link", { channel: "email", email: LEAD
 
 const confirmed = "CAconfirm";
 await post("/api/voice", { CallSid: confirmed, From: CALLER, To: "+15555550100", Called: "+15555550100" });
-const confirmResult = JSON.parse(applyVoiceTool(confirmed, "confirm_lead", {
+const confirmResult = JSON.parse(await applyVoiceTool(confirmed, "confirm_lead", {
   name: "Ada",
   business: "Example Shop",
   need: "A new site",
@@ -120,7 +120,7 @@ const confirmResult = JSON.parse(applyVoiceTool(confirmed, "confirm_lead", {
   email: LEAD,
 }));
 assert(confirmResult.ok === true, JSON.stringify(confirmResult));
-applyVoiceTool(confirmed, "book_intro", { email: LEAD });
+await applyVoiceTool(confirmed, "book_intro", { email: LEAD });
 recordCallerUtterance(confirmed, "Yes, that is right.");
 sent = await hangup(confirmed);
 assert(sent.length === 1, `confirm emails ${sent.length}`);
@@ -128,8 +128,8 @@ assert(copied(sent[0]), `confirmed caller was not copied ${JSON.stringify(sent[0
 
 const rejected = "CAreject";
 await post("/api/voice", { CallSid: rejected, From: CALLER, To: "+15555550100", Called: "+15555550100" });
-applyVoiceTool(rejected, "log_qualification", { email: LEAD });
-const rejectResult = JSON.parse(applyVoiceTool(rejected, "confirm_lead", { email: LEAD }));
+await applyVoiceTool(rejected, "log_qualification", { email: LEAD });
+const rejectResult = JSON.parse(await applyVoiceTool(rejected, "confirm_lead", { email: LEAD }));
 assert(rejectResult.ok === false, JSON.stringify(rejectResult));
 recordCallerUtterance(rejected, "Hello.");
 sent = await hangup(rejected);
