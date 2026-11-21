@@ -915,13 +915,13 @@ test("acceptBusinessIntake: email only or phone only is enough; both blank or a 
   assert.ok(emailOnly.value.opportunity, "a one-contact request still gets a loc8 draft");
   assert.equal(emailOnly.value.opportunity.customer.contactEmail, emailOnly.value.contactEmail);
   assert.equal("contactPhone" in emailOnly.value.opportunity.customer, false);
-  assert.match(emailOnly.value.opportunity.notes.opportunityNotes, /Add the contact phone before submitting to Loc8\./);
+  assert.match(emailOnly.value.opportunity.notes.opportunityNotes, /Add the contact phone before submitting to loc8\./);
   const notice = buildIntakeNotice({ id: "tq_test", queued: false, ...emailOnly.value });
   assert.match(notice.text, /^Email: ada@example.com$/m);
   assert.match(notice.text, /^Phone: $/m);
   assert.doesNotMatch(notice.text, /undefined/);
   assert.equal(notice.replyTo, "ada@example.com");
-  assert.match(notice.text, /^Opportunity draft: ready, add phone before submitting to Loc8$/m);
+  assert.match(notice.text, /^Opportunity draft: ready, add phone before submitting to loc8$/m);
 
   const phoneOnly = acceptBusinessIntake(internet({ email: "", phone: "312-555-0142", idempotencyKey: "idem-phone-only" }), { catalog, env: partnerEnv, now });
   assert.equal(phoneOnly.ok, true, JSON.stringify(phoneOnly.errors));
@@ -932,13 +932,13 @@ test("acceptBusinessIntake: email only or phone only is enough; both blank or a 
   assert.ok(phoneOnly.value.opportunity, "a one-contact request still gets a loc8 draft");
   assert.equal(phoneOnly.value.opportunity.customer.contactPhone, phoneOnly.value.contactPhone);
   assert.equal("contactEmail" in phoneOnly.value.opportunity.customer, false);
-  assert.match(phoneOnly.value.opportunity.notes.opportunityNotes, /Add the contact email before submitting to Loc8\./);
+  assert.match(phoneOnly.value.opportunity.notes.opportunityNotes, /Add the contact email before submitting to loc8\./);
   const phoneNotice = buildIntakeNotice({ id: "tq_test2", queued: false, ...phoneOnly.value });
   assert.match(phoneNotice.text, /^Email: $/m);
   assert.match(phoneNotice.text, /^Phone: 3125550142$/m);
   assert.doesNotMatch(phoneNotice.text, /undefined/);
   assert.equal(phoneNotice.replyTo, "");
-  assert.match(phoneNotice.text, /^Opportunity draft: ready, add email before submitting to Loc8$/m);
+  assert.match(phoneNotice.text, /^Opportunity draft: ready, add email before submitting to loc8$/m);
 
   const blank = acceptBusinessIntake(internet({ email: "", phone: "" }), { catalog, env: partnerEnv, now });
   assert.equal(blank.ok, false);

@@ -168,9 +168,9 @@ export function acceptBusinessIntake(body, options = {}) {
   let opportunityError = "";
   const opportunityMissing = long ? [!email && "email", !phone && "phone"].filter(Boolean) : [];
   if (long) {
-    // Loc8 requires both a contact email and a phone. A valid request may have
+    // loc8 requires both a contact email and a phone. A valid request may have
     // only one, so the draft is still built with the missing field left out and
-    // named in opportunityMissing; Peak adds it before anything goes to Loc8.
+    // named in opportunityMissing; Peak adds it before anything goes to loc8.
     if (!partner) {
       opportunityError = "partner_not_configured";
     } else {
@@ -346,8 +346,8 @@ function buildDraft(input) {
   if (input.currentProvider) notes.push(`Current provider: ${input.currentProvider}.`);
   if (input.contractEnd) notes.push(`Contract end: ${input.contractEnd}.`);
   if (input.extraNotes) notes.push(input.extraNotes);
-  if (!input.email) notes.push("Add the contact email before submitting to Loc8.");
-  if (!input.phone) notes.push("Add the contact phone before submitting to Loc8.");
+  if (!input.email) notes.push("Add the contact email before submitting to loc8.");
+  if (!input.phone) notes.push("Add the contact phone before submitting to loc8.");
   notes.push("SANDBOX");
 
   const draft = {
@@ -407,7 +407,7 @@ function opportunityStatus(record) {
   if (!record.opportunity) return record.opportunityError || "not applicable";
   const missing = record.opportunityMissing || [];
   if (!missing.length) return "ready";
-  return `ready, add ${missing.join(" and ")} before submitting to Loc8`;
+  return `ready, add ${missing.join(" and ")} before submitting to loc8`;
 }
 
 function resolvePath(body) {
