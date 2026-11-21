@@ -166,12 +166,12 @@ export function acceptBusinessIntake(body, options = {}) {
   const statedPrice = price.value != null ? price.value : budget.value;
   let opportunity = null;
   let opportunityError = "";
+  const opportunityMissing = long ? [!email && "email", !phone && "phone"].filter(Boolean) : [];
   if (long) {
-    // The opportunity draft requires both a contact email and a phone. A valid
-    // request may have only one, so skip the draft rather than fail it.
-    if (!email || !phone) {
-      opportunityError = "contact_incomplete";
-    } else if (!partner) {
+    // loc8 requires both a contact email and a phone. A valid request may have
+    // only one, so the draft is still built with the missing field left out and
+    // named in opportunityMissing; Peak adds it before anything goes to loc8.
+    if (!partner) {
       opportunityError = "partner_not_configured";
     } else {
       opportunity = buildDraft({
@@ -204,8 +204,12 @@ export function acceptBusinessIntake(body, options = {}) {
         extraNotes: clip(body?.notes, 2000),
       });
       const checked = validateOpportunityDraft(opportunity, schema);
-      if (!checked.ok) {
-        const partnerOnly = checked.errors.every((item) => item.startsWith("$.partner"));
+      const missingErrors = new Set(
+        opportunityMissing.map((field) => `$.customer.${MISSING_CONTACT_KEYS[field]} is required`),
+      );
+      const remaining = checked.ok ? [] : checked.errors.filter((item) => !missingErrors.has(item));
+      if (remaining.length) {
+        const partnerOnly = remaining.every((item) => item.startsWith("$.partner"));
         if (!partnerOnly) return { ok: false, errors: [INTAKE_FIELDS.save] };
         opportunity = null;
         opportunityError = "partner_invalid";
@@ -245,6 +249,7 @@ export function acceptBusinessIntake(body, options = {}) {
     pricing: "Peak Signal will follow up with options.",
     opportunity,
     opportunityError,
+    opportunityMissing: opportunity ? opportunityMissing : [],
     returnedPricing: null,
   };
   value.fingerprint = createHash("sha256").update(JSON.stringify({
@@ -289,7 +294,7 @@ export function buildIntakeNotice(record) {
     `Email: ${record.contactEmail || ""}`,
     `Phone: ${record.contactPhone || ""}`,
     `Address: ${record.formatted}`,
-    `Opportunity draft: ${record.opportunity ? "ready" : record.opportunityError || "not applicable"}`,
+    `Opportunity draft: ${opportunityStatus(record)}`,
     "Customer email: not sent",
     ...(record.queued === false ? ["Queue: not stored (intake flag off). Follow up from this email."] : []),
     "",
@@ -341,6 +346,8 @@ function buildDraft(input) {
   if (input.currentProvider) notes.push(`Current provider: ${input.currentProvider}.`);
   if (input.contractEnd) notes.push(`Contract end: ${input.contractEnd}.`);
   if (input.extraNotes) notes.push(input.extraNotes);
+  if (!input.email) notes.push("Add the contact email before submitting to loc8.");
+  if (!input.phone) notes.push("Add the contact phone before submitting to loc8.");
   notes.push("SANDBOX");
 
   const draft = {
@@ -354,8 +361,6 @@ function buildDraft(input) {
       businessName: input.business,
       contactFirstName: input.first,
       contactLastName: input.last,
-      contactEmail: input.email,
-      contactPhone: input.phone,
       locationCount: 1,
       address,
     },
@@ -376,6 +381,9 @@ function buildDraft(input) {
     },
   };
 
+  if (input.email) draft.customer.contactEmail = input.email;
+  if (input.phone) draft.customer.contactPhone = input.phone;
+
   if (input.needsNetwork) {
     draft.networkConnectivity = {
       connectivityType: input.connectionType,
@@ -391,6 +399,15 @@ function buildDraft(input) {
     };
   }
   return draft;
+}
+
+const MISSING_CONTACT_KEYS = { email: "contactEmail", phone: "contactPhone" };
+
+function opportunityStatus(record) {
+  if (!record.opportunity) return record.opportunityError || "not applicable";
+  const missing = record.opportunityMissing || [];
+  if (!missing.length) return "ready";
+  return `ready, add ${missing.join(" and ")} before submitting to loc8`;
 }
 
 function resolvePath(body) {
