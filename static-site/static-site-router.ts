@@ -90,6 +90,27 @@ staticSiteRouter.get("/contact", (_req: Request, res: Response) => {
 
 staticSiteRouter.get("/contact.html", redirectClean("/contact"));
 
+// Launch-hold page (noindex, not in sitemap or llms.txt). build.mjs must copy grok.html and images/grok/GrokBot-Wordmark-Wht.png.
+staticSiteRouter.get("/grok", (_req: Request, res: Response) => {
+  const html = load("grok.html");
+  if (!html) return res.status(404).type("text").send("grok missing");
+  res.type("html").send(html);
+});
+
+staticSiteRouter.get("/grok.html", redirectClean("/grok"));
+
+// Official Grok Bot wordmark, served byte-identical. Allow-listed filename only.
+staticSiteRouter.get("/images/grok/:file", (req: Request, res: Response) => {
+  const raw = req.params.file;
+  const file = Array.isArray(raw) ? raw[0] : raw;
+  if (file !== "GrokBot-Wordmark-Wht.png") {
+    return res.status(404).type("text").send("image missing");
+  }
+  const body = loadBuffer(`images/grok/${file}`);
+  if (!body) return res.status(404).type("text").send("image missing");
+  res.type("image/png").send(body);
+});
+
 staticSiteRouter.get("/privacy", (_req: Request, res: Response) => {
   const html = load("privacy.html");
   if (!html) return res.status(404).type("text").send("privacy missing");
