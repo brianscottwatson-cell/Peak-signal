@@ -8,6 +8,7 @@
     { "source": "/telecom.html", "destination": "/telecom", "statusCode": 301 },
     { "source": "/telecom/quote", "destination": "/telecom#quote", "statusCode": 301 },
     { "source": "/contact.html", "destination": "/contact", "statusCode": 301 },
+    { "source": "/grok.html", "destination": "/grok", "statusCode": 301 },
     { "source": "/privacy.html", "destination": "/privacy", "statusCode": 301 },
     { "source": "/terms.html", "destination": "/terms", "statusCode": 301 },
     { "source": "/ai-websites-evergreen-co.html", "destination": "/ai-websites-evergreen-co", "statusCode": 301 },
@@ -27,6 +28,8 @@
   "rewrites": [
     { "source": "/", "destination": "/static-site/index.html" },
     { "source": "/contact", "destination": "/static-site/contact.html" },
+    { "source": "/grok", "destination": "/static-site/grok.html" },
+    { "source": "/images/grok/:file", "destination": "/static-site/images/grok/:file" },
     { "source": "/privacy", "destination": "/static-site/privacy.html" },
     { "source": "/terms", "destination": "/static-site/terms.html" },
     { "source": "/about", "destination": "/static-site/about.html" },

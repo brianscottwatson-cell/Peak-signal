@@ -88,6 +88,28 @@ Nav links are the anchors in the header `<nav>` (or the lander header nav). CTAs
   - Privacy → /privacy
   - Terms → /terms
 
+## /grok
+
+- Route: /grok
+- Source file: static-site/grok.html
+- Purpose: Launch-hold landing page for Grok Bot setup. noindex,nofollow; not in the sitemap, llms.txt or any nav until SpaceXSI approves in writing. A small inline script copies utm_source, utm_medium, utm_campaign, utm_content and utm_term from the page URL onto every booking link.
+- H1: Your team's new crew.
+- Key sections:
+  - Hero
+  - Three steps
+  - Partner marks
+  - Closing booking call
+- CTAs:
+  - Book a setup call → https://calendly.com/hello-peaksignal/30min
+  - Book a setup call → https://calendly.com/hello-peaksignal/30min
+  - Book a setup call → https://calendly.com/hello-peaksignal/30min
+- In-page links:
+  - Peak Signal home → /
+  - Privacy → /privacy
+  - Terms → /terms
+- Forms: none
+- JSON-LD @types: none
+
 ## /about
 
 - Route: /about
