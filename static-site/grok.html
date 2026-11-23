@@ -21,18 +21,16 @@
     body { font-family: 'Inter', system_ui, sans-serif; }
     .font-display { font-family: 'Space Grotesk', 'Inter', sans-serif; font-weight: 600; }
     .grok-bg { background: radial-gradient(ellipse 80% 60% at 85% 100%, #1e3a8a 0%, rgba(30,58,138,0) 70%), #09090b; }
-    /* Peak logo is always wider than either SpaceXSI mark. Marks are scaled by width only, height auto. */
+    /* Peak logo is always wider than the Grok Bot mark. Marks are scaled by width only, height auto. */
     .grok-peak-logo { display: inline-flex; align-items: center; gap: 12px; }
     .grok-peak-logo svg { width: 44px; height: 44px; }
     .grok-peak-logo span { font-size: 2rem; line-height: 1; letter-spacing: -0.05em; }
     .grok-mark { display: block; height: auto; }
-    .grok-mark-xsi { width: 170px; }
     .grok-mark-bot { width: 130px; }
     @media (min-width: 768px) {
       .grok-peak-logo { gap: 16px; }
       .grok-peak-logo svg { width: 56px; height: 56px; }
       .grok-peak-logo span { font-size: 2.6rem; }
-      .grok-mark-xsi { width: 240px; }
       .grok-mark-bot { width: 170px; }
     }
   </style>
@@ -69,12 +67,8 @@
       </div>
     </section>
 
-    <section class="py-12 border-t border-zinc-800" aria-label="Partner">
-      <div class="flex flex-wrap items-center gap-x-12 gap-y-8">
-        <img src="/images/grok/SpaceXSI_PartnerLockup_TransformationPartner_Dark_Clear_2884x504.png" width="2884" height="504" alt="SpaceX Super Intelligence Transformation Partner" class="grok-mark grok-mark-xsi">
-        <img src="/images/grok/GrokBot-Wordmark-Wht.png" width="2000" height="376" alt="Grok Bot" class="grok-mark grok-mark-bot">
-      </div>
-      <p class="text-zinc-400 mt-8">Peak Signal is a registered SpaceX Super Intelligence Transformation Partner.</p>
+    <section class="py-12 border-t border-zinc-800" aria-label="Grok Bot">
+      <img src="/images/grok/GrokBot-Wordmark-Wht.png" width="2000" height="376" alt="Grok Bot" class="grok-mark grok-mark-bot">
     </section>
 
     <section class="py-12 border-t border-zinc-800">

@@ -29,7 +29,7 @@
     { "source": "/", "destination": "/static-site/index.html" },
     { "source": "/contact", "destination": "/static-site/contact.html" },
     { "source": "/grok", "destination": "/static-site/grok.html" },
-    { "source": "/images/grok/:file", "destination": "/static-site/images/grok/:file" },
+    { "source": "/images/grok/GrokBot-Wordmark-Wht.png", "destination": "/static-site/images/grok/GrokBot-Wordmark-Wht.png" },
     { "source": "/privacy", "destination": "/static-site/privacy.html" },
     { "source": "/terms", "destination": "/static-site/terms.html" },
     { "source": "/about", "destination": "/static-site/about.html" },

@@ -21,7 +21,7 @@
 !static-site/images/telecom/*.png
 !static-site/images/telecom/*.webp
 !static-site/images/grok/
-!static-site/images/grok/*.png
+!static-site/images/grok/GrokBot-Wordmark-Wht.png
 !seo/
 !seo/landers/
 !seo/landers/*.html
