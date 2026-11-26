@@ -6,8 +6,7 @@
   <title>Your team's new crew. | Peak Signal</title>
   <meta name="description" content="Peak Signal sets up Grok Bot for your team. Book a setup call.">
   <meta name="robots" content="noindex,nofollow">
-  <!-- LinkedIn Insight Tag. An empty partner ID loads nothing. 10477556 is public. Conversion ID: paste the numeric ID from Campaign Manager (ad account 560853365) to send a conversion on each booking click; empty sends none. -->
-  <meta name="peak-linkedin-partner-id" content="10477556">
+  <!-- LinkedIn conversion ID: paste the numeric ID from Campaign Manager (ad account 560853365) to send a conversion on each booking click; empty sends none. The Insight Tag itself is site-wide, before </body>. -->
   <meta name="peak-linkedin-conversion-id" content="">
   <link rel="canonical" href="https://getpeaksignal.com/grok">
   <meta property="og:type" content="website">
@@ -130,20 +129,7 @@
       a.href = url.toString();
     });
 
-    var liPartner = meta("peak-linkedin-partner-id");
     var liConversion = meta("peak-linkedin-conversion-id");
-
-    if (liPartner) {
-      window._linkedin_partner_id = liPartner;
-      window._linkedin_data_partner_ids = window._linkedin_data_partner_ids || [];
-      window._linkedin_data_partner_ids.push(liPartner);
-      window.lintrk = function (a, b) { window.lintrk.q.push([a, b]); };
-      window.lintrk.q = [];
-      var l = document.createElement("script");
-      l.async = true;
-      l.src = "https://snap.licdn.com/li.lms-analytics/insight.min.js";
-      document.head.appendChild(l);
-    }
 
     // GA4 click event (the site-wide gtag is in <head>). The link opens normally.
     ctas.forEach(function (a) {
@@ -160,7 +146,7 @@
     });
 
     // Click conversion, only when a conversion ID is set. The link opens normally either way.
-    if (liPartner && liConversion) {
+    if (liConversion) {
       ctas.forEach(function (a) {
         a.addEventListener("click", function () {
           if (window.lintrk) window.lintrk("track", { conversion_id: Number(liConversion) });
@@ -169,6 +155,7 @@
     }
   })();
 </script>
+<!-- LinkedIn Insight Tag --><script type="text/javascript">_linkedin_partner_id = "10477556"; window._linkedin_data_partner_ids = window._linkedin_data_partner_ids || []; window._linkedin_data_partner_ids.push(_linkedin_partner_id);</script><script type="text/javascript">(function(l) { if (!l){window.lintrk = function(a,b){window.lintrk.q.push([a,b])}; window.lintrk.q=[]} var s = document.getElementsByTagName("script")[0]; var b = document.createElement("script"); b.type = "text/javascript";b.async = true; b.src = "https://snap.licdn.com/li.lms-analytics/insight.min.js"; s.parentNode.insertBefore(b, s);})(window.lintrk);</script><noscript><img height="1" width="1" style="display:none;" alt="" src="https://px.ads.linkedin.com/collect/?pid=10477556&fmt=gif" /></noscript><!-- End LinkedIn Insight Tag -->
 <!-- Cloudflare Web Analytics --><script type='module' src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "6a067e22aec645c6b9e360ce149ae7ad"}'></script><!-- End Cloudflare Web Analytics -->
 </body>
 </html>
