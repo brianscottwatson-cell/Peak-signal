@@ -6,6 +6,8 @@
   <title>Your team's new crew. | Peak Signal</title>
   <meta name="description" content="Peak Signal sets up Grok Bot for your team. Book a setup call.">
   <meta name="robots" content="noindex,nofollow">
+  <!-- LinkedIn conversion ID: paste the numeric ID from Campaign Manager (ad account 560853365) to send a conversion on each booking click; empty sends none. The Insight Tag itself is site-wide, before </body>. -->
+  <meta name="peak-linkedin-conversion-id" content="">
   <link rel="canonical" href="https://getpeaksignal.com/grok">
   <meta property="og:type" content="website">
   <meta property="og:title" content="Your team's new crew. | Peak Signal">
@@ -34,6 +36,7 @@
       .grok-mark-bot { width: 170px; }
     }
   </style>
+<!-- Google tag (gtag.js) --><script async src="https://www.googletagmanager.com/gtag/js?id=G-KKCMQKGMM3"></script><script>window.dataLayer = window.dataLayer || [];function gtag(){dataLayer.push(arguments);}gtag('js', new Date());gtag('config', 'G-KKCMQKGMM3');</script><!-- End Google tag -->
 </head>
 <body class="bg-zinc-950 text-zinc-200">
   <div class="grok-bg min-h-screen flex flex-col">
@@ -52,7 +55,7 @@
       <h1 class="font-display text-5xl md:text-7xl font-semibold tracking-tighter text-white max-w-3xl">Your team's new crew.</h1>
       <p class="text-xl md:text-2xl text-zinc-300 mt-6 max-w-2xl">Peak Signal sets up Grok Bot for your team.</p>
       <div class="mt-10">
-        <a href="https://calendly.com/hello-peaksignal/30min" target="_blank" rel="noopener" data-grok-cta class="inline-flex items-center justify-center px-8 py-4 bg-blue-500 text-white font-semibold rounded-full hover:bg-blue-400 transition-colors text-lg">Book a setup call</a>
+        <a href="https://calendly.com/hello-peaksignal/30min" target="_blank" rel="noopener" data-grok-cta="hero" class="inline-flex items-center justify-center px-8 py-4 bg-blue-500 text-white font-semibold rounded-full hover:bg-blue-400 transition-colors text-lg">Book a setup call</a>
       </div>
     </section>
 
@@ -63,8 +66,28 @@
         <li><p class="font-display text-blue-400 text-lg mb-2">03</p><p class="text-xl text-white font-medium">We deploy your Bots and stay on as steward</p></li>
       </ol>
       <div class="mt-10">
-        <a href="https://calendly.com/hello-peaksignal/30min" target="_blank" rel="noopener" data-grok-cta class="inline-flex items-center justify-center px-8 py-4 bg-blue-500 text-white font-semibold rounded-full hover:bg-blue-400 transition-colors text-lg">Book a setup call</a>
+        <a href="https://calendly.com/hello-peaksignal/30min" target="_blank" rel="noopener" data-grok-cta="steps" class="inline-flex items-center justify-center px-8 py-4 bg-blue-500 text-white font-semibold rounded-full hover:bg-blue-400 transition-colors text-lg">Book a setup call</a>
       </div>
+    </section>
+
+    <section class="py-12 border-t border-zinc-800" aria-labelledby="grok-proof-heading">
+      <h2 id="grok-proof-heading" class="font-display text-3xl font-semibold tracking-tighter text-white mb-4">Proof</h2>
+      <p class="text-zinc-300 leading-relaxed">Colorado Hot Tub is a site, search, phone, and email build. It is not a full AI operating system deployment.</p>
+      <div class="mt-6 max-w-3xl bg-zinc-900 border border-zinc-800 rounded-3xl p-6">
+        <p class="text-sm text-zinc-400 mb-4">Colorado Hot Tub</p>
+        <p class="text-zinc-100 font-medium">+633% Calls from Google</p>
+        <p class="mt-2 text-zinc-100 font-medium">+272% Website visits</p>
+        <p class="mt-4 text-sm text-zinc-400">Source: Google Business Profile performance report, August 2026 vs. July 2026.</p>
+      </div>
+    </section>
+
+    <section class="py-12 border-t border-zinc-800" aria-labelledby="grok-get-heading">
+      <h2 id="grok-get-heading" class="font-display text-3xl font-semibold tracking-tighter text-white mb-6">What you get</h2>
+      <ul class="space-y-3 text-lg text-zinc-300 max-w-3xl list-disc pl-6">
+        <li>A setup call</li>
+        <li>A map of your work, and an introduction to SpaceXSI</li>
+        <li>Your Bots deployed, with Peak Signal on as steward</li>
+      </ul>
     </section>
 
     <section class="py-12 border-t border-zinc-800" aria-label="Grok Bot">
@@ -72,7 +95,8 @@
     </section>
 
     <section class="py-12 border-t border-zinc-800">
-      <a href="https://calendly.com/hello-peaksignal/30min" target="_blank" rel="noopener" data-grok-cta class="inline-flex items-center justify-center px-8 py-4 bg-blue-500 text-white font-semibold rounded-full hover:bg-blue-400 transition-colors text-lg">Book a setup call</a>
+      <a href="https://calendly.com/hello-peaksignal/30min" target="_blank" rel="noopener" data-grok-cta="closing" class="inline-flex items-center justify-center px-8 py-4 bg-blue-500 text-white font-semibold rounded-full hover:bg-blue-400 transition-colors text-lg">Book a setup call</a>
+      <p class="mt-6 text-zinc-400">Not ready to book? <a href="/contact" class="text-zinc-200 underline underline-offset-4">Send us a note</a>.</p>
     </section>
   </main>
 
@@ -88,16 +112,50 @@
   </div>
 <script>
   (function () {
+    function meta(name) {
+      var el = document.querySelector('meta[name="' + name + '"]');
+      return el ? el.content.trim() : "";
+    }
     var keys = ["utm_source", "utm_medium", "utm_campaign", "utm_content", "utm_term"];
     var params = new URLSearchParams(window.location.search);
     var found = keys.filter(function (k) { return params.get(k); });
-    if (!found.length) return;
-    document.querySelectorAll("a[data-grok-cta]").forEach(function (a) {
+    var ctas = document.querySelectorAll("a[data-grok-cta]");
+
+    // UTM passthrough: copy the page's UTMs onto every booking link.
+    ctas.forEach(function (a) {
+      if (!found.length) return;
       var url = new URL(a.href);
       found.forEach(function (k) { url.searchParams.set(k, params.get(k)); });
       a.href = url.toString();
     });
+
+    var liConversion = meta("peak-linkedin-conversion-id");
+
+    // GA4 click event (the site-wide gtag is in <head>). The link opens normally.
+    ctas.forEach(function (a) {
+      a.addEventListener("click", function () {
+        if (typeof window.gtag !== "function") return;
+        window.gtag("event", "book_setup_call_click", {
+          cta_position: a.getAttribute("data-grok-cta"),
+          utm_source: params.get("utm_source") || "",
+          utm_campaign: params.get("utm_campaign") || "",
+          utm_content: params.get("utm_content") || "",
+          transport_type: "beacon"
+        });
+      });
+    });
+
+    // Click conversion, only when a conversion ID is set. The link opens normally either way.
+    if (liConversion) {
+      ctas.forEach(function (a) {
+        a.addEventListener("click", function () {
+          if (window.lintrk) window.lintrk("track", { conversion_id: Number(liConversion) });
+        });
+      });
+    }
   })();
 </script>
+<!-- LinkedIn Insight Tag --><script type="text/javascript">_linkedin_partner_id = "10477556"; window._linkedin_data_partner_ids = window._linkedin_data_partner_ids || []; window._linkedin_data_partner_ids.push(_linkedin_partner_id);</script><script type="text/javascript">(function(l) { if (!l){window.lintrk = function(a,b){window.lintrk.q.push([a,b])}; window.lintrk.q=[]} var s = document.getElementsByTagName("script")[0]; var b = document.createElement("script"); b.type = "text/javascript";b.async = true; b.src = "https://snap.licdn.com/li.lms-analytics/insight.min.js"; s.parentNode.insertBefore(b, s);})(window.lintrk);</script><noscript><img height="1" width="1" style="display:none;" alt="" src="https://px.ads.linkedin.com/collect/?pid=10477556&fmt=gif" /></noscript><!-- End LinkedIn Insight Tag -->
+<!-- Cloudflare Web Analytics --><script type='module' src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "6a067e22aec645c6b9e360ce149ae7ad"}'></script><!-- End Cloudflare Web Analytics -->
 </body>
 </html>

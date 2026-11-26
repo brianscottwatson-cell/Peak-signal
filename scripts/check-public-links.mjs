@@ -11,6 +11,8 @@
  *       Replit, or 301 www to the apex
  *   (d) fails if .vercelignore drops a public file or uploads a private one
  *   (e) fails unless each public HTML page has the Cloudflare beacon once
+ *   (f) fails unless every public page file (listPublicRoutes, /grok included)
+ *       has the GA4 tag once and the LinkedIn Insight Tag once
  *
  * Usage: node scripts/check-public-links.mjs
  */
@@ -20,6 +22,7 @@ import { existsSync, mkdirSync, mkdtempSync, readdirSync, readFileSync, writeFil
 import { tmpdir } from "node:os";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
+import { listPublicRoutes } from "./public-html.mjs";
 
 const root = join(dirname(fileURLToPath(import.meta.url)), "..");
 const SITE = "https://getpeaksignal.com";
@@ -101,6 +104,24 @@ const banned = [
 ];
 
 const beacon = "6a067e22aec645c6b9e360ce149ae7ad";
+const ga4Tag = 'src="https://www.googletagmanager.com/gtag/js?id=G-KKCMQKGMM3"';
+const ga4Config = "gtag('config', 'G-KKCMQKGMM3');";
+const linkedInTag = '_linkedin_partner_id = "10477556";';
+const linkedInLoader = "https://snap.licdn.com/li.lms-analytics/insight.min.js";
+
+function checkTags() {
+  for (const route of listPublicRoutes(root)) {
+    if (route.kind !== "page") continue;
+    for (const file of route.files) {
+      const html = readFileSync(join(root, file), "utf8");
+      const tags = [[ga4Tag, "GA4 loader"], [ga4Config, "GA4 config"], [linkedInTag, "LinkedIn partner ID"], [linkedInLoader, "LinkedIn loader"]];
+      for (const [needle, label] of tags) {
+        const n = html.split(needle).length - 1;
+        if (n !== 1) fail(`${file} has the ${label} ${n} times`);
+      }
+    }
+  }
+}
 const staleRootCopies = ["index.html", "contact.html", "privacy.html", "terms.html"];
 
 const failures = [];
@@ -356,6 +377,7 @@ async function main() {
     }
 
     assertVercelConfig();
+    checkTags();
 
     for (const [source, destination] of Object.entries(htmlRedirects)) {
       const redirected = await fetch(`http://127.0.0.1:${port}${source}?qa=1`, { redirect: "manual" });
@@ -432,7 +454,7 @@ async function main() {
     }
 
     console.log(`OK: ${pages.size} public pages, ${sitemapLocs.length} sitemap URLs, ${checked.length} internal hrefs.`);
-    console.log("Banned phrases absent. Cloudflare beacon once per page.");
+    console.log("Banned phrases absent. Cloudflare beacon once per page. GA4 and LinkedIn Insight tags once per page file.");
     console.log("vercel.json serves static-site/ and seo/, proxies /api/(.*) to Replit, 301s www to the apex, and sends X-Robots-Tag: noindex.");
     console.log("Express routers do not read vercel.json and do not set X-Robots-Tag.");
     console.log("Home #system, #offers, and #how resolve.");

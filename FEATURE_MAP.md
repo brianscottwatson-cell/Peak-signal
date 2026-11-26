@@ -8,6 +8,8 @@ These routes come from `static-site/*.html`, `static-site/guides/*.html` (served
 
 Nav links are the anchors in the header `<nav>` (or the lander header nav). CTAs are the button-style actions. A control that is both is listed in both places.
 
+Every public page loads Google Analytics 4 (G-KKCMQKGMM3) with the standard gtag.js snippet in `<head>`, then the LinkedIn Insight Tag (partner 10477556, standard snippet) and the Cloudflare Web Analytics snippet before `</body>`. All three load for every visitor (no Do Not Track or Global Privacy Control skip). `scripts/check-public-links.mjs` fails if a public page file lacks the GA4 tag or the LinkedIn Insight Tag, or has either twice.
+
 `scripts/check-seo.mjs` checks the HTML pages in this map, except `/sitemap.xml` and `/robots.txt`. It runs in the guardrail workflow. After HTML entities and whitespace are normalized, `<title>` must equal `<h1 text> | Peak Signal`. A page that needs a different title is listed, with a comment, in `scripts/seo.config.json`. The homepage, about, contact, privacy, and terms titles are on that list. Each page also needs one `<h1>`, a meta description, a canonical link, and `og:title` and `twitter:title` equal to `<title>`. Every URL in `seo/sitemap.xml` must map to a file in the repo.
 
 ## /
@@ -92,11 +94,13 @@ Nav links are the anchors in the header `<nav>` (or the lander header nav). CTAs
 
 - Route: /grok
 - Source file: static-site/grok.html
-- Purpose: Launch-hold landing page for Grok Bot setup. noindex,nofollow; not in the sitemap, llms.txt or any nav until SpaceXSI approves in writing. The partner line and the SpaceXSI Transformation Partner badge are removed and get added back after that written approval. A small inline script copies utm_source, utm_medium, utm_campaign, utm_content and utm_term from the page URL onto every booking link.
+- Purpose: Launch-hold landing page for Grok Bot setup. noindex,nofollow; not in the sitemap, llms.txt or any nav until SpaceXSI approves in writing. The partner line and the SpaceXSI Transformation Partner badge are removed and get added back after that written approval. A small inline script copies utm_source, utm_medium, utm_campaign, utm_content and utm_term from the page URL onto every booking link. GA4 and the LinkedIn Insight Tag load site-wide (see above). peak-linkedin-conversion-id is empty, so booking clicks send no LinkedIn conversion; when it is set, each click sends lintrk track with that conversion ID. Each booking click sends GA4 event book_setup_call_click (cta_position hero/steps/closing, utm_source, utm_campaign, utm_content). /privacy discloses Google Analytics and the Insight Tag.
 - H1: Your team's new crew.
 - Key sections:
   - Hero
   - Three steps
+  - Proof (Colorado Hot Tub, same card as /ai-deployments)
+  - What you get
   - Grok Bot wordmark
   - Closing booking call
 - CTAs:
@@ -105,6 +109,7 @@ Nav links are the anchors in the header `<nav>` (or the lander header nav). CTAs
   - Book a setup call → https://calendly.com/hello-peaksignal/30min
 - In-page links:
   - Peak Signal home → /
+  - Send us a note → /contact
   - Privacy → /privacy
   - Terms → /terms
 - Forms: none
@@ -249,6 +254,11 @@ Nav links are the anchors in the header `<nav>` (or the lander header nav). CTAs
   - contact form → /contact.html
   - hello.peaksignal@gmail.com → mailto:hello.peaksignal@gmail.com
   - https://peak-signal.vercel.app/contact.html → /contact.html
+  - Privacy Policy → https://www.linkedin.com/legal/privacy-policy
+  - Cookie Policy → https://www.linkedin.com/legal/cookie-policy
+  - Privacy Policy → https://policies.google.com/privacy
+  - how it uses data from sites that use its services → https://policies.google.com/technologies/partner-sites
+  - browser add-on to opt out of Google Analytics → https://tools.google.com/dlpage/gaoptout
 - Forms: none
 - JSON-LD @types: none
 - Nav links:
