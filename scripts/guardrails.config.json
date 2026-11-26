@@ -4,10 +4,5 @@
     "Brian at Peak Signal"
   ],
   "howToAllow": "Add the exact price token from the failure, such as \"$52\" or \"$1,200.00\", to priceAllowlist. A token allows only that exact string. brianAllowlist is the one exact from-line string, and it is allowed only in static-site/privacy.html and static-site/terms.html. pagePriceAllowlist maps one page file to the exact price tokens allowed on that page only; every other price on that page, and those tokens on any other page, still fail.",
-  "pagePriceAllowlist": {
-    "static-site/grok.html": [
-      "$1,000",
-      "$2,500"
-    ]
-  }
+  "pagePriceAllowlist": {}
 }
