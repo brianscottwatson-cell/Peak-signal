@@ -92,7 +92,7 @@ Nav links are the anchors in the header `<nav>` (or the lander header nav). CTAs
 
 - Route: /grok
 - Source file: static-site/grok.html
-- Purpose: Launch-hold landing page for Grok Bot setup. noindex,nofollow; not in the sitemap, llms.txt or any nav until SpaceXSI approves in writing. The partner line and the SpaceXSI Transformation Partner badge are removed and get added back after that written approval. A small inline script copies utm_source, utm_medium, utm_campaign, utm_content and utm_term from the page URL onto every booking link. Ad tracking is set by three meta tags in the page head: peak-ga4-id (GA4 measurement ID), peak-linkedin-partner-id (LinkedIn Insight Tag, set to public partner ID 10477556) and peak-linkedin-conversion-id (LinkedIn click conversion). With a value empty, or when the browser sends Do Not Track or Global Privacy Control, that tag does not load. With an ID set, each booking click sends GA4 event book_setup_call_click (cta_position hero/steps/closing, utm_source, utm_campaign, utm_content), and lintrk track when both LinkedIn IDs are set. Cloudflare Web Analytics loads as on every other page.
+- Purpose: Launch-hold landing page for Grok Bot setup. noindex,nofollow; not in the sitemap, llms.txt or any nav until SpaceXSI approves in writing. The partner line and the SpaceXSI Transformation Partner badge are removed and get added back after that written approval. A small inline script copies utm_source, utm_medium, utm_campaign, utm_content and utm_term from the page URL onto every booking link. The LinkedIn Insight Tag loads from snap.licdn.com when the peak-linkedin-partner-id meta tag is set (public partner ID 10477556); an empty value loads nothing. It loads for every visitor (no Do Not Track or Global Privacy Control skip). peak-linkedin-conversion-id is empty, so booking clicks send no conversion; when it is set, each click sends lintrk track with that conversion ID. No GA4. Cloudflare Web Analytics loads as on every other page. /privacy discloses the Insight Tag.
 - H1: Your team's new crew.
 - Key sections:
   - Hero
@@ -252,6 +252,8 @@ Nav links are the anchors in the header `<nav>` (or the lander header nav). CTAs
   - contact form → /contact.html
   - hello.peaksignal@gmail.com → mailto:hello.peaksignal@gmail.com
   - https://peak-signal.vercel.app/contact.html → /contact.html
+  - Privacy Policy → https://www.linkedin.com/legal/privacy-policy
+  - Cookie Policy → https://www.linkedin.com/legal/cookie-policy
 - Forms: none
 - JSON-LD @types: none
 - Nav links:

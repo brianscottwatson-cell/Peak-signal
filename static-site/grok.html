@@ -6,8 +6,7 @@
   <title>Your team's new crew. | Peak Signal</title>
   <meta name="description" content="Peak Signal sets up Grok Bot for your team. Book a setup call.">
   <meta name="robots" content="noindex,nofollow">
-  <!-- Ad tracking config. An empty value loads nothing. The LinkedIn Insight ID 10477556 is public. Conversion ID: paste the numeric ID from Campaign Manager (ad account 560853365) when the conversion exists. -->
-  <meta name="peak-ga4-id" content="">
+  <!-- LinkedIn Insight Tag. An empty partner ID loads nothing. 10477556 is public. Conversion ID: paste the numeric ID from Campaign Manager (ad account 560853365) to send a conversion on each booking click; empty sends none. -->
   <meta name="peak-linkedin-partner-id" content="10477556">
   <meta name="peak-linkedin-conversion-id" content="">
   <link rel="canonical" href="https://getpeaksignal.com/grok">
@@ -130,22 +129,8 @@
       a.href = url.toString();
     });
 
-    // Ad tags load only when an ID is set and the browser has not asked not to be tracked.
-    var optedOut = navigator.doNotTrack === "1" || window.doNotTrack === "1" || navigator.globalPrivacyControl === true;
-    var ga4 = optedOut ? "" : meta("peak-ga4-id");
-    var liPartner = optedOut ? "" : meta("peak-linkedin-partner-id");
+    var liPartner = meta("peak-linkedin-partner-id");
     var liConversion = meta("peak-linkedin-conversion-id");
-
-    if (ga4) {
-      window.dataLayer = window.dataLayer || [];
-      window.gtag = function () { window.dataLayer.push(arguments); };
-      window.gtag("js", new Date());
-      window.gtag("config", ga4);
-      var g = document.createElement("script");
-      g.async = true;
-      g.src = "https://www.googletagmanager.com/gtag/js?id=" + encodeURIComponent(ga4);
-      document.head.appendChild(g);
-    }
 
     if (liPartner) {
       window._linkedin_partner_id = liPartner;
@@ -159,24 +144,14 @@
       document.head.appendChild(l);
     }
 
-    // Click events. The link still opens normally (new tab), so the tags never block it.
-    ctas.forEach(function (a) {
-      a.addEventListener("click", function () {
-        var position = a.getAttribute("data-grok-cta");
-        if (ga4 && window.gtag) {
-          window.gtag("event", "book_setup_call_click", {
-            cta_position: position,
-            utm_source: params.get("utm_source") || "",
-            utm_campaign: params.get("utm_campaign") || "",
-            utm_content: params.get("utm_content") || "",
-            transport_type: "beacon"
-          });
-        }
-        if (liPartner && liConversion && window.lintrk) {
-          window.lintrk("track", { conversion_id: Number(liConversion) });
-        }
+    // Click conversion, only when a conversion ID is set. The link opens normally either way.
+    if (liPartner && liConversion) {
+      ctas.forEach(function (a) {
+        a.addEventListener("click", function () {
+          if (window.lintrk) window.lintrk("track", { conversion_id: Number(liConversion) });
+        });
       });
-    });
+    }
   })();
 </script>
 <!-- Cloudflare Web Analytics --><script type='module' src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "6a067e22aec645c6b9e360ce149ae7ad"}'></script><!-- End Cloudflare Web Analytics -->
