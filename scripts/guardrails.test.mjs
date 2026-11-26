@@ -262,6 +262,24 @@ test("an allowlisted price passes and a different price still fails", () => {
   }
 });
 
+test("a page price allowlist allows its tokens on that page only", () => {
+  const grok = page({ body: "<p>$1,000 a month plus $2,500 setup, or $999</p>" });
+  const index = page({ body: "<p>$1,000 a month</p>" });
+  const root = writeFixture({
+    files: { "static-site/grok.html": grok, "static-site/index.html": index },
+    config: { priceAllowlist: [], pagePriceAllowlist: { "static-site/grok.html": ["$1,000", "$2,500"] } },
+  });
+  try {
+    const guard = run("check-guardrails.mjs", root);
+    assert.notEqual(guard.status, 0);
+    assert.match(guard.output, /static-site\/grok\.html:\d+ \[price\] '\$999' is not on the price allowlist/);
+    assert.match(guard.output, /static-site\/index\.html:\d+ \[price\] '\$1,000' is not on the price allowlist/);
+    assert.doesNotMatch(guard.output, /grok\.html:\d+ \[price\] '\$(1,000|2,500)'/);
+  } finally {
+    cleanup(root);
+  }
+});
+
 test("a public route missing from the map fails with missing-route", () => {
   const root = writeFixture({
     files: {
