@@ -6,6 +6,10 @@
   <title>Your team's new crew. | Peak Signal</title>
   <meta name="description" content="Peak Signal sets up Grok Bot for your team. Book a setup call.">
   <meta name="robots" content="noindex,nofollow">
+  <!-- Ad tracking config. An empty value loads nothing. The LinkedIn Insight ID 10477556 is public. Conversion ID: paste the numeric ID from Campaign Manager (ad account 560853365) when the conversion exists. -->
+  <meta name="peak-ga4-id" content="">
+  <meta name="peak-linkedin-partner-id" content="10477556">
+  <meta name="peak-linkedin-conversion-id" content="">
   <link rel="canonical" href="https://getpeaksignal.com/grok">
   <meta property="og:type" content="website">
   <meta property="og:title" content="Your team's new crew. | Peak Signal">
@@ -52,7 +56,7 @@
       <h1 class="font-display text-5xl md:text-7xl font-semibold tracking-tighter text-white max-w-3xl">Your team's new crew.</h1>
       <p class="text-xl md:text-2xl text-zinc-300 mt-6 max-w-2xl">Peak Signal sets up Grok Bot for your team.</p>
       <div class="mt-10">
-        <a href="https://calendly.com/hello-peaksignal/30min" target="_blank" rel="noopener" data-grok-cta class="inline-flex items-center justify-center px-8 py-4 bg-blue-500 text-white font-semibold rounded-full hover:bg-blue-400 transition-colors text-lg">Book a setup call</a>
+        <a href="https://calendly.com/hello-peaksignal/30min" target="_blank" rel="noopener" data-grok-cta="hero" class="inline-flex items-center justify-center px-8 py-4 bg-blue-500 text-white font-semibold rounded-full hover:bg-blue-400 transition-colors text-lg">Book a setup call</a>
       </div>
     </section>
 
@@ -63,8 +67,27 @@
         <li><p class="font-display text-blue-400 text-lg mb-2">03</p><p class="text-xl text-white font-medium">We deploy your Bots and stay on as steward</p></li>
       </ol>
       <div class="mt-10">
-        <a href="https://calendly.com/hello-peaksignal/30min" target="_blank" rel="noopener" data-grok-cta class="inline-flex items-center justify-center px-8 py-4 bg-blue-500 text-white font-semibold rounded-full hover:bg-blue-400 transition-colors text-lg">Book a setup call</a>
+        <a href="https://calendly.com/hello-peaksignal/30min" target="_blank" rel="noopener" data-grok-cta="steps" class="inline-flex items-center justify-center px-8 py-4 bg-blue-500 text-white font-semibold rounded-full hover:bg-blue-400 transition-colors text-lg">Book a setup call</a>
       </div>
+    </section>
+
+    <section class="py-12 border-t border-zinc-800" aria-labelledby="grok-proof-heading">
+      <h2 id="grok-proof-heading" class="font-display text-3xl font-semibold tracking-tighter text-white mb-6">Proof</h2>
+      <div class="max-w-3xl bg-zinc-900 border border-zinc-800 rounded-3xl p-6">
+        <p class="text-sm text-zinc-400 mb-4">Colorado Hot Tub</p>
+        <p class="text-zinc-100 font-medium">+633% Calls from Google</p>
+        <p class="mt-2 text-zinc-100 font-medium">+272% Website visits</p>
+        <p class="mt-4 text-sm text-zinc-400">Source: Google Business Profile performance report, August 2026 vs. July 2026.</p>
+      </div>
+    </section>
+
+    <section class="py-12 border-t border-zinc-800" aria-labelledby="grok-get-heading">
+      <h2 id="grok-get-heading" class="font-display text-3xl font-semibold tracking-tighter text-white mb-6">What you get</h2>
+      <ul class="space-y-3 text-lg text-zinc-300 max-w-3xl list-disc pl-6">
+        <li>A setup call</li>
+        <li>A map of your work, and an introduction to SpaceXSI</li>
+        <li>Your Bots deployed, with Peak Signal on as steward</li>
+      </ul>
     </section>
 
     <section class="py-12 border-t border-zinc-800" aria-label="Grok Bot">
@@ -72,7 +95,8 @@
     </section>
 
     <section class="py-12 border-t border-zinc-800">
-      <a href="https://calendly.com/hello-peaksignal/30min" target="_blank" rel="noopener" data-grok-cta class="inline-flex items-center justify-center px-8 py-4 bg-blue-500 text-white font-semibold rounded-full hover:bg-blue-400 transition-colors text-lg">Book a setup call</a>
+      <a href="https://calendly.com/hello-peaksignal/30min" target="_blank" rel="noopener" data-grok-cta="closing" class="inline-flex items-center justify-center px-8 py-4 bg-blue-500 text-white font-semibold rounded-full hover:bg-blue-400 transition-colors text-lg">Book a setup call</a>
+      <p class="mt-6 text-zinc-400">Not ready to book? <a href="/contact" class="text-zinc-200 underline underline-offset-4">Send us a note</a>.</p>
     </section>
   </main>
 
@@ -88,16 +112,72 @@
   </div>
 <script>
   (function () {
+    function meta(name) {
+      var el = document.querySelector('meta[name="' + name + '"]');
+      return el ? el.content.trim() : "";
+    }
     var keys = ["utm_source", "utm_medium", "utm_campaign", "utm_content", "utm_term"];
     var params = new URLSearchParams(window.location.search);
     var found = keys.filter(function (k) { return params.get(k); });
-    if (!found.length) return;
-    document.querySelectorAll("a[data-grok-cta]").forEach(function (a) {
+    var ctas = document.querySelectorAll("a[data-grok-cta]");
+
+    // UTM passthrough: copy the page's UTMs onto every booking link.
+    ctas.forEach(function (a) {
+      if (!found.length) return;
       var url = new URL(a.href);
       found.forEach(function (k) { url.searchParams.set(k, params.get(k)); });
       a.href = url.toString();
     });
+
+    // Ad tags load only when an ID is set and the browser has not asked not to be tracked.
+    var optedOut = navigator.doNotTrack === "1" || window.doNotTrack === "1" || navigator.globalPrivacyControl === true;
+    var ga4 = optedOut ? "" : meta("peak-ga4-id");
+    var liPartner = optedOut ? "" : meta("peak-linkedin-partner-id");
+    var liConversion = meta("peak-linkedin-conversion-id");
+
+    if (ga4) {
+      window.dataLayer = window.dataLayer || [];
+      window.gtag = function () { window.dataLayer.push(arguments); };
+      window.gtag("js", new Date());
+      window.gtag("config", ga4);
+      var g = document.createElement("script");
+      g.async = true;
+      g.src = "https://www.googletagmanager.com/gtag/js?id=" + encodeURIComponent(ga4);
+      document.head.appendChild(g);
+    }
+
+    if (liPartner) {
+      window._linkedin_partner_id = liPartner;
+      window._linkedin_data_partner_ids = window._linkedin_data_partner_ids || [];
+      window._linkedin_data_partner_ids.push(liPartner);
+      window.lintrk = function (a, b) { window.lintrk.q.push([a, b]); };
+      window.lintrk.q = [];
+      var l = document.createElement("script");
+      l.async = true;
+      l.src = "https://snap.licdn.com/li.lms-analytics/insight.min.js";
+      document.head.appendChild(l);
+    }
+
+    // Click events. The link still opens normally (new tab), so the tags never block it.
+    ctas.forEach(function (a) {
+      a.addEventListener("click", function () {
+        var position = a.getAttribute("data-grok-cta");
+        if (ga4 && window.gtag) {
+          window.gtag("event", "book_setup_call_click", {
+            cta_position: position,
+            utm_source: params.get("utm_source") || "",
+            utm_campaign: params.get("utm_campaign") || "",
+            utm_content: params.get("utm_content") || "",
+            transport_type: "beacon"
+          });
+        }
+        if (liPartner && liConversion && window.lintrk) {
+          window.lintrk("track", { conversion_id: Number(liConversion) });
+        }
+      });
+    });
   })();
 </script>
+<!-- Cloudflare Web Analytics --><script type='module' src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "6a067e22aec645c6b9e360ce149ae7ad"}'></script><!-- End Cloudflare Web Analytics -->
 </body>
 </html>

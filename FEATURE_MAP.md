@@ -92,11 +92,13 @@ Nav links are the anchors in the header `<nav>` (or the lander header nav). CTAs
 
 - Route: /grok
 - Source file: static-site/grok.html
-- Purpose: Launch-hold landing page for Grok Bot setup. noindex,nofollow; not in the sitemap, llms.txt or any nav until SpaceXSI approves in writing. The partner line and the SpaceXSI Transformation Partner badge are removed and get added back after that written approval. A small inline script copies utm_source, utm_medium, utm_campaign, utm_content and utm_term from the page URL onto every booking link.
+- Purpose: Launch-hold landing page for Grok Bot setup. noindex,nofollow; not in the sitemap, llms.txt or any nav until SpaceXSI approves in writing. The partner line and the SpaceXSI Transformation Partner badge are removed and get added back after that written approval. A small inline script copies utm_source, utm_medium, utm_campaign, utm_content and utm_term from the page URL onto every booking link. Ad tracking is set by three meta tags in the page head: peak-ga4-id (GA4 measurement ID), peak-linkedin-partner-id (LinkedIn Insight Tag, set to public partner ID 10477556) and peak-linkedin-conversion-id (LinkedIn click conversion). With a value empty, or when the browser sends Do Not Track or Global Privacy Control, that tag does not load. With an ID set, each booking click sends GA4 event book_setup_call_click (cta_position hero/steps/closing, utm_source, utm_campaign, utm_content), and lintrk track when both LinkedIn IDs are set. Cloudflare Web Analytics loads as on every other page.
 - H1: Your team's new crew.
 - Key sections:
   - Hero
   - Three steps
+  - Proof (Colorado Hot Tub, same card as /ai-deployments)
+  - What you get
   - Grok Bot wordmark
   - Closing booking call
 - CTAs:
@@ -105,6 +107,7 @@ Nav links are the anchors in the header `<nav>` (or the lander header nav). CTAs
   - Book a setup call → https://calendly.com/hello-peaksignal/30min
 - In-page links:
   - Peak Signal home → /
+  - Send us a note → /contact
   - Privacy → /privacy
   - Terms → /terms
 - Forms: none
