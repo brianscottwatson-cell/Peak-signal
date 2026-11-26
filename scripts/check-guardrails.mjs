@@ -22,7 +22,8 @@
  * Prices: any "$" followed by a digit fails unless that exact token
  * ($52, $1,200, $49.00) is listed in scripts/guardrails.config.json
  * under priceAllowlist. An empty list allows nothing. A missing config
- * file is treated as an empty list.
+ * file is treated as an empty list. pagePriceAllowlist maps one page file
+ * (repo path) to tokens allowed on that page only.
  */
 import { existsSync, readdirSync, readFileSync } from "node:fs";
 import { dirname, join, resolve } from "node:path";
@@ -92,13 +93,14 @@ const WRITER_NOTES = [
 
 function main() {
   const allow = new Set(loadPriceAllowlist(root));
+  const pageAllow = loadPagePriceAllowlist(root);
   const brianAllow = loadBrianAllowlist(root);
   const files = contentFiles(listPublicRoutes(root));
   const failures = [];
 
   for (const file of files) {
     const html = readFileSync(join(root, file), "utf8");
-    checkFile(file, html, allow, failures);
+    checkFile(file, html, new Set([...allow, ...(pageAllow[file] ?? [])]), failures);
     checkBrian(file, html, brianAllow, failures);
   }
 
@@ -322,6 +324,21 @@ function extraPublicFiles(dir) {
     "seo/sitemap.xml",
   ];
   return extras.filter((file) => existsSync(join(dir, file)));
+}
+
+function loadPagePriceAllowlist(dir) {
+  const rel = "scripts/guardrails.config.json";
+  const path = join(dir, rel);
+  if (!existsSync(path)) return {};
+  const map = JSON.parse(readFileSync(path, "utf8")).pagePriceAllowlist ?? {};
+  const ok = map && typeof map === "object" && !Array.isArray(map) &&
+    Object.values(map).every((list) => Array.isArray(list) && list.every((item) => typeof item === "string"));
+  if (!ok) {
+    const error = new Error(`${rel} pagePriceAllowlist must map a page file to an array of strings`);
+    error.rule = "config";
+    throw error;
+  }
+  return map;
 }
 
 function loadBrianAllowlist(dir) {
