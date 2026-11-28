@@ -16,11 +16,14 @@ import WebSocket from "ws";
 import {
   PEAK_CALENDLY,
   PEAK_GREETING,
-  PEAK_INSTRUCTIONS,
+  peakInstructions,
   peakPersonaOn,
+  peakSmsEnabled,
   peakVoiceMode,
   peakVoiceName,
 } from "./peak/peak-prompt";
+import { sendCallerBookingSms, type SmsAttempt } from "./peak/peak-sms";
+import { appendReceptionSummary, callLogConfigured, summarizeReception } from "./peak/peak-call-log";
 import {
   decideForward,
   emptyTwiml,
@@ -67,6 +70,15 @@ type CallState = {
   businessType: string;
   timeline: string;
   linkChannel: string;
+  /** Inbound From. Tool arguments cannot replace it. */
+  callerId: string;
+  sms: SmsAttempt;
+  /** Sheet row succeeded. A later hangup must not append again. */
+  callLogged: boolean;
+  /** In-flight sheet append. Cleared only when the append fails. */
+  callLogSending: boolean;
+  /** This call should be logged. Stays set so a failed append can retry after the email latches. */
+  callLogWanted: boolean;
   humanAccepted: boolean;
   forwardOutcome: "" | "answered" | "agent" | "hungup";
   forwardReason: string;
@@ -96,6 +108,11 @@ function state(sid: string): CallState {
       businessType: "",
       timeline: "",
       linkChannel: "",
+      callerId: "",
+      sms: { attempted: false, sending: false, sent: false, to: "" },
+      callLogged: false,
+      callLogSending: false,
+      callLogWanted: false,
       humanAccepted: false,
       forwardOutcome: "",
       forwardReason: "",
@@ -121,10 +138,37 @@ export function inboundVoice(): { greeting: string; instructions: string; voice:
   }
   return {
     greeting: PEAK_GREETING,
-    instructions: PEAK_INSTRUCTIONS,
+    instructions: peakInstructions(),
     voice: peakVoiceName(),
     peak: true,
   };
+}
+
+function sessionTools(peak: boolean) {
+  const list = peak ? peakTools : tools;
+  if (!peak || !peakSmsEnabled()) return list;
+  return list.map((tool) => {
+    if (tool.name !== "send_booking_link") return tool;
+    const parameters = tool.parameters as {
+      type: string;
+      properties: Record<string, unknown>;
+      required?: string[];
+    };
+    return {
+      ...tool,
+      description: "Caller wants the Calendly link. email copies them on the hangup summary. text sends one SMS to the number they called from, or to a number they confirmed on this call. speak means you will read the link. sms true means that one text was sent.",
+      parameters: {
+        ...parameters,
+        properties: {
+          ...parameters.properties,
+          confirmed: {
+            type: "boolean",
+            description: "True only after the caller confirms a number that is not the one they called from.",
+          },
+        },
+      },
+    };
+  });
 }
 
 const tools = [
@@ -589,7 +633,9 @@ async function ghPut(repo: string, path: string, content: string, message: strin
 async function fileAssessment(st: CallState, fromNumber: string, sid: string) {
   const notify = shouldNotify(st);
   console.log("hangup", sid, "notify", notify, "token", !!process.env.GITHUB_TOKEN, "turns", (st.turns || []).length, "name", st.name, "business", st.business);
+  if (peakPersonaOn() && notify) st.callLogWanted = true;
   const emailOk = await emailBrian(st, fromNumber);
+  if (st.callLogWanted) await writeReceptionLog(st, fromNumber, sid);
   if (!notify) {
     console.log("hangup skip github — empty or already sent", sid);
     return;
@@ -643,7 +689,11 @@ function peakCallSummary(st: CallState, from: string): string {
   );
   if (st.linkChannel) {
     lines.push(`Calendly: ${PEAK_CALENDLY}`);
-    if (st.linkChannel === "text") lines.push("They asked for the link by text. This server did not send a text.");
+    if (st.linkChannel === "text") {
+      lines.push(st.sms.sent
+        ? "They asked for the link by text. One text was sent."
+        : "They asked for the link by text. This server did not send a text.");
+    }
     if (st.linkChannel === "email") lines.push("They asked for the link by email. It is in this message.");
   }
   if ((st.summary || "").trim()) lines.push("", st.summary.trim());
@@ -745,6 +795,40 @@ async function emailBrian(st: CallState, fromNumber: string): Promise<boolean> {
   }
 }
 
+function rememberCaller(st: CallState, from: string) {
+  const caller = String(from || "").trim();
+  if (caller && !st.callerId) st.callerId = caller;
+}
+
+async function writeReceptionLog(st: CallState, fromNumber: string, sid: string): Promise<void> {
+  if (!peakPersonaOn()) return;
+  if (st.callLogged || st.callLogSending) return;
+  if (!callLogConfigured()) return;
+  st.callLogSending = true;
+  try {
+    const summary = summarizeReception({
+      callSid: sid,
+      name: st.name,
+      callerId: st.callerId || fromNumber,
+      email: st.email,
+      business: st.business,
+      need: st.need,
+      timeline: st.timeline,
+      outcome: st.outcome,
+      linkChannel: st.linkChannel,
+      linkTexted: st.sms.sent,
+      textedTo: st.sms.to,
+      callbackWindow: st.callbackWindow,
+    });
+    const ok = await appendReceptionSummary(summary);
+    if (ok) st.callLogged = true;
+    else st.callLogSending = false;
+  } catch (err) {
+    console.error("call log failed", err instanceof Error ? err.message : "error");
+    st.callLogSending = false;
+  }
+}
+
 function applyLead(st: CallState, args: Record<string, any>) {
   if (args.name) st.name = String(args.name).trim();
   if (args.business) st.business = String(args.business).trim();
@@ -760,7 +844,7 @@ function applyLead(st: CallState, args: Record<string, any>) {
   if (rm != null && Number.isFinite(Number(rm)) && Number(rm) > 0) st.revenueMonth = Number(rm);
 }
 
-function handleTool(st: CallState, name: string, args: Record<string, any>): string {
+async function handleTool(st: CallState, name: string, args: Record<string, any>): Promise<string> {
   if (name === "log_qualification") {
     applyLead(st, args);
     return JSON.stringify({ ok: true });
@@ -816,22 +900,32 @@ function handleTool(st: CallState, name: string, args: Record<string, any>): str
     return JSON.stringify({ ok: true });
   }
   if (name === "send_booking_link") {
+    const requestedPhone = String(args.phone || "");
+    const confirmed = args.confirmed === true;
     applyLead(st, args);
     const channel = String(args.channel || "speak").trim().toLowerCase();
     st.linkChannel = channel === "email" || channel === "text" || channel === "speak" ? channel : "speak";
     st.outcome = st.linkChannel === "email" ? "calendly email" : st.linkChannel === "text" ? "calendly text" : "calendly spoken";
+    if (st.linkChannel !== "text") {
+      return JSON.stringify({ ok: true, calendly: PEAK_CALENDLY, channel: st.linkChannel, sms: false });
+    }
+    const sms = await sendCallerBookingSms(st.sms, {
+      callerId: st.callerId,
+      requestedPhone,
+      confirmed,
+    });
     return JSON.stringify({
       ok: true,
       calendly: PEAK_CALENDLY,
-      channel: st.linkChannel,
-      sms: false,
+      channel: "text",
+      sms: sms.sent,
     });
   }
   return JSON.stringify({ error: "unknown tool" });
 }
 
 /** Test hook. Tools are otherwise only reachable from the media-stream session. */
-export function applyVoiceTool(callSid: string, name: string, args: Record<string, any>): string {
+export function applyVoiceTool(callSid: string, name: string, args: Record<string, any>): Promise<string> {
   return handleTool(state(callSid), name, args);
 }
 
@@ -881,6 +975,7 @@ voiceAraRouter.post("/", (req: Request, res: Response) => {
   const sid = String(req.body?.CallSid || crypto.randomBytes(8).toString("hex"));
   const st = state(sid);
   st.from = String(req.body?.From || "");
+  rememberCaller(st, st.from);
   const called = String(req.body?.Called || req.body?.To || "");
 
   if (peakVoiceMode() === "forward_then_agent") {
@@ -931,6 +1026,7 @@ voiceAraRouter.post("/after-dial", async (req: Request, res: Response) => {
   const sid = String(req.body?.CallSid || "unknown");
   const st = state(sid);
   if (req.body?.From) st.from = String(req.body.From);
+  rememberCaller(st, st.from);
   const decision = decideForward({
     dialStatus: String(req.body?.DialCallStatus || ""),
     accepted: st.humanAccepted,
@@ -952,6 +1048,7 @@ voiceAraRouter.post("/status", async (req: Request, res: Response) => {
   const st = state(sid);
   const status = String(req.body?.CallStatus || "");
   if (req.body?.From) st.from = String(req.body.From);
+  rememberCaller(st, st.from);
   if (status === "completed") {
     const from = st.from || String(req.body?.From || "");
     await fileAssessment(st, from, sid);
@@ -1005,7 +1102,10 @@ export function attachVoiceStream(app: Express) {
         const msg = JSON.parse(raw.toString());
         if (msg.event === "start") {
           streamSid = msg.start?.streamSid || "";
-          if (msg.start?.customParameters?.from) st.from = String(msg.start.customParameters.from);
+          if (msg.start?.customParameters?.from) {
+            st.from = String(msg.start.customParameters.from);
+            rememberCaller(st, st.from);
+          }
         } else if (msg.event === "media" && (msg.media?.track === "inbound" || !msg.media?.track)) {
           if (!sessionReady || xaiWs.readyState !== WebSocket.OPEN) return;
           if (agentSpeaking || Date.now() < muteUntil) return;
@@ -1033,7 +1133,7 @@ export function attachVoiceStream(app: Express) {
               output: { format: { type: "audio/pcmu" } },
             },
             turn_detection: { type: "server_vad" },
-            tools: voiceCopy.peak ? peakTools : tools,
+            tools: sessionTools(voiceCopy.peak),
           },
         }),
       );
@@ -1113,14 +1213,18 @@ export function attachVoiceStream(app: Express) {
         } catch {
           /* ignore */
         }
-        const result = handleTool(st, fn, args);
-        xaiWs.send(
-          JSON.stringify({
-            type: "conversation.item.create",
-            item: { type: "function_call_output", call_id: callIdFn, output: result },
-          }),
-        );
-        xaiWs.send(JSON.stringify({ type: "response.create" }));
+        void handleTool(st, fn, args).then((result) => {
+          if (xaiWs.readyState !== WebSocket.OPEN) return;
+          xaiWs.send(
+            JSON.stringify({
+              type: "conversation.item.create",
+              item: { type: "function_call_output", call_id: callIdFn, output: result },
+            }),
+          );
+          xaiWs.send(JSON.stringify({ type: "response.create" }));
+        }).catch((err) => {
+          console.error("voice tool failed", err instanceof Error ? err.message : "error");
+        });
       } else if (message.type === "error") {
         console.error("[voice-ara]", callId, message.error?.message || message);
       }
